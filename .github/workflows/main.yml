@@ -27,13 +27,14 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
+      - uses: "actions/checkout@v4"
 
       # Authenticating at GCP
       - id: "auth"
         name: "Authenticate to Google Cloud"
-        uses: "google-github-actions/auth@v0"
+        uses: "google-github-actions/auth@v2"
         with:
+          project_id: "ceremonial-tea-407209"
           workload_identity_provider: "projects/759615204409/locations/global/workloadIdentityPools/github-identity-pool/providers/github-identity-provider"
           service_account: "github-actions-service-account@ceremonial-tea-407209.iam.gserviceaccount.com"
 
@@ -43,7 +44,7 @@ jobs:
           # Name of the Cloud Function, same as the entry point name
           name: "helloWorld"
           # Runtime to use for the function
-          runtime: "python3.12"
+          runtime: "python312"
 
       # Example of using the output
       - id: "test"
