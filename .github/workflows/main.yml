@@ -42,7 +42,7 @@ jobs:
       - id: "deploy"
         uses: "google-github-actions/deploy-cloud-functions@v1"
         with:
-          name: "Get Health"
+          name: "health"
           entry_point: "get_health"
           source_dir: "src/health"
           runtime: "python312"
