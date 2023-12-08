@@ -1,4 +1,5 @@
 import functions_framework
+from flask import jsonify
 
 @functions_framework.http
 def get_health(request):
@@ -11,4 +12,7 @@ def get_health(request):
         Response object using `make_response`
         <https://flask.palletsprojects.com/en/1.1.x/api/#flask.make_response>.
     """
-    return 'Hello World!'
+    health_status = {
+        "healthy" : True
+    }
+    return jsonify(health_status)
