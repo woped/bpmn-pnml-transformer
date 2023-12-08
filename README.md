@@ -50,5 +50,5 @@ Project Components
     ```
 - You can make updates to this file by using
     ```bash
-    conda env export --from-history>envrionment.yml
+    conda env export --no-builds>envrionment.yml
     ```

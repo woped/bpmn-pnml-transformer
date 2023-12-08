@@ -43,15 +43,10 @@ jobs:
         uses: conda-incubator/setup-miniconda@v3
         with:
           auto-update-conda: true
-          miniforge-variant: Mambaforge
           channels: conda-forge
           python-version: 3.12
-          activate-environment: GCF-BPMN-PNML-transformer
           environment-file: environment.yml
-          use-mamba: true
-      - run: |
-          conda info
-          conda list
+          activate-environment: GCF-BPMN-PNML-transformer
 
 
       # Running tests
