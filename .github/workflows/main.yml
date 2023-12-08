@@ -32,14 +32,13 @@ jobs:
       # Authenticating at GCP
       - id: "auth"
         name: "Authenticate to Google Cloud"
-        uses: "google-github-actions/auth@v2"
+        uses: "google-github-actions/auth@v1"
         with:
-          project_id: "ceremonial-tea-407209"
           workload_identity_provider: "projects/759615204409/locations/global/workloadIdentityPools/github-identity-pool/providers/github-identity-provider"
           service_account: "github-actions-service-account@ceremonial-tea-407209.iam.gserviceaccount.com"
 
       - id: "deploy"
-        uses: "google-github-actions/deploy-cloud-functions@v0"
+        uses: "google-github-actions/deploy-cloud-functions@v1"
         with:
           # Name of the Cloud Function, same as the entry point name
           name: "helloWorld"
