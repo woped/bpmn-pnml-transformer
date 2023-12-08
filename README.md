@@ -40,5 +40,15 @@ Project Components
   - `WORKLOAD_IDENTITY_PROVIDER_LOCATION`
   - `SERVICE_ACCOUNT`
   - `PROJECT_ID`
-- use these values to adjust the `<action-name>.yml` of the corresponding github action 
+- use these values to adjust the `<action-name>.yml` of the corresponding github action to authenticate at GCP
 
+#### Configuring Local Environment
+- Install miniconda from [here](https://docs.conda.io/projects/miniconda/en/latest/)
+- Create a new conda envrionment from the provided file `envrionment.yml`.
+    ```bash
+    conda env create -n GCF-BPMN-PNML-transformer --file envrionment.yml
+    ```
+- You can make updates to this file by using
+    ```bash
+    conda env export --from-history>envrionment.yml
+    ```
