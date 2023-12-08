@@ -40,11 +40,16 @@ jobs:
 
       # Setting up conda
       - name: Set up Conda
-        uses: conda-incubator/setup-miniconda@v2
+        uses: conda-incubator/setup-miniconda@v3
         with:
           auto-update-conda: true
           environment-file: environment.yml
           activate-environment: GCF-BPMN-PNML-transformer
+          auto-activate-base: false
+      - run: |
+          conda info
+          conda list
+
 
       # Running tests
       - name: Run tests

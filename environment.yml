@@ -36,4 +36,3 @@ dependencies:
       - pytest==7.4.3
       - watchdog==3.0.0
       - werkzeug==3.0.1
-prefix: /Users/I551945/miniconda3/envs/GCF-BPMN-PNML-transformer
