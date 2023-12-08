@@ -30,6 +30,7 @@ jobs:
       - uses: "actions/checkout@v4"
 
       # Authenticating at GCP
+      # see https://github.com/google-github-actions/deploy-cloud-functions
       - id: "auth"
         name: "Authenticate to Google Cloud"
         uses: "google-github-actions/auth@v1"
@@ -37,12 +38,13 @@ jobs:
           workload_identity_provider: "projects/759615204409/locations/global/workloadIdentityPools/github-identity-pool/providers/github-identity-provider"
           service_account: "github-actions-service-account@ceremonial-tea-407209.iam.gserviceaccount.com"
 
+      # see https://github.com/google-github-actions/deploy-cloud-functions
       - id: "deploy"
         uses: "google-github-actions/deploy-cloud-functions@v1"
         with:
-          # Name of the Cloud Function, same as the entry point name
-          name: "helloWorld"
-          # Runtime to use for the function
+          name: "Get Health"
+          entry_point: "get_health"
+          source_dir: "src/health"
           runtime: "python312"
 
       # Example of using the output
