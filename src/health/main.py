@@ -1,9 +1,16 @@
+"""Implements the 'get_health' HTTP Cloud Function.
+
+This module defines a Google Cloud Function for responding to HTTP requests
+with the health status of the service, indicating if it's operational.
+"""
+
 import functions_framework
 from flask import jsonify
 
 @functions_framework.http
 def get_health(request):
     """HTTP Cloud Function.
+
     Args:
         request (flask.Request): The request object.
         <https://flask.palletsprojects.com/en/1.1.x/api/#incoming-request-data>
