@@ -1,0 +1,14 @@
+# Support Python 3.11+.
+target-version = "py311"
+# Set the maximum line length to 79.
+line-length = 79
+
+[lint]
+extend-select = [
+    "E501", # line length
+    "UP",   # pyupgrade
+    "D",    # pydocstyle
+]
+
+[lint.pydocstyle]
+convention = "google"

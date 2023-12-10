@@ -44,11 +44,12 @@ Project Components
 
 #### Configuring Local Environment
 - Install miniconda from [here](https://docs.conda.io/projects/miniconda/en/latest/)
-- Create a new conda envrionment from the provided file `envrionment.yml`.
+- Create a new conda envrionment and install the required depenecies from `requirements.txt`.
     ```bash
-    conda env create -n GCF-BPMN-PNML-transformer --file envrionment.yml
+    conda create -n GCF-BPMN-PNML-transformer pip
+    pip install -r requirements.txt
     ```
-- You can make updates to this file by using
+- After adding new dependencies use the following to update the `requrements.txt`. Do this to ensure compatibility with the pipeline.
     ```bash
-    conda env export --no-builds>envrionment.yml
+    pip list --format=freeze > requirements.txt
     ```
