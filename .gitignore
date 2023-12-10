@@ -5,3 +5,6 @@ __pycache__/
 
 # Ruff
 .ruff_cache/
+
+# PyTest
+.pytest_cache/

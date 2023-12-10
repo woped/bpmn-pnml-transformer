@@ -53,3 +53,7 @@ Project Components
     ```bash
     pip list --format=freeze > requirements.txt
     ```
+
+- In VS Code:
+  - **Set Code Interpreter:** Hit `CTRL` + `shift` + `P` and type *Pthon: select interpreter* and choose `GCF-BPMN-PNML-transformer`.
+  - **Install Extensions:** Install the following extensions: `Ruff`
