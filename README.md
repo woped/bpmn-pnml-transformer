@@ -6,6 +6,7 @@ The converter is an REST API hosted on Google Cloud Platform (GCP) using Google 
 
 This project was created as part of the lecture "Integrationsseminar" at the DHBW Karlsruhe.
 
+![Architecture Drawing](https://github.com/Niyada/bpmn-pnml-transformer-poc/blob/main/doc/imgs/architecture.png?raw=true)
 
 ## Prerequisites
 - Google Cloud Platform Account with billing enabled
@@ -40,5 +41,11 @@ Project Components
   - `WORKLOAD_IDENTITY_PROVIDER_LOCATION`
   - `SERVICE_ACCOUNT`
   - `PROJECT_ID`
-- use these values to adjust the `<action-name>.yml` of the corresponding github action 
+- use these values to adjust the `<action-name>.yml` of the corresponding github action
+
+## Pipeline Workflow
+
+#### Main Workflow
+![Main Workflow](https://github.com/Niyada/bpmn-pnml-transformer-poc/blob/main/doc/imgs/workflow.main.png?raw=true)
+
 
