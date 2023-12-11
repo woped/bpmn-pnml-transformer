@@ -49,3 +49,31 @@ Project Components
 ![Main Workflow](https://github.com/Niyada/bpmn-pnml-transformer-poc/blob/main/doc/imgs/workflow.main.png?raw=true)
 
 
+#### Configuring Local Environment
+- Install miniconda from [here](https://docs.conda.io/projects/miniconda/en/latest/)
+- Create a new conda envrionment and install the required depenecies from `requirements.txt`.
+    ```bash
+    conda create -n GCF-BPMN-PNML-transformer pip
+    pip install -r requirements.txt
+    ```
+- After adding new dependencies use the following to update the `requrements.txt`. Do this to ensure compatibility with the pipeline.
+    ```bash
+    pip list --format=freeze > requirements.txt
+    ```
+
+- In VS Code:
+  - **Set Code Interpreter:** Hit `CTRL` + `shift` + `P` and type *Pthon: select interpreter* and choose `GCF-BPMN-PNML-transformer`.
+  - **Install Extensions:** Install the following extensions: `Ruff`, `GitHub Actions`
+  - **Testing Envrionment** Go to the Testing Tab and hit *Configure Python Tests*, then select `pytest` and the the `test` directory.
+
+## Nice2Know & Useful Links
+
+#### Commands
+| Command | Description |
+| ------- | ----------- |
+| `pytest` | Collects and runs all tests locally |
+| `ruff check` | Lints the project. Does not output anything, if there aren't any issues. |
+
+#### Links
+- [Authorizing GCF access with IAM](https://cloud.google.com/functions/docs/securing/managing-access-iam#console_4)
+- [Deploy GCF Github Action](https://github.com/google-github-actions/deploy-cloud-functions)

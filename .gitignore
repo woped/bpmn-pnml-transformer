@@ -1,0 +1,13 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Ruff
+.ruff_cache/
+
+# PyTest
+.pytest_cache/
+
+# VS Code
+.vscode/
