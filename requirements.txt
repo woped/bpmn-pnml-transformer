@@ -14,7 +14,7 @@ pip==23.3.1
 pluggy==1.0.0
 pytest==7.4.3
 ruff==0.1.7
-setuptools==68.0.0
+setuptools==68.2.2
 watchdog==3.0.0
 Werkzeug==3.0.1
 wheel==0.42.0
