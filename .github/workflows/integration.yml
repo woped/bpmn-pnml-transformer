@@ -1,15 +1,12 @@
 # This is a basic workflow to help you get started with Actions
-name: CD
+name: Continious Deployment
 
 # Controls when the workflow will run
 on:
   # Triggers the workflow on push or pull request events but only for the main branch
-  push:
-    branches: [main]
   pull_request:
     branches: [main]
-
-  # Allows you to run this workflow manually from the Actions tab
+    types: [synchronize, opened, reopened]
   workflow_dispatch:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
@@ -28,15 +25,6 @@ jobs:
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: "actions/checkout@v4"
-
-      # Authenticating at GCP
-      # see https://github.com/google-github-actions/deploy-cloud-functions
-      - id: "auth"
-        name: "Authenticate to Google Cloud"
-        uses: "google-github-actions/auth@v1"
-        with:
-          workload_identity_provider: "projects/759615204409/locations/global/workloadIdentityPools/github-identity-pool/providers/github-identity-provider"
-          service_account: "github-actions-service-account@ceremonial-tea-407209.iam.gserviceaccount.com"
 
       # Setting up Python environment
       - name: Set up Python
@@ -57,18 +45,3 @@ jobs:
       # Running tests
       - name: Run tests
         run: pytest test/
-
-      # see https://github.com/google-github-actions/deploy-cloud-functions
-      - id: "deploy"
-        uses: "google-github-actions/deploy-cloud-functions@v1"
-        with:
-          name: "health"
-          entry_point: "get_health"
-          source_dir: "src/health"
-          runtime: "python312"
-          region: "europe-west3"
-          description: "Health status endpoint."
-
-      # Example of using the output
-      - id: "test"
-        run: 'curl "${{ steps.deploy.outputs.url }}"'
