@@ -17,4 +17,4 @@ ruff==0.1.7
 setuptools==68.0.0
 watchdog==3.0.0
 Werkzeug==3.0.1
-wheel==0.41.2
+wheel==0.42.0
