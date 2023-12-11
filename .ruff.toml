@@ -1,7 +1,7 @@
 # Support Python 3.11+.
 target-version = "py311"
-# Set the maximum line length to 79.
-line-length = 79
+# Set the maximum line length.
+line-length = 89
 
 [lint]
 extend-select = [

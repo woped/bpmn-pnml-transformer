@@ -22,4 +22,16 @@ def get_health(request):
     health_status = {
         "healthy" : True
     }
+
+    if request and request.args:
+        if "message" in request.args:
+            health_status["message"] = request.args["message"]
+        else:
+            error = {
+                "code" : 400,
+                "message": "Invalid parameter provided.",
+            }
+            return jsonify(error), error["code"]
+
+
     return jsonify(health_status)
