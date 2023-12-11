@@ -33,8 +33,8 @@ jobs:
         name: "Authenticate to Google Cloud"
         uses: "google-github-actions/auth@v1"
         with:
-          workload_identity_provider: "projects/759615204409/locations/global/workloadIdentityPools/github-identity-pool/providers/github-identity-provider"
-          service_account: "github-actions-service-account@ceremonial-tea-407209.iam.gserviceaccount.com"
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
 
       # Setting up Python environment
       - name: Set up Python
