@@ -44,6 +44,7 @@ class TestHealthEndpoint:
 
     def test_health_json_structure_with_wrong_param(self, source):
         """Should return error response json with wrong parameter provided."""
+        
         test_parameter_name = "unitTestParameter"
         test_parameter_value = "unitTestValue"
         client = create_app("get_health", source).test_client()
