@@ -54,7 +54,7 @@ jobs:
 
       # Running tests
       - name: Run tests
-        run: pytest test/
+        run: python -m unittest discover -s ./test -v
 
       # see https://github.com/google-github-actions/deploy-cloud-functions
       - id: "deploy"

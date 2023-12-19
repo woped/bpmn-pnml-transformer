@@ -44,4 +44,4 @@ jobs:
 
       # Running tests
       - name: Run tests
-        run: pytest test/
+        run: python -m unittest discover -s ./test -v
