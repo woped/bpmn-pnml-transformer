@@ -56,7 +56,7 @@ class TestIntegrationGetHealth(unittest.TestCase):
         self.assertEqual(res.get_json(), {"healthy": True, "message": message})
 
 
-    def test_Res_body_with_unkown_param(self):
+    def test_res_body_with_unkown_param(self):
         """Tests the response body of the health endpoint with an unknown parameter."""
         message = "unitTestMessage"
         data = {"unkownParameter": message}
