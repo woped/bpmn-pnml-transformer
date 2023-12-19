@@ -10,14 +10,20 @@ class TestIntegrationGetHealth(unittest.TestCase):
     def setUp(self):
         """Performs setup before each test case."""
         self.app = Flask(__name__)
+        self.app_context = self.app.app_context()
+        self.app_context.push()
+
+
+    def tearDown(self):
+        """Performs cleanup after each test case."""
+        self.app_context.pop()
 
 
     def test_status_code(self):
         """Tests the status code of the health endpoint."""
         data = {}
         req = Mock(get_json=Mock(return_value=data), args=data)
-        with self.app.app_context():
-            res = main.get_health(req)
+        res = main.get_health(req)
         
         self.assertEqual(res.status_code, 200)
 
@@ -26,8 +32,7 @@ class TestIntegrationGetHealth(unittest.TestCase):
         """Tests the content type of the health endpoint."""
         data = {}
         req = Mock(get_json=Mock(return_value=data), args=data)
-        with self.app.app_context():
-            res = main.get_health(req)
+        res = main.get_health(req)
         
         self.assertEqual(res.content_type, 'application/json')
 
@@ -36,8 +41,7 @@ class TestIntegrationGetHealth(unittest.TestCase):
         """Tests the response body of the health endpoint."""
         data = {}
         req = Mock(get_json=Mock(return_value=data), args=data)
-        with self.app.app_context():
-            res = main.get_health(req)
+        res = main.get_health(req)
 
         self.assertEqual(res.get_json(), {"healthy": True})
 
@@ -47,8 +51,7 @@ class TestIntegrationGetHealth(unittest.TestCase):
         message = "unitTestMessage"
         data = {"message": message}
         req = Mock(get_json=Mock(return_value=data), args=data)
-        with self.app.app_context():
-            res = main.get_health(req)
+        res = main.get_health(req)
 
         self.assertEqual(res.get_json(), {"healthy": True, "message": message})
 
@@ -58,8 +61,7 @@ class TestIntegrationGetHealth(unittest.TestCase):
         message = "unitTestMessage"
         data = {"unkownParameter": message}
         req = Mock(get_json=Mock(return_value=data), args=data)
-        with self.app.app_context():
-            res, status_code = main.get_health(req)
+        res, status_code = main.get_health(req)
         expected_res_body = {"code": 400, "message": "Invalid parameter provided."}
         
         self.assertEqual(status_code, 400)
