@@ -42,6 +42,34 @@ jobs:
       - name: Linting check
         run: ruff check .
 
-      # Running tests
-      - name: Run tests
-        run: python -m unittest discover -s ./test -v
+      # Run Unit Tests
+      - name: Run Unit tests
+        run: python -m unittest discover -s ./test/unit -v
+      
+      # Run Integration Tests
+      - name: Run Integration tests
+        run: python -m unittest discover -s ./test/integration -v
+
+      # Deploy Canary Function
+      - id: "deploy"
+        name: "Deploy Canary Function"
+        uses: "google-github-actions/deploy-cloud-functions@v1"
+        with:
+          name: "canray_health"
+          entry_point: "get_health"
+          source_dir: "src/health"
+          runtime: "python312"
+          region: "europe-west3"
+          description: "[CANARY] Health status endpoint."
+
+      # Set Canary url as environment variable
+      - name: Set URL of deployed canary function as env variable
+        run: echo "URL=$(echo ${{ steps.deploy.outputs.url }})" >> $GITHUB_ENV
+
+      # Run e2e Tests against Canary Function
+      - name: Run e2e tests
+        run: python -m unittest discover -s ./test/e2e -v
+      
+      # Remove Canary Function
+      - name: Remove Canary Function
+        run: gcloud functions delete canray_health --region europe-west3 --quiet
