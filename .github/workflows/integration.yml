@@ -58,8 +58,6 @@ jobs:
         with:
           workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
           service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
-          token_format: "id_token"
-          id_token_audience: https://cloudfunctions.googleapis.com/
 
       # Deploy Canary Function
       - id: "deploy"
@@ -72,12 +70,24 @@ jobs:
           runtime: "python312"
           region: "europe-west3"
           description: "[CANARY] Health status endpoint."
+      
+      # Authenticating at GCP to get id token for deployed function
+      # see https://github.com/google-github-actions/deploy-cloud-functions
+      - id: "authidtoken"
+        name: "Authenticate to Google Cloud to get id token"
+        uses: "google-github-actions/auth@v1"
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+          token_format: "id_token"
+          id_token_audience: ${{ steps.deploy.outputs.url }}
+
 
       # Set Canary url as environment variable
       - name: Set URL of deployed canary function as env variable
         run: |
           echo "E2E_URL=$(echo ${{ steps.deploy.outputs.url }})" >> $GITHUB_ENV
-          echo "E2E_IDENTITY_TOKEN=$(echo ${{ steps.auth.outputs.id_token }})" >> $GITHUB_ENV
+          echo "E2E_IDENTITY_TOKEN=$(echo ${{ steps.authidtoken.outputs.id_token }})" >> $GITHUB_ENV
 
       # Run e2e Tests against Canary Function
       - name: Run e2e tests
