@@ -18,12 +18,9 @@ class TestE2EGetHealth(unittest.TestCase):
         self.token = os.getenv("E2E_IDENTITY_TOKEN")
         if self.token is None:
             raise ValueError("E2E_IDENTITY_TOKEN environment variable not set.")
-        
-        print(f"Got Token: {self.token}")
         self.shared_haeaders = {
             "Authorization": f"Bearer {self.token}"
         }
-        print(f"Got Headers: {self.shared_haeaders}")
     
     def test_status_code(self):
         """Tests the status code of the health endpoint."""
