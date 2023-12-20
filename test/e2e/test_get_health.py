@@ -13,6 +13,8 @@ class TestE2EGetHealth(unittest.TestCase):
     def setUp(self):
         """Performs setup before each test case."""
         self.url = os.getenv("E2E_URL")
+        if self.url is None:
+            raise ValueError("E2E_URL environment variable not set.")
     
     def test_status_code(self):
         """Tests the status code of the health endpoint."""

@@ -73,7 +73,7 @@ jobs:
 
       # Set Canary url as environment variable
       - name: Set URL of deployed canary function as env variable
-        run: echo "URL=$(echo ${{ steps.deploy.outputs.url }})" >> $GITHUB_ENV
+        run: echo "E2E_URL=$(echo ${{ steps.deploy.outputs.url }})" >> $GITHUB_ENV
 
       # Run e2e Tests against Canary Function
       - name: Run e2e tests
