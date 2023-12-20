@@ -15,12 +15,19 @@ class TestE2EGetHealth(unittest.TestCase):
         self.url = os.getenv("E2E_URL")
         if self.url is None:
             raise ValueError("E2E_URL environment variable not set.")
+        self.token = os.getenv("E2E_IDENTITY_TOKEN")
+        if self.token is None:
+            raise ValueError("E2E_IDENTITY_TOKEN environment variable not set.")
+        self.shared_haeaders = {
+            "Authorization": f"Bearer {self.token}"
+        }
     
     def test_status_code(self):
         """Tests the status code of the health endpoint."""
         response = requests.get(
             self.url,
-            timeout=self.REQUEST_TIMEOUT
+            timeout=self.REQUEST_TIMEOUT,
+            headers=self.shared_haeaders,
         )
         self.assertEqual(response.status_code, 200)
     
@@ -29,6 +36,7 @@ class TestE2EGetHealth(unittest.TestCase):
         response = requests.get(
             self.url,
             timeout=self.REQUEST_TIMEOUT,
+            headers=self.shared_haeaders,
         )
         self.assertEqual(response.headers["Content-Type"], "application/json")
 
@@ -36,7 +44,8 @@ class TestE2EGetHealth(unittest.TestCase):
         """Tests the response body of the health endpoint."""
         response = requests.get(
             self.url,
-            timeout=self.REQUEST_TIMEOUT
+            timeout=self.REQUEST_TIMEOUT,
+            headers=self.shared_haeaders,
         )
         self.assertEqual(response.json(), {"healthy": True})
     
@@ -46,6 +55,7 @@ class TestE2EGetHealth(unittest.TestCase):
         response = requests.get(
             f'{self.url}?message={message}', 
             timeout=self.REQUEST_TIMEOUT,
+            headers=self.shared_haeaders,
         )
         self.assertEqual(response.json(), {"healthy": True, "message": message})
     
@@ -55,6 +65,7 @@ class TestE2EGetHealth(unittest.TestCase):
         response = requests.get(
             f'{self.url}?unkownParameter={message}',
             timeout=self.REQUEST_TIMEOUT,
+            headers=self.shared_haeaders,
         )
         expected_res_body = {"code": 400, "message": "Invalid parameter provided."} 
         self.assertEqual(response.status_code, 400)
