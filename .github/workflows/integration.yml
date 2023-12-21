@@ -42,6 +42,58 @@ jobs:
       - name: Linting check
         run: ruff check .
 
-      # Running tests
-      - name: Run tests
-        run: pytest test/
+      # Run Unit Tests
+      - name: Run Unit tests
+        run: python -m unittest discover -s ./test/unit -v
+      
+      # Run Integration Tests
+      - name: Run Integration tests
+        run: python -m unittest discover -s ./test/integration -v
+      
+      # Authenticating at GCP
+      # see https://github.com/google-github-actions/deploy-cloud-functions
+      - id: "auth"
+        name: "Authenticate to Google Cloud"
+        uses: "google-github-actions/auth@v1"
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+
+      # Deploy Canary Function
+      - id: "deploy"
+        name: "Deploy Canary Function"
+        uses: "google-github-actions/deploy-cloud-functions@v1"
+        with:
+          name: "canray_health"
+          entry_point: "get_health"
+          source_dir: "src/health"
+          runtime: "python312"
+          region: "europe-west3"
+          description: "[CANARY] Health status endpoint."
+      
+      # Authenticating at GCP to get id token for deployed function
+      # see https://github.com/google-github-actions/deploy-cloud-functions
+      - id: "authidtoken"
+        name: "Authenticate to Google Cloud to get id token"
+        uses: "google-github-actions/auth@v1"
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+          token_format: "id_token"
+          id_token_audience: ${{ steps.deploy.outputs.url }}
+
+
+      # Set Canary url as environment variable
+      - name: Set URL of deployed canary function as env variable
+        run: |
+          echo "E2E_URL=$(echo ${{ steps.deploy.outputs.url }})" >> $GITHUB_ENV
+          echo "E2E_IDENTITY_TOKEN=$(echo ${{ steps.authidtoken.outputs.id_token }})" >> $GITHUB_ENV
+
+      # Run e2e Tests against Canary Function
+      - name: Run e2e tests
+        run: python -m unittest discover -s ./test/e2e -v
+      
+      # Remove Canary Function
+      - name: Remove Canary Function
+        if: always()
+        run: gcloud functions delete canray_health --region europe-west3 --quiet
