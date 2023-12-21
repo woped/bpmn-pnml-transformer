@@ -64,7 +64,7 @@ jobs:
         name: "Deploy Canary Function"
         uses: "google-github-actions/deploy-cloud-functions@v1"
         with:
-          name: "canray_health_${{ github.event.pull_request.number }}"
+          name: "canray_health_${{ github.event.pull_request.number || 'manual' }}"
           entry_point: "get_health"
           source_dir: "src/health"
           runtime: "python312"
