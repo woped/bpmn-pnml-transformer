@@ -96,4 +96,4 @@ jobs:
       # Remove Canary Function
       - name: Remove Canary Function
         if: always()
-        run: gcloud functions delete canray_health --region europe-west3 --quiet
+        run: "gcloud functions delete canray_health_${{ github.event.pull_request.number || 'manual' }} --region europe-west3 --quiet"
