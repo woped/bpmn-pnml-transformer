@@ -95,4 +95,5 @@ jobs:
       
       # Remove Canary Function
       - name: Remove Canary Function
+        if: always()
         run: gcloud functions delete canray_health --region europe-west3 --quiet

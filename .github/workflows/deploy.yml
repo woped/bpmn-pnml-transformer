@@ -48,14 +48,6 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
       
-      # Linting
-      - name: Linting check
-        run: ruff check .
-
-      # Running tests
-      - name: Run tests
-        run: python -m unittest discover -s ./test -v
-
       # see https://github.com/google-github-actions/deploy-cloud-functions
       - id: "deploy"
         uses: "google-github-actions/deploy-cloud-functions@v1"
@@ -66,7 +58,3 @@ jobs:
           runtime: "python312"
           region: "europe-west3"
           description: "Health status endpoint."
-
-      # Example of using the output
-      - id: "test"
-        run: 'curl "${{ steps.deploy.outputs.url }}"'
