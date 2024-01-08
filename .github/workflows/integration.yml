@@ -28,7 +28,7 @@ jobs:
 
       # Setting up Python environment
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.12'
 
@@ -54,17 +54,22 @@ jobs:
       # see https://github.com/google-github-actions/deploy-cloud-functions
       - id: "auth"
         name: "Authenticate to Google Cloud"
-        uses: "google-github-actions/auth@v1"
+        uses: "google-github-actions/auth@v2"
         with:
           workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
           service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+      
+      # Define Canary Cloud Function name as env variable
+      - name: Define Canary Cloud Function name as env variable
+        run: |
+          echo "CANARY_FUNCTION_NAME=canray_health_${{ github.event.pull_request.number || 'manual' }}" >> $GITHUB_ENV
 
       # Deploy Canary Function
       - id: "deploy"
         name: "Deploy Canary Function"
         uses: "google-github-actions/deploy-cloud-functions@v1"
         with:
-          name: "canray_health"
+          name: ${{ env.CANARY_FUNCTION_NAME }}
           entry_point: "get_health"
           source_dir: "src/health"
           runtime: "python312"
@@ -75,7 +80,7 @@ jobs:
       # see https://github.com/google-github-actions/deploy-cloud-functions
       - id: "authidtoken"
         name: "Authenticate to Google Cloud to get id token"
-        uses: "google-github-actions/auth@v1"
+        uses: "google-github-actions/auth@v2"
         with:
           workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
           service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
@@ -96,4 +101,5 @@ jobs:
       # Remove Canary Function
       - name: Remove Canary Function
         if: always()
-        run: gcloud functions delete canray_health --region europe-west3 --quiet
+        run: |
+          gcloud functions delete ${{ env.CANARY_FUNCTION_NAME }} --region europe-west3 --quiet
