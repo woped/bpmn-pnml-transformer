@@ -1,33 +1,33 @@
 # POC: Architecture BPMN-PNML-Transformer
 
 ## Description
-This repo contains a proof of concept (POC) for the architecture of a BPMN to PNML Converter.
-The converter is an REST API hosted on Google Cloud Platform (GCP) using Google Cloud Functions (GCF).
+Welcome to this repository, showcasing a Proof of Concept (PoC) for the architecture of a BPMN to PNML Converter.
+This converter is implemented as a REST API, deployed on Google Cloud Platform (GCP) utilizing Google Cloud Functions (GCF).
+Developed during the "Integrationsseminar" lecture at DHBW Karlsruhe, this project serves as a practical application and extension of the concepts discussed in the accompanying academic paper.
 
-This project was created as part of the lecture "Integrationsseminar" at the DHBW Karlsruhe.
 
-![Architecture Drawing](https://github.com/Niyada/bpmn-pnml-transformer-poc/blob/main/doc/imgs/architecture.png?raw=true)
+
 
 ## Prerequisites
 - Google Cloud Platform Account with billing enabled
 - Installed and authenticated [GCP CLI](https://cloud.google.com/sdk/docs/install-sdk?ref=blog.leandrotoledo.org) 
+- A Python installation, preferred version 3.12, miniconda recommended
 
+## Architecture
 
-## Infrastructure
-In this chaper the design a swell as the process for creating and configuring all necessary infrastructure is explained and documented.
+### Main Architecture Design
+![Architecture Drawing](https://github.com/Niyada/bpmn-pnml-transformer-poc/blob/main/doc/imgs/architecture.design.png?raw=true)
 
-### Design
-Project Components
-| Component Name | Task |
-| -------------- | ---- |
-| Google Cloud Functions | FaaS solution hosting \ providing the REST-API |
-| Google Cloud Build | Used for building and deploying google cloud functions |
-| Google Cloud IAM | Used for authentication and authorization |
-| Github | Code versioning system and remote repo |
-| Github Actions | CI/CD tool |
+Complete architecure and deployment concept overview
 
+### Pipelinde Designs
+![CI/CD Workflows](https://github.com/Niyada/bpmn-pnml-transformer-poc/blob/main/doc/imgs/workflows.design.png?raw=true)
 
-### Process
+CI workflow on the left, CD workflow on the right
+
+## Automated Deployment and Local Development Setup
+
+### GCP Integration with GitHub Actions Setup
 #### Creating GCP Project
 1. Creating a Google Cloud Project in the [web interface](https://console.cloud.google.com/projectcreate?ref=blog.leandrotoledo.org)
 2. Note the `ProjectId`
@@ -43,13 +43,10 @@ Project Components
   - `PROJECT_ID`
 - use these values to adjust the `<action-name>.yml` of the corresponding github action
 
-## Pipeline Workflow
-
-#### Main Workflow
-![Main Workflow](https://github.com/Niyada/bpmn-pnml-transformer-poc/blob/main/doc/imgs/workflow.main.png?raw=true)
 
 
-#### Configuring Local Environment
+
+### Configuring Local Environment
 - Install miniconda from [here](https://docs.conda.io/projects/miniconda/en/latest/)
 - Create a new conda envrionment and install the required depenecies from `requirements.txt`.
     ```bash
@@ -65,6 +62,9 @@ Project Components
   - **Set Code Interpreter:** Hit `CTRL` + `shift` + `P` and type *Pthon: select interpreter* and choose `GCF-BPMN-PNML-transformer`.
   - **Install Extensions:** Install the following extensions: `Ruff`, `GitHub Actions`
   - **Testing Envrionment** Go to the Testing Tab and hit *Configure Python Tests*, then select `pytest` and the the `test` directory.
+
+
+
 
 ## Nice2Know & Useful Links
 
