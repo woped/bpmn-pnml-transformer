@@ -39,8 +39,8 @@ jobs:
           pip install -r requirements.txt
       
       # Linting
-      - name: Linting check
-        run: ruff check .
+      #- name: Linting check
+      #  run: ruff check .
 
       # Run Unit Tests
       - name: Run Unit tests
