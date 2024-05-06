@@ -24,3 +24,7 @@ urllib3==2.1.0
 watchdog==3.0.0
 Werkzeug==3.0.1
 wheel==0.42.0
+lxml==4.9.2
+pm4py==2.7.11.8
+pydantic==2.7.1
+pydantic_xml==2.9.2
