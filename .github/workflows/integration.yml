@@ -70,6 +70,7 @@ jobs:
         uses: "google-github-actions/deploy-cloud-functions@v1"
         with:
           name: ${{ env.CANARY_FUNCTION_NAME }}
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
           entry_point: "get_health"
           source_dir: "src/health"
           runtime: "python312"
