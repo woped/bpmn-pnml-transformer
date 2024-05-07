@@ -7,7 +7,7 @@ colorama==0.4.6
 deprecation==2.1.0
 Flask==3.0.0
 functions-framework==3.5.0
-gunicorn==21.2.0
+gunicorn==22.0.0
 idna==3.6
 iniconfig==2.0.0
 itsdangerous==2.1.2
