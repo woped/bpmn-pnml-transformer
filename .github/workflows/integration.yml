@@ -76,7 +76,7 @@ jobs:
       # Define Canary Cloud Function name as env variable
       - name: Define Canary Cloud Function name as env variable
         run: |
-          echo "CANARY_FUNCTION_NAME=${{ matrix.function.name }}_${{ github.event.pull_request.number || 'manual' }}" >> $GITHUB_ENV
+          echo "CANARY_FUNCTION_NAME=CANARY_${{ matrix.function.name }}_${{ github.event.pull_request.number || 'manual' }}" >> $GITHUB_ENV
 
       # Deploy Canary Function
       - id: "deploy"
