@@ -15,6 +15,14 @@ jobs:
   build-and-test:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        function:
+          - name: health
+            entrypoint: "get_health"
+            source_dir: "src/health"
+            description: "[CANARY] Health status endpoint. test"
 
     # Add "id-token" with the intended permissions.
     permissions:
@@ -62,7 +70,7 @@ jobs:
       # Define Canary Cloud Function name as env variable
       - name: Define Canary Cloud Function name as env variable
         run: |
-          echo "CANARY_FUNCTION_NAME=canray_health_${{ github.event.pull_request.number || 'manual' }}" >> $GITHUB_ENV
+          echo "CANARY_FUNCTION_NAME=${{ matrix.function.name }}_${{ github.event.pull_request.number || 'manual' }}" >> $GITHUB_ENV
 
       # Deploy Canary Function
       - id: "deploy"
@@ -70,11 +78,11 @@ jobs:
         uses: "google-github-actions/deploy-cloud-functions@v2"
         with:
           name: ${{ env.CANARY_FUNCTION_NAME }}
-          entry_point: "get_health"
-          source_dir: "src/health"
+          entry_point: ${{ matrix.function.entry_point }}
+          source_dir: ${{ matrix.function.source_dir }}
           runtime: "python312"
           region: "europe-west3"
-          description: "[CANARY] Health status endpoint."
+          description: ${{ matrix.function.description }}
       
       # Authenticating at GCP to get id token for deployed function
       # see https://github.com/google-github-actions/deploy-cloud-functions
