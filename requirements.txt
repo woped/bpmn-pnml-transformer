@@ -25,7 +25,7 @@ watchdog==4.0.0
 Werkzeug==3.0.3
 wheel==0.43.0
 # 
-lxml==5.2.1
+lxml==5.2.2
 pm4py==2.7.11.8
 pydantic==2.7.1
 pydantic_xml==2.9.2
