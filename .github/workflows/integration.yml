@@ -22,7 +22,11 @@ jobs:
           - name: health
             entry_point: "get_health"
             source_dir: "src/health"
-            description: "[CANARY] Health status endpoint. test"
+            description: "[CANARY] Health status endpoint."
+          - name: transform
+            entry_point: "post_transform"
+            source_dir: "src/transform"
+            description: "[CANARY] Transformation endpoint."
 
     # Add "id-token" with the intended permissions.
     permissions:
