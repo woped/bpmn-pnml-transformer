@@ -10,12 +10,29 @@ on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
+env:
+  PYTHON_VERSION: '3.12'
+
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # This workflow contains a single job called "deploy"
   deploy:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        function:
+          - name: health
+            test_dir: "health"
+            entry_point: "get_health"
+            source_dir: "src/health"
+            description: "Health status endpoint."
+          - name: transform
+            test_dir: "transform"
+            entry_point: "post_transform"
+            source_dir: "src/transform"
+            description: "Transformation endpoint."
 
     # Add "id-token" with the intended permissions.
     permissions:
@@ -40,7 +57,8 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
 
       # Install dependencies
       - name: Install dependencies
@@ -52,9 +70,9 @@ jobs:
       - id: "deploy"
         uses: "google-github-actions/deploy-cloud-functions@v2"
         with:
-          name: "health"
-          entry_point: "get_health"
-          source_dir: "src/health"
+          name: ${{ matrix.function.name }}
+          entry_point: ${{ matrix.function.entry_point }}
+          source_dir: ${{ matrix.function.source_dir }}
           runtime: "python312"
           region: "europe-west3"
-          description: "Health status endpoint."
+          description: ${{ matrix.function.description }}
