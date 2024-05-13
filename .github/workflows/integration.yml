@@ -20,7 +20,7 @@ jobs:
       matrix:
         function:
           - name: health
-            entrypoint: "get_health"
+            entry_point: "get_health"
             source_dir: "src/health"
             description: "[CANARY] Health status endpoint. test"
 
