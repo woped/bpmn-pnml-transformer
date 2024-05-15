@@ -1,6 +1,6 @@
-"""This module contains unit tests for transforming BPMN models to Petri nets and vice versa.
+"""Unit tests for transforming BPMN models to Petri nets/Workflows and vice versa.
 
-It includes tests for supported, unsupported, and ignored cases, utilizing various utility functions to handle transformations and log failures.
+Includes tests for supported, unsupported, and ignored cases to handle transformations.
 """
 import shutil
 import unittest
@@ -79,9 +79,9 @@ def save_failed_pnml_to_bpmn_transformation(
     the original pnml model, and visual representations of all three.
 
     Args:
-        pn_expected: The expected Petri net model.
-        pn_transformed: The transformed Petri net model from the BPMN.
-        bpmn: The original BPMN model.
+        bpmn_expected: The expected BPMN model.
+        bpmn_transformed: The transformed BPMN model from the BPMN.
+        net: The original PNML model.
         case: A string identifier for the test case.
     """
     def create_path(file_name: str = ""):
