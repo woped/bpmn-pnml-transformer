@@ -58,7 +58,7 @@ jobs:
       
       # Linting
       - name: Linting check
-       run: ruff check .
+        run: ruff check .
 
       # Run Unit Tests
       - name: Run Unit tests
