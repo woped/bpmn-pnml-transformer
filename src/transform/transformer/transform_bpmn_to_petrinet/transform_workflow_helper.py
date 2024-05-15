@@ -1,4 +1,5 @@
-from typing import Callable, cast
+from typing import cast
+from collections.abc import Callable
 
 from transformer.models.bpmn.base import GenericBPMNNode
 from transformer.models.bpmn.bpmn import AndGateway, Process, XorGateway

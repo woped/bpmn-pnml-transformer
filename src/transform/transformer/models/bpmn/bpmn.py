@@ -1,6 +1,6 @@
 import os
 from pathlib import Path
-from typing import Optional, Union, cast
+from typing import cast
 from xml.etree.ElementTree import Element
 
 import pm4py
@@ -75,7 +75,7 @@ class EndEvent(GenericBPMNNode, tag="endEvent"):
 
 #
 class Flow(GenericIdNode, tag="sequenceFlow"):
-    name: Optional[str] = attr(default=None)
+    name: str | None = attr(default=None)
     sourceRef: str = attr()
     targetRef: str = attr()
 
@@ -99,7 +99,7 @@ class Process(GenericBPMNNode):
 
     subprocesses: set["Process"] = element(default_factory=set, tag="subProcess")
 
-    not_supported: list[Union[ThrowEvent, CatchEvent]] = element(default_factory=list)
+    not_supported: list[ThrowEvent | CatchEvent] = element(default_factory=list)
 
     # internal helper structures
     _type_map: dict[type[GenericBPMNNode], set[GenericBPMNNode]] = PrivateAttr(
@@ -311,7 +311,7 @@ class Process(GenericBPMNNode):
 
 class BPMN(BPMNNamespace, tag="definitions"):
     process: Process = element(tag="process")
-    diagram: Optional[BPMNDiagram] = element(default=None)
+    diagram: BPMNDiagram | None = element(default=None)
 
     @staticmethod
     def from_xml(xml_content: str):

@@ -1,6 +1,6 @@
 import os
 from pathlib import Path
-from typing import Optional, cast
+from typing import cast
 
 import pm4py
 from pm4py.objects.petri_net.obj import Marking
@@ -38,9 +38,9 @@ class Arc(BaseModel, tag="arc"):
     id: str = attr()
     source: str = attr()
     target: str = attr()
-    inscription: Optional[Inscription] = element(default=None)
-    graphics: Optional[Graphics] = element(default=None)
-    toolspecific: Optional[Toolspecific] = element(default=None)
+    inscription: Inscription | None = element(default=None)
+    graphics: Graphics | None = element(default=None)
+    toolspecific: Toolspecific | None = element(default=None)
 
     def __hash__(self):
         return hash((type(self),) + (self.id,))
@@ -51,8 +51,8 @@ class Page(GenericNetNode, tag="page"):
 
 
 class Net(BaseModel, tag="net"):
-    type_field: Optional[str] = attr(default=None, alias="type")
-    id: Optional[str] = attr(default=None)
+    type_field: str | None = attr(default=None, alias="type")
+    id: str | None = attr(default=None)
 
     places: set[Place] = element(default_factory=set)
     transitions: set[Transition] = element(default_factory=set)

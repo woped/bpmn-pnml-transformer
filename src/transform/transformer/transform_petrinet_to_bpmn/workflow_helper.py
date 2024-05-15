@@ -1,4 +1,4 @@
-from typing import Callable, Optional
+from collections.abc import Callable
 
 from pydantic import BaseModel, Field
 
@@ -11,7 +11,7 @@ from transformer.models.pnml.workflow import WorkflowBranchingType
 
 class WorkflowOperatorWrapper(BaseModel):
     id: str
-    name: Optional[str] = None
+    name: str | None = None
     t: WorkflowBranchingType
 
     # all operator nodes

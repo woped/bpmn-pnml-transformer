@@ -1,4 +1,3 @@
-from typing import Optional
 
 from pydantic import ValidationInfo, model_validator
 from pydantic_xml import attr, element
@@ -30,7 +29,7 @@ class FlowRef(BaseModel):
 
 
 class GenericBPMNNode(GenericIdNode):
-    name: Optional[str] = attr(default=None)
+    name: str | None = attr(default=None)
     incoming: set[str] = element("incoming", default_factory=set)
     outgoing: set[str] = element("outgoing", default_factory=set)
 

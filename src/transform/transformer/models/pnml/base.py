@@ -1,4 +1,3 @@
-from typing import Optional
 
 from pydantic_xml import attr, element
 
@@ -19,14 +18,14 @@ class Coordinates(BaseModel):
 
 
 class Graphics(BaseModel, tag="graphics"):
-    offset: Optional[Coordinates] = element("offset", default=None)
-    dimension: Optional[Coordinates] = element("dimension", default=None)
-    position: Optional[Coordinates] = element("position", default=None)
+    offset: Coordinates | None = element("offset", default=None)
+    dimension: Coordinates | None = element("dimension", default=None)
+    position: Coordinates | None = element("position", default=None)
 
 
 class Name(BaseModel, tag="name"):
-    graphics: Optional[Graphics] = None
-    title: Optional[str] = element(tag="text", default=None)
+    graphics: Graphics | None = None
+    title: str | None = element(tag="text", default=None)
 
 
 class Toolspecific(BaseModel, tag="toolspecific"):
@@ -34,22 +33,22 @@ class Toolspecific(BaseModel, tag="toolspecific"):
     version: str = attr(default="1.0")
 
     # normal transition
-    time: Optional[str] = element(tag="time", default=None)
-    timeUnit: Optional[str] = element(tag="timeUnit", default=None)
-    orientation: Optional[str] = element(tag="orientation", default=None)
+    time: str | None = element(tag="time", default=None)
+    timeUnit: str | None = element(tag="timeUnit", default=None)
+    orientation: str | None = element(tag="orientation", default=None)
 
     # wf-operator
-    operator: Optional[Operator] = None
+    operator: Operator | None = None
 
     # arc
-    probability: Optional[str] = element(tag="probability", default=None)
-    displayProbabilityOn: Optional[str] = element(
+    probability: str | None = element(tag="probability", default=None)
+    displayProbabilityOn: str | None = element(
         tag="displayProbabilityOn", default=None
     )
-    displayProbabilityPosition: Optional[Coordinates] = None
+    displayProbabilityPosition: Coordinates | None = None
 
     # subprocess
-    subprocess: Optional[bool] = element(tag="subprocess", default=None)
+    subprocess: bool | None = element(tag="subprocess", default=None)
 
     def is_workflow_operator(self):
         if self.tool == WOPED and self.operator:
@@ -67,9 +66,9 @@ class GenericNetNode(GenericNetIDNode):
 
 
 class NetElement(GenericNetNode):
-    name: Optional[Name] = None
-    graphics: Optional[Graphics] = None
-    toolspecific: Optional[Toolspecific] = None
+    name: Name | None = None
+    graphics: Graphics | None = None
+    toolspecific: Toolspecific | None = None
 
     def get_name(self):
         if not self.name:

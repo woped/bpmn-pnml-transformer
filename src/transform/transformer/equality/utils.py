@@ -1,4 +1,5 @@
-from typing import Any, Callable
+from typing import Any
+from collections.abc import Callable
 
 
 def create_type_dict(elements: list, f: Callable[[Any], str]):

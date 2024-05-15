@@ -1,4 +1,4 @@
-from typing import Callable
+from collections.abc import Callable
 
 from transformer.models.bpmn.base import GenericBPMNNode
 from transformer.models.bpmn.bpmn import (
