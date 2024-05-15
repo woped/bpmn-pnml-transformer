@@ -40,6 +40,14 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
+
+    # Set relevant environment variables
+      - name: Set environment variables
+        run: |
+          PIPELINE_TIMESTAMP=$(date +%Y%m%d%H%M%S)
+          echo "PIPELINE_TIMESTAMP=$PIPELINE_TIMESTAMP" >> $GITHUB_ENV
+          echo "CANARY_FUNCTION_NAME=CANARY_${{ matrix.function.name }}_${{ github.event.pull_request.number || 'manual' }}_$PIPELINE_TIMESTAMP" >> $GITHUB_ENV
+
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: "actions/checkout@v4"
 
@@ -76,13 +84,6 @@ jobs:
         with:
           workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
           service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
-      
-      # Set relevant environment variables
-      - name: Set environment variables
-        run: |
-          PIPELINE_TIMESTAMP=$(date +%Y%m%d%H%M%S)
-          echo "PIPELINE_TIMESTAMP=$PIPELINE_TIMESTAMP" >> $GITHUB_ENV
-          echo "CANARY_FUNCTION_NAME=CANARY_${{ matrix.function.name }}_${{ github.event.pull_request.number || 'manual' }}_$PIPELINE_TIMESTAMP" >> $GITHUB_ENV
 
       # Deploy Canary Function
       - id: "deploy"
