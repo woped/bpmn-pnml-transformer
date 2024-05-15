@@ -1,3 +1,4 @@
+"""Generates simple bpmn and the according petri net for multiple cases."""
 from testgeneration.bpmn.utility import create_bpmn
 from testgeneration.pnml.utility import create_petri_net
 
@@ -15,6 +16,7 @@ from transformer.utility.utility import create_silent_node_name
 
 
 def start_end():
+    """Returns a simple bpmn and the according petri net for a start-end scenario."""
     case = "start_end"
     se_id = "start"
     ee_id = "end"
@@ -33,6 +35,7 @@ def start_end():
 
 
 def task():
+    """Returns a simple bpmn and the according petri net for a task."""
     case = "task"
     se_id = "elem_1"
     ee_id = "elem_2"
@@ -55,6 +58,7 @@ def task():
 
 
 def gateway_parallel():
+    """Returns a bpmn and the according petri net for a parallel (AND) sequence."""
     case = "gateway_parallel"
     se_id = "elem_1"
     ee_id = "elem_2"
@@ -106,6 +110,7 @@ def gateway_parallel():
 
 
 def gateway_exclusive_or():
+    """Returns a bpmn and the according petri net for an exclusive (XOR) sequence."""
     case = "gateway_exclusive_or"
     se_id = "elem_1"
     ee_id = "elem_2"
@@ -150,6 +155,7 @@ def gateway_exclusive_or():
 
 
 def gateway_inclusive_or():
+    """Returns a bpmn and the according petri net for an inclusive (OR) sequence."""
     case = "gateway_inclusive_or"
     se_id = "start_id"
     ee_id = "end_id"
@@ -215,6 +221,7 @@ def gateway_inclusive_or():
 
 
 def subprocess():
+    """Returns a bpmn and the according petri net for subprocess scenario."""
     case = "subprocess"
     se_id = "elem_1"
     ee_id = "elem_2"

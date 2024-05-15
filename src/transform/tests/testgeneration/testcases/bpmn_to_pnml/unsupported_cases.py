@@ -1,3 +1,4 @@
+"""Generate unsupported cases for BPMN to PNML."""
 import shutil
 
 from testgeneration.bpmn.utility import create_bpmn, rename_bpmn_xml
@@ -7,6 +8,7 @@ from transformer.models.bpmn.bpmn import EndEvent, StartEvent, Task
 
 
 def generate_helper_bpmn(case_name: str):
+    """Return a simple helper BPMN (Start,Task,End)."""
     se_id = "elem_1"
     ee_id = "elem_2"
     task_id = "elem_3"
@@ -18,6 +20,7 @@ def generate_helper_bpmn(case_name: str):
 
 
 def generate():
+    """Generate unsupported BPMNs."""
     temp_case_name = "temp"
     bpmn = generate_helper_bpmn(temp_case_name)
     bpmns: list[tuple[str, str]] = []
