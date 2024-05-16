@@ -1,3 +1,4 @@
+"""Methods to compare BPMNs by comparing all nodes of all subprocesses."""
 from typing import cast
 
 from transformer.equality.utils import create_type_dict, to_comp_string
@@ -10,6 +11,7 @@ from transformer.models.bpmn.bpmn import (
 
 
 def bpmn_element_to_comp_value(e: GenericBPMNNode | Flow):
+    """Returns a concatenation of a by in/source and out/target comparable BPMN node."""
     if issubclass(type(e), GenericBPMNNode):
         e = cast(GenericBPMNNode, e)
         return to_comp_string(e.id, e.name, sorted(e.outgoing), sorted(e.incoming))
@@ -20,12 +22,14 @@ def bpmn_element_to_comp_value(e: GenericBPMNNode | Flow):
 
 
 def bpmn_type_map(bpmn: Process):
+    """Returns a by type grouped dictionary of the bpmn elements."""
     return create_type_dict(
         [*bpmn._flatten_node_typ_map(), *bpmn.flows], bpmn_element_to_comp_value
     )
 
 
 def get_all_processes_by_id(bpmn: Process, m: dict[str, Process]):
+    """Add all IDs of a bpmn to a mutable dictionary reference(m)(Recursive function)."""
     if bpmn.id not in m:
         m[bpmn.id] = bpmn
     if len(bpmn.subprocesses) == 0:
@@ -36,6 +40,7 @@ def get_all_processes_by_id(bpmn: Process, m: dict[str, Process]):
 
 
 def compare_bpmn(bpmn1_comp: BPMN, bpmn2_comp: BPMN):
+    """Return true or false stating whether a bpmn equals another bpmn."""
     bpmn1_processes: dict[str, Process] = {}
     get_all_processes_by_id(bpmn1_comp.process, bpmn1_processes)
     bpmn2_processes: dict[str, Process] = {}
