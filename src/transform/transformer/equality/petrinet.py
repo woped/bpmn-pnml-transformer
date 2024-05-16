@@ -25,7 +25,7 @@ def petri_net_type_map(pn: Net):
 
 
 def get_all_nets_by_id(pn: Net, m: dict[str, Net]):
-    """Add all IDs of a petri net to a mutable dictionary reference(m)(Recursive function)."""
+    """Add all IDs of a petri net to a mutable dictionary reference(Recurs. function)."""
     if pn.id is not None and pn.id not in m:
         m[pn.id] = pn
     if len(pn.pages) == 0:
@@ -62,7 +62,8 @@ def compare_pnml(pn1: Net, pn2: Net):
                 diff_1_to_2 = pn1_types[k].difference(pn2_types[k])
                 diff_2_to_1 = pn2_types[k].difference(pn1_types[k])
                 errors.append(
-                    f"{net_id}\n{k} difference equality| 1 to 2: {diff_1_to_2} | 2 to 1: {diff_2_to_1}"
+                    f"{net_id}\n{k} difference equality| 1 to 2: {
+                        diff_1_to_2} | 2 to 1: {diff_2_to_1}"
                 )
     if len(errors) > 0:
         joined_errors = "\n".join(errors)
