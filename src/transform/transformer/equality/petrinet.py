@@ -1,3 +1,4 @@
+"""Methods to compare petri nets by comparing all nodes of all subprocesses."""
 from typing import cast
 
 from transformer.equality.utils import create_type_dict, to_comp_string
@@ -6,6 +7,7 @@ from transformer.models.pnml.pnml import Arc, Net
 
 
 def petri_net_element_to_comp_value(e: NetElement | Arc):
+    """Returns a comparable concatenation of a petri net element."""
     if issubclass(type(e), NetElement):
         e = cast(NetElement, e)
         return to_comp_string(e.id, e.name, e.toolspecific)
@@ -16,12 +18,14 @@ def petri_net_element_to_comp_value(e: NetElement | Arc):
 
 
 def petri_net_type_map(pn: Net):
+    """Returns a by type grouped dictionary of the petri net element."""
     return create_type_dict(
         [*pn.transitions, *pn.places, *pn.arcs], petri_net_element_to_comp_value
     )
 
 
 def get_all_nets_by_id(pn: Net, m: dict[str, Net]):
+    """Add all IDs of a petri net to a mutable dictionary reference(m)(Recursive function)."""
     if pn.id is not None and pn.id not in m:
         m[pn.id] = pn
     if len(pn.pages) == 0:
@@ -34,6 +38,7 @@ def get_all_nets_by_id(pn: Net, m: dict[str, Net]):
 
 
 def compare_pnml(pn1: Net, pn2: Net):
+    """Return true or false stating whether a petri net equals another petri net."""
     pn1_nets: dict[str, Net] = {}
     get_all_nets_by_id(pn1, pn1_nets)
     pn2_nets: dict[str, Net] = {}
