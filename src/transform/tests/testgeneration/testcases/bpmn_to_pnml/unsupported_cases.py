@@ -3,7 +3,6 @@ import shutil
 
 from testgeneration.bpmn.utility import create_bpmn, rename_bpmn_xml
 from testgeneration.utility import create_file_path, read_bpmn_file
-
 from transformer.models.bpmn.bpmn import EndEvent, StartEvent, Task
 
 
@@ -20,7 +19,7 @@ def generate_helper_bpmn(case_name: str):
 
 
 def generate():
-    """Generate unsupported BPMNs."""
+    """Generate BPMNs with unsupported elements."""
     temp_case_name = "temp"
     bpmn = generate_helper_bpmn(temp_case_name)
     bpmns: list[tuple[str, str]] = []
