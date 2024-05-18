@@ -15,11 +15,13 @@ ns_map = {
 
 class BPMNNamespace(BaseModel, ns="bpmn", nsmap=ns_map):
     """Extension of BaseModel with namespace bpmn and namespace map."""
+
     pass
 
 
 class GenericIdNode(BPMNNamespace):
     """Extension of BPMNNamespace with id attribute and hash method."""
+
     id: str = attr()
 
     def __hash__(self):
@@ -29,11 +31,13 @@ class GenericIdNode(BPMNNamespace):
 
 class FlowRef(BaseModel):
     """Extension of BaseModel."""
+
     text: str
 
 
 class GenericBPMNNode(GenericIdNode):
     """BPMN extension of GenericIdNode with name, incoming and outgoing attribute."""
+
     name: str | None = attr(default=None)
     incoming: set[str] = element("incoming", default_factory=set)
     outgoing: set[str] = element("outgoing", default_factory=set)
@@ -53,11 +57,13 @@ class GenericBPMNNode(GenericIdNode):
 
 class Gateway(GenericBPMNNode):
     """Gateway extension of BPMN node."""
+
     pass
 
 
 class NotSupportedNode(GenericBPMNNode):
-    """Gateway extension of BPMN node."""
+    """NotSupportedNode extension of BPMN node."""
+
     @model_validator(mode="before")
     def raise_unsupported_tag_exception(self, data: ValidationInfo):
         """Raises exception for unsupported tags."""

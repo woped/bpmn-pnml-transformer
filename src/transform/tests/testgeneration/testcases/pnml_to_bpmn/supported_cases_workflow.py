@@ -5,7 +5,6 @@ from testgeneration.pnml.helper_workflow import (
     create_operator_transition,
 )
 from testgeneration.pnml.utility import create_petri_net
-
 from transformer.models.bpmn.bpmn import (
     BPMN,
     AndGateway,
@@ -20,7 +19,7 @@ from transformer.utility.utility import create_silent_node_name
 
 
 def gateway_parallel_join_split():
-    """Return an and workflow as BPMN and Petri net."""
+    """Return a BPMN and workflow net with AND gates."""
     case = "parallel_workflow_elements"
     se_id = "elem_1"
     ee_id = "elem_2"
@@ -102,7 +101,7 @@ def gateway_parallel_join_split():
 
 
 def gateway_exclusive_join_split():
-    """Return an xor workflow as BPMN and Petri net."""
+    """Return a BPMN and workflow net with XOR gates."""
     case = "exclusive_workflow_elements"
     se_id = "elem_1"
     ee_id = "elem_2"
@@ -156,9 +155,7 @@ def gateway_exclusive_join_split():
                 xor_split_1,
                 Place.create(id=create_silent_node_name(xor_split_1.id, task_1)),
                 Transition.create(id=task_1, name=task_1),
-                Place.create(
-                    id=create_silent_node_name(task_1, xor_join_split_in_1.id)
-                ),
+                Place.create(id=create_silent_node_name(task_1, xor_join_split_in_1.id)),
                 xor_join_split_in_1,
                 xor_join_split_place,
                 xor_join_split_out_1,
@@ -217,7 +214,7 @@ def gateway_exclusive_join_split():
 
 
 def gateway_side_by_side_xor_and():
-    """Return a xor+and workflow as BPMN and Petri net."""
+    """Return a BPMN and workflow net with XOR+AND gates."""
     case = "gateway_side_by_side_xor_and"
     se_id = "elem_1"
     ee_id = "elem_2"
@@ -321,7 +318,7 @@ def gateway_side_by_side_xor_and():
 
 
 def gateway_side_by_side_and_xor():
-    """Return an and+xor+and+xor (nested) workflow as BPMN and Petri net."""
+    """Return a BPMN and workflow net with AND+XOR gates."""
     case = "gateway_side_by_side_and_xor"
     se_id = "elem_1"
     ee_id = "elem_2"
@@ -424,7 +421,7 @@ def gateway_side_by_side_and_xor():
 
 
 def xor_and_split():
-    """Return a xor+and workflow as BPMN and Petri net."""
+    """Return a BPMN and workflow net with mixed gates."""
     case = "gateway_xor_and_split"
     se_id = "elem_1"
     ee_id = "elem_2"
@@ -447,9 +444,7 @@ def xor_and_split():
         gw_split_start, 2, WorkflowBranchingType.XorSplit, gw_split_start
     )
 
-    linking_place = create_operator_place(
-        gw_both, WorkflowBranchingType.XorJoinAndSplit
-    )
+    linking_place = create_operator_place(gw_both, WorkflowBranchingType.XorJoinAndSplit)
     xor_join_and_split_in_1 = create_operator_transition(
         gw_both, 1, WorkflowBranchingType.XorJoinAndSplit, gw_both
     )
@@ -538,7 +533,7 @@ def xor_and_split():
 
 
 def and_xor_split():
-    """Return a and+xor workflow as BPMN and Petri net."""
+    """Return a BPMN and workflow net with mixed gates."""
     case = "gateway_and_xor_split"
     se_id = "elem_1"
     ee_id = "elem_2"
@@ -561,9 +556,7 @@ def and_xor_split():
         gw_xor_join_start, 2, WorkflowBranchingType.XorSplit, gw_xor_join_start
     )
     # Inner Part
-    linking_place = create_operator_place(
-        gw_both, WorkflowBranchingType.AndJoinXorSplit
-    )
+    linking_place = create_operator_place(gw_both, WorkflowBranchingType.AndJoinXorSplit)
     and_join_xor_split_in = create_operator_transition(
         gw_both, 1, WorkflowBranchingType.AndJoinXorSplit, gw_both
     )
@@ -650,7 +643,7 @@ def and_xor_split():
 
 
 def subprocess():
-    """Return a subprocess workflow as BPMN and Petri net."""
+    """Return a BPMN and workflow net with a subprocess."""
     case = "subprocess"
     se_id = "elem_1"
     ee_id = "elem_2"

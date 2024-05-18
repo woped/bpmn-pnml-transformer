@@ -1,4 +1,4 @@
-"""Methods to compare BPMNs by comparing all nodes of all subprocesses."""
+"""Methods to compare BPMNs by comparing all nodes with selected attributes."""
 from typing import cast
 
 from transformer.equality.utils import create_type_dict, to_comp_string
@@ -29,7 +29,7 @@ def bpmn_type_map(bpmn: Process):
 
 
 def get_all_processes_by_id(bpmn: Process, m: dict[str, Process]):
-    """Add all IDs of a bpmn to a mutable dictionary reference(m)(Recursive function)."""
+    """Get all subprocesses as a dictionary by ID (Recursive function)."""
     if bpmn.id not in m:
         m[bpmn.id] = bpmn
     if len(bpmn.subprocesses) == 0:
@@ -40,7 +40,7 @@ def get_all_processes_by_id(bpmn: Process, m: dict[str, Process]):
 
 
 def compare_bpmn(bpmn1_comp: BPMN, bpmn2_comp: BPMN):
-    """Return true or false stating whether a bpmn equals another bpmn."""
+    """Returns a boolean if the diagrams are equal and an optional error message."""
     bpmn1_processes: dict[str, Process] = {}
     get_all_processes_by_id(bpmn1_comp.process, bpmn1_processes)
     bpmn2_processes: dict[str, Process] = {}

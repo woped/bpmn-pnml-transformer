@@ -1,10 +1,9 @@
-"""Helper module for testing ignored bpmn to pnml cases."""
+"""Helper module for testing ignored BPMN to PNML cases."""
 import shutil
 
 from testgeneration.bpmn.utility import create_bpmn, insert_bpmn_xml
 from testgeneration.pnml.utility import create_petri_net
 from testgeneration.utility import UniqueIDGenerator, create_file_path, read_bpmn_file
-
 from transformer.models.bpmn.bpmn import EndEvent, StartEvent, Task
 from transformer.models.pnml.pnml import Place, Pnml, Transition
 
@@ -32,7 +31,7 @@ def generate_temp_petri_net(case_name: str):
 
 
 def generate():
-    """Generates a list of ignored elements."""
+    """Generates a list of petri nets with ignored elements."""
     temp_case_name = UniqueIDGenerator.generate()
     bpmn = generate_helper_bpmn(temp_case_name)
     pn = generate_temp_petri_net(temp_case_name)
