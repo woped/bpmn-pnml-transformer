@@ -25,7 +25,7 @@ def petri_net_type_map(pn: Net):
 
 
 def get_all_nets_by_id(pn: Net, m: dict[str, Net]):
-    """Add all IDs of a petri net to a mutable dictionary reference(Recurs. function)."""
+    """Get all nested nets as a dictionary by ID (Recursive function)."""
     if pn.id is not None and pn.id not in m:
         m[pn.id] = pn
     if len(pn.pages) == 0:
@@ -38,7 +38,7 @@ def get_all_nets_by_id(pn: Net, m: dict[str, Net]):
 
 
 def compare_pnml(pn1: Net, pn2: Net):
-    """Return true or false stating whether a petri net equals another petri net."""
+    """Returns a boolean if the diagrams are equal and an optional error message."""
     pn1_nets: dict[str, Net] = {}
     get_all_nets_by_id(pn1, pn1_nets)
     pn2_nets: dict[str, Net] = {}
