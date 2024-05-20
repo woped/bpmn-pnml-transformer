@@ -1,4 +1,4 @@
-
+"""PNML Extensions for BaseModel."""
 from pydantic_xml import attr, element
 
 from transformer.models.pnml.workflow import Operator, WorkflowBranchingType
@@ -10,6 +10,7 @@ class GenericNetIDNode(BaseModel):
     id: str = attr()
 
     def __hash__(self):
+        """Return hash of this instance."""
         return hash((type(self),) + (self.id,))
 
 
