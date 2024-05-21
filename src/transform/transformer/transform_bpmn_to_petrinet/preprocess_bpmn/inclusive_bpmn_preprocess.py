@@ -1,3 +1,4 @@
+"""Gateway bridges and operations."""
 from typing import cast
 
 from transformer.models.bpmn.base import GenericBPMNNode
