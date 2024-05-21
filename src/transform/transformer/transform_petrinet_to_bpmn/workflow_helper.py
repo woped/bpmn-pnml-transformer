@@ -99,8 +99,8 @@ def handle_workflow_subprocesses(
             or page_net.get_out_degree(inner_sink_id) > 0
         ):
             raise Exception(
-                "currently source/sink in subprocess must have no incoming/outgoing arcs "
-                "to convert to BPMN Start and Endevents"
+                "currently source/sink in subprocess must have no incoming/outgoing arcs"
+                " to convert to BPMN Start and Endevents"
             )
 
         inner_bpmn = caller_func(page_net).process
