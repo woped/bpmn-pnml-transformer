@@ -213,7 +213,8 @@ def handle_workflow_elements(
                 Transition.create(node.id, node.name).mark_as_workflow_subprocess()
             )
 
-            # WOPED subprocess start and endplaces must have the same id as the incoming/outgoing node of the subprocess
+            # WOPED subprocess start and endplaces must have the same id as the incoming/
+            #outgoing node of the subprocess
             outer_in_id, outer_out_id = (
                 list(bpmn.get_incoming(node.id))[0].sourceRef,
                 list(bpmn.get_outgoing(node.id))[0].targetRef,
@@ -222,7 +223,8 @@ def handle_workflow_elements(
                 net.get_element(outer_in_id),
                 net.get_element(outer_out_id),
             )
-            # if incoming/outgoing is from type transition a place will inserted after the handling of the workflow elements
+            # if incoming/outgoing is from type transition a place will inserted after
+            #the handling of the workflow elements
             # -> actual id of subprocess start/endevents must have id of new place
             if isinstance(outer_in, Transition):
                 outer_in_id = create_silent_node_name(
