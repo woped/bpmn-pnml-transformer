@@ -1,3 +1,4 @@
+"""Handle workflow subprocesses and operators of petri net and handle them in bpmn."""
 from collections.abc import Callable
 
 from pydantic import BaseModel, Field
@@ -10,6 +11,7 @@ from transformer.models.pnml.workflow import WorkflowBranchingType
 
 
 class WorkflowOperatorWrapper(BaseModel):
+    """WorkflowOperatorWrapper extension of BaseModel (+ID, name, type, nodes...)."""
     id: str
     name: str | None = None
     t: WorkflowBranchingType
@@ -27,10 +29,12 @@ class WorkflowOperatorWrapper(BaseModel):
 
 
 def find_workflow_subprocesses(net: Net):
+    """Return all workflow subprocesses of a net."""
     return [e for e in net.transitions if e.is_workflow_subprocess()]
 
 
 def find_workflow_operators(net: Net):
+    """Return all workflow operators of a net."""
     operator_map: dict[str, list[NetElement]] = {}
     for node in net._temp_elements.values():
         if isinstance(node, Page):
@@ -76,6 +80,7 @@ def handle_workflow_subprocesses(
     to_handle_subprocesses: list[Transition],
     caller_func: Callable[[Net], BPMN],
 ):
+    """Add all found workflow subprocesses of a net as nodes to a bpmn."""
     for subprocess_transition in to_handle_subprocesses:
         sb_id = subprocess_transition.id
         page = net.get_page(sb_id)
@@ -94,7 +99,8 @@ def handle_workflow_subprocesses(
             or page_net.get_out_degree(inner_sink_id) > 0
         ):
             raise Exception(
-                "currently source/sink in subprocess must have no incoming/outgoing arcs to convert to BPMN Start and Endevents"
+                "currently source/sink in subprocess must have no incoming/outgoing arcs "
+                "to convert to BPMN Start and Endevents"
             )
 
         inner_bpmn = caller_func(page_net).process
@@ -106,6 +112,7 @@ def handle_workflow_subprocesses(
 def handle_workflow_operators(
     net: Net, bpmn: Process, to_handle_operators: list[WorkflowOperatorWrapper]
 ):
+    """Add all found workflow operators of a net as nodes to a bpmn."""
     for workflow_operator in to_handle_operators:
         new_gateway: GenericBPMNNode
         if workflow_operator.t in {
