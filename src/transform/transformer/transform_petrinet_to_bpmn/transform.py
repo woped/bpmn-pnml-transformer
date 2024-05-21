@@ -12,15 +12,17 @@ from transformer.models.bpmn.bpmn import (
     XorGateway,
 )
 from transformer.models.pnml.pnml import Net, Place, Pnml, Transition
-from transformer.transform_petrinet_to_bpmn.preprocess_pnml.split_different_operator import (
-    split_different_operators,
-)
 from transformer.transform_petrinet_to_bpmn.workflow_helper import (
     find_workflow_operators,
     find_workflow_subprocesses,
     handle_workflow_operators,
     handle_workflow_subprocesses,
 )
+
+from transformer.transform_petrinet_to_bpmn.preprocess_pnml import (
+    split_different_operator as sdo
+)
+split_different_operators = sdo.split_different_operators
 
 
 def remove_silent_tasks(bpmn: Process):
