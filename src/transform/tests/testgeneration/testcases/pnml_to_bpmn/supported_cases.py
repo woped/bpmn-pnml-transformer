@@ -1,3 +1,4 @@
+"""Generate supported test cases for PNML to BPMN."""
 from testgeneration.bpmn.utility import create_bpmn
 from testgeneration.pnml.utility import create_petri_net
 from testgeneration.utility import UniqueIDGenerator
@@ -15,6 +16,7 @@ from transformer.utility.utility import create_silent_node_name
 
 
 def start_end():
+    """Return a Start-End BPMN and the according Petri net."""
     case = "start_end"
     se_id = UniqueIDGenerator.generate()
     ee_id = UniqueIDGenerator.generate()
@@ -36,6 +38,7 @@ def start_end():
 
 
 def normal_transition():
+    """Return a Start-Task-End BPMN and the according Petri net."""
     case = "normal_transition"
     se_id = UniqueIDGenerator.generate()
     ee_id = UniqueIDGenerator.generate()
@@ -58,6 +61,7 @@ def normal_transition():
 
 
 def and_transition():
+    """Return an and BPMN and the according Petri net."""
     case = "and_transition"
     se_id = UniqueIDGenerator.generate()
     ee_id = UniqueIDGenerator.generate()
@@ -109,6 +113,7 @@ def and_transition():
 
 
 def xor_place():
+    """Return an xor BPMN and the according Petri net."""
     case = "xor_place"
     se_id = UniqueIDGenerator.generate()
     ee_id = UniqueIDGenerator.generate()
