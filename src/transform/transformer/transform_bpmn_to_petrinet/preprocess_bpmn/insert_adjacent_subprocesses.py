@@ -1,8 +1,10 @@
+"""Insert subprocess."""
 from transformer.models.bpmn.base import GenericBPMNNode
 from transformer.models.bpmn.bpmn import Flow, Process
 
 
 def insert_temp_between_adjacent_subprocesses(bpmn: Process):
+    """Add temporary subprocess elements to process."""
     subprocesses = bpmn.subprocesses
     for subprocess in subprocesses:
         out_nodes: list[tuple[GenericBPMNNode, Flow]] = [

@@ -1,13 +1,13 @@
+"""BPMN objects and handling."""
 import os
 from pathlib import Path
-from typing import Optional, Union, cast
+from typing import cast
 from xml.etree.ElementTree import Element
 
 import pm4py
 from lxml import etree, objectify
 from pydantic import PrivateAttr
 from pydantic_xml import attr, element
-
 from transformer.exceptions import NotSupportedBPMNElement
 from transformer.models.bpmn.base import (
     BPMNNamespace,
@@ -53,38 +53,54 @@ not_supported_elements = {
 
 # Gateways
 class XorGateway(Gateway, tag="exclusiveGateway"):
+    """XOR extension of gateways."""
+
     pass
 
 
 class AndGateway(Gateway, tag="parallelGateway"):
+    """AND extension of gateways."""
+
     pass
 
 
 class OrGateway(Gateway, tag="inclusiveGateway"):
+    """OR extension of gateways."""
+
     pass
 
 
 # Events
 class StartEvent(GenericBPMNNode, tag="startEvent"):
+    """StartEvent extension of GenericBPMNNode."""
+
     pass
 
 
 class EndEvent(GenericBPMNNode, tag="endEvent"):
+    """EndEvent extension of GenericBPMNNode."""
+
     pass
 
 
 #
 class Flow(GenericIdNode, tag="sequenceFlow"):
-    name: Optional[str] = attr(default=None)
+    """Flow extension of GenericBPMNNode."""
+
+    name: str | None = attr(default=None)
     sourceRef: str = attr()
     targetRef: str = attr()
 
 
 class Task(GenericBPMNNode, tag="task"):
+    """Task extension of GenericBPMNNode."""
+
     pass
 
 
 class Process(GenericBPMNNode):
+    """Process extension of GenericBPMNNode."""
+
     isExecutable: bool = attr(default=False)
 
     flows: set[Flow] = element(default_factory=set)
@@ -99,7 +115,7 @@ class Process(GenericBPMNNode):
 
     subprocesses: set["Process"] = element(default_factory=set, tag="subProcess")
 
-    not_supported: list[Union[ThrowEvent, CatchEvent]] = element(default_factory=list)
+    not_supported: list[ThrowEvent | CatchEvent] = element(default_factory=list)
 
     # internal helper structures
     _type_map: dict[type[GenericBPMNNode], set[GenericBPMNNode]] = PrivateAttr(
@@ -112,10 +128,12 @@ class Process(GenericBPMNNode):
     _temp_flows: dict[str, Flow] = PrivateAttr(default_factory=dict)
 
     def __init__(self, **data):
+        """Process instance constructor."""
         super().__init__(**data)
         self._init_reference_structures()
 
     def _init_reference_structures(self):
+        """Instance initializer."""
         self._type_map = cast(
             dict[type[GenericBPMNNode], set[GenericBPMNNode]],
             {
@@ -142,11 +160,13 @@ class Process(GenericBPMNNode):
             self._update_flow_incoming_outgoing(flow)
 
     def _flatten_node_typ_map(self):
+        """Flatten nodes."""
         r: list[GenericBPMNNode] = []
         [r.extend(x) for x in self._type_map.values()]
         return r
 
     def _update_flow_incoming_outgoing(self, flow: Flow):
+        """Update source / target reference of instance."""
         if flow.targetRef not in self._temp_node_id_to_incoming:
             self._temp_node_id_to_incoming[flow.targetRef] = set([flow])
         else:
@@ -158,6 +178,7 @@ class Process(GenericBPMNNode):
             self._temp_node_id_to_outgoing[flow.sourceRef].add(flow)
 
     def _update_actual_incoming_outgoing(self, flow: Flow):
+        """Update underlying source / target of instance."""
         self.flows.add(flow)
         source = self._temp_nodes[flow.sourceRef]
         target = self._temp_nodes[flow.targetRef]
@@ -165,15 +186,19 @@ class Process(GenericBPMNNode):
         target.incoming.add(flow.id)
 
     def get_incoming(self, id: str):
+        """Return the incoming flows of a element by id."""
         return self._temp_node_id_to_incoming[id]
 
     def get_outgoing(self, id: str):
+        """Return the outgoing flows of a element by id."""
         return self._temp_node_id_to_outgoing[id]
 
     def get_node(self, id: str):
+        """Return a node by id."""
         return self._temp_nodes[id]
 
     def change_node_id(self, node: GenericBPMNNode, new_id: str):
+        """Change node id and update connected flows."""
         incoming_flows = self._temp_node_id_to_incoming.get(node.id, [])
         incoming_flows_id_map = [
             (f.id, f.sourceRef, new_id, f.name) for f in incoming_flows
@@ -210,6 +235,7 @@ class Process(GenericBPMNNode):
         id: str | None = None,
         name: str | None = None,
     ):
+        """Add flow to instance by source and target."""
         if id is None:
             id = create_arc_name(source.id, target.id)
 
@@ -226,6 +252,7 @@ class Process(GenericBPMNNode):
         return a
 
     def add_constructed_flow(self, flow: Flow):
+        """Add a finished flow to instance."""
         self.add_flow(
             self._temp_nodes[flow.sourceRef],
             self._temp_nodes[flow.targetRef],
@@ -234,6 +261,7 @@ class Process(GenericBPMNNode):
         )
 
     def _remove_actual_flow(self, flow: Flow):
+        """Remove underlying flow of instance."""
         self.flows.remove(flow)
 
         source = self._temp_nodes[flow.sourceRef]
@@ -242,6 +270,7 @@ class Process(GenericBPMNNode):
         target.incoming.remove(flow.id)
 
     def remove_flow(self, flow: Flow):
+        """Remove flow reference of instance."""
         self._temp_flows.pop(flow.id)
         self._temp_node_id_to_incoming[flow.targetRef].remove(flow)
         self._temp_node_id_to_outgoing[flow.sourceRef].remove(flow)
@@ -249,10 +278,12 @@ class Process(GenericBPMNNode):
         self._remove_actual_flow(flow)
 
     def add_nodes(self, *args: GenericBPMNNode):
+        """Add multiple nodes to the BPMN."""
         for node in args:
             self.add_node(node)
 
     def add_node(self, new_node: GenericBPMNNode):
+        """Add single node to the BPMN."""
         storage_set = self._type_map[type(new_node)]
         if storage_set is None:
             raise Exception("No BPMN node")
@@ -267,6 +298,7 @@ class Process(GenericBPMNNode):
         return new_node
 
     def remove_node(self, to_remove_node: GenericBPMNNode):
+        """Remove single node frome the BPMN."""
         storage_set = self._type_map[type(to_remove_node)]
         if storage_set is None:
             raise Exception("No BPMN node")
@@ -288,15 +320,19 @@ class Process(GenericBPMNNode):
                 arc.sourceRef = ""
 
     def get_flow_target_by_id(self, flow_id: str):
+        """Return target nodes from flow id."""
         return self._temp_nodes[self._temp_flows[flow_id].targetRef]
 
     def get_flow_source_by_id(self, flow_id: str):
+        """Return source nodes from flow id."""
         return self._temp_nodes[self._temp_flows[flow_id].sourceRef]
 
     def get_flow(self, id: str):
+        """Return flow by id."""
         return self._temp_flows[id]
 
     def remove_node_with_connecting_flows(self, node: GenericBPMNNode):
+        """Remove node and its connected flows."""
         if node.get_in_degree() > 0:
             incoming_arc = list(self._temp_node_id_to_incoming[node.id])[0]
             source_id = incoming_arc.sourceRef
@@ -310,11 +346,14 @@ class Process(GenericBPMNNode):
 
 
 class BPMN(BPMNNamespace, tag="definitions"):
+    """Extension of BPMNNamespace with attributes process and diagram."""
+
     process: Process = element(tag="process")
-    diagram: Optional[BPMNDiagram] = element(default=None)
+    diagram: BPMNDiagram | None = element(default=None)
 
     @staticmethod
     def from_xml(xml_content: str):
+        """Return a BPMN from a XML string."""
         parser = etree.XMLParser()
         tree: Element = objectify.fromstring(
             bytes(xml_content, encoding="utf-8"), parser
@@ -331,22 +370,27 @@ class BPMN(BPMNNamespace, tag="definitions"):
 
     @staticmethod
     def from_file(path: str):
+        """Return a BPMN from a file path."""
         content = Path(path).read_text()
         return BPMN.from_xml(content)
 
     @staticmethod
     def generate_empty_bpmn(id="new_bpmn"):
+        """Return an empty bpmn with a process."""
         return BPMN(process=Process(id=id))
 
     def to_string(self) -> str:
+        """Transform this instance into a string and creates placeholder graphics."""
         self.set_graphics()
         return cast(str, self.to_xml(encoding="unicode", pretty_print=True))
 
     def write_to_file(self, path: str):
+        """Save this instance xml encoded to a file."""
         content = self.to_string()
         Path(path).write_text(content)
 
     def set_graphics(self):
+        """Define graphical representation of this instance."""
         d = BPMNDiagram(id="diagram1")
         bpmn = self.process
         p = BPMNPlane(id=f"plane{bpmn.id}", bpmnElement=bpmn.id)
@@ -373,6 +417,7 @@ class BPMN(BPMNNamespace, tag="definitions"):
         self.diagram = d
 
     def to_pm4py_vis(self, file_path: str):
+        """Generate visualisation with pm4py."""
         TEMP_FILE = "temp.bpmn"
         self.write_to_file(TEMP_FILE)
         bpmn_pm4py = pm4py.read_bpmn(TEMP_FILE)
@@ -380,6 +425,7 @@ class BPMN(BPMNNamespace, tag="definitions"):
         os.remove(TEMP_FILE)
 
     def bpmn_helper_to_pm4py_bpmn(self, file_path: str):
+        """Write instance to pm4py file."""
         TEMP_FILE = "temp.bpmn"
         self.write_to_file(TEMP_FILE)
         bpmn_pm4py = pm4py.read_bpmn(TEMP_FILE)
