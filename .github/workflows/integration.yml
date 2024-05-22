@@ -9,12 +9,29 @@ on:
     types: [synchronize, opened, reopened]
   workflow_dispatch:
 
+env:
+  PYTHON_VERSION: '3.12'
+
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
 
   build-and-test:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        function:
+          - name: health
+            test_dir: "health"
+            entry_point: "get_health"
+            source_dir: "src/health"
+            description: "[CANARY] Health status endpoint."
+          - name: transform
+            test_dir: "transform"
+            entry_point: "post_transform"
+            source_dir: "src/transform"
+            description: "[CANARY] Transformation endpoint."
 
     # Add "id-token" with the intended permissions.
     permissions:
@@ -30,7 +47,8 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
 
       # Install dependencies
       - name: Install dependencies
@@ -44,11 +62,11 @@ jobs:
 
       # Run Unit Tests
       - name: Run Unit tests
-        run: pytest ./test/unit -v
+        run: pytest ./test/unit/${{ matrix.function.test_dir }} -v
       
       # Run Integration Tests
       - name: Run Integration tests
-        run: pytest ./test/integration -v
+        run: pytest ./test/integration/${{ matrix.function.test_dir }} -v
       
       # Authenticating at GCP
       # see https://github.com/google-github-actions/deploy-cloud-functions
@@ -62,7 +80,7 @@ jobs:
       # Define Canary Cloud Function name as env variable
       - name: Define Canary Cloud Function name as env variable
         run: |
-          echo "CANARY_FUNCTION_NAME=canray_health_${{ github.event.pull_request.number || 'manual' }}" >> $GITHUB_ENV
+          echo "CANARY_FUNCTION_NAME=CANARY_${{ matrix.function.name }}_${{ github.event.pull_request.number || 'manual' }}" >> $GITHUB_ENV
 
       # Deploy Canary Function
       - id: "deploy"
@@ -70,11 +88,11 @@ jobs:
         uses: "google-github-actions/deploy-cloud-functions@v2"
         with:
           name: ${{ env.CANARY_FUNCTION_NAME }}
-          entry_point: "get_health"
-          source_dir: "src/health"
+          entry_point: ${{ matrix.function.entry_point }}
+          source_dir: ${{ matrix.function.source_dir }}
           runtime: "python312"
           region: "europe-west3"
-          description: "[CANARY] Health status endpoint."
+          description: ${{ matrix.function.description }}
       
       # Authenticating at GCP to get id token for deployed function
       # see https://github.com/google-github-actions/deploy-cloud-functions
@@ -96,7 +114,7 @@ jobs:
 
       # Run e2e Tests against Canary Function
       - name: Run e2e tests
-        run: pytest ./test/e2e -v
+        run: pytest ./test/e2e/${{ matrix.function.test_dir }} -v
       
       # Remove Canary Function
       - name: Remove Canary Function

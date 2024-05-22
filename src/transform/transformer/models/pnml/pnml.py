@@ -1,7 +1,7 @@
 """PNML objects and operations."""
 import os
 from pathlib import Path
-from typing import cast
+from typing import Optional, cast
 
 import pm4py
 from pm4py.objects.petri_net.obj import Marking

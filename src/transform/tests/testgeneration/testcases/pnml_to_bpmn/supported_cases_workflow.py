@@ -155,7 +155,9 @@ def gateway_exclusive_join_split():
                 xor_split_1,
                 Place.create(id=create_silent_node_name(xor_split_1.id, task_1)),
                 Transition.create(id=task_1, name=task_1),
-                Place.create(id=create_silent_node_name(task_1, xor_join_split_in_1.id)),
+                Place.create(
+                    id=create_silent_node_name(task_1, xor_join_split_in_1.id)
+                ),
                 xor_join_split_in_1,
                 xor_join_split_place,
                 xor_join_split_out_1,
@@ -444,7 +446,9 @@ def xor_and_split():
         gw_split_start, 2, WorkflowBranchingType.XorSplit, gw_split_start
     )
 
-    linking_place = create_operator_place(gw_both, WorkflowBranchingType.XorJoinAndSplit)
+    linking_place = create_operator_place(
+        gw_both, WorkflowBranchingType.XorJoinAndSplit
+    )
     xor_join_and_split_in_1 = create_operator_transition(
         gw_both, 1, WorkflowBranchingType.XorJoinAndSplit, gw_both
     )
@@ -556,7 +560,9 @@ def and_xor_split():
         gw_xor_join_start, 2, WorkflowBranchingType.XorSplit, gw_xor_join_start
     )
     # Inner Part
-    linking_place = create_operator_place(gw_both, WorkflowBranchingType.AndJoinXorSplit)
+    linking_place = create_operator_place(
+        gw_both, WorkflowBranchingType.AndJoinXorSplit
+    )
     and_join_xor_split_in = create_operator_transition(
         gw_both, 1, WorkflowBranchingType.AndJoinXorSplit, gw_both
     )

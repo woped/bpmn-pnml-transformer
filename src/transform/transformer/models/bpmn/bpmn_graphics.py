@@ -1,5 +1,8 @@
 """BPMNDI based objects."""
+from typing import Optional, Union
+
 from pydantic_xml import attr, element
+
 from transformer.models.bpmn.base import ns_map
 from transformer.utility.utility import BaseModel
 

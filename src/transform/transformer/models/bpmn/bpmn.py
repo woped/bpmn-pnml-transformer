@@ -1,7 +1,7 @@
 """BPMN objects and handling."""
 import os
 from pathlib import Path
-from typing import cast
+from typing import Optional, Union, cast
 from xml.etree.ElementTree import Element
 
 import pm4py

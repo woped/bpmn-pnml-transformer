@@ -194,7 +194,9 @@ def gateway_exclusive_join_split():
                 xor_split_1,
                 Place.create(id=create_silent_node_name(xor_split_1.id, task_1)),
                 Transition.create(id=task_1, name=task_1),
-                Place.create(id=create_silent_node_name(task_1, xor_join_split_in_1.id)),
+                Place.create(
+                    id=create_silent_node_name(task_1, xor_join_split_in_1.id)
+                ),
                 xor_join_split_in_1,
                 xor_join_split_place,
                 xor_join_split_out_1,

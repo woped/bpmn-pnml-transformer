@@ -1,4 +1,6 @@
 """PNML Extensions for BaseModel."""
+from typing import Optional
+
 from pydantic_xml import attr, element
 
 from transformer.models.pnml.workflow import Operator, WorkflowBranchingType

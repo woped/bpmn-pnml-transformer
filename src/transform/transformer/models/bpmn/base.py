@@ -1,4 +1,6 @@
 """BPMN objects and extensions."""
+from typing import Optional
+
 from pydantic import ValidationInfo, model_validator
 from pydantic_xml import attr, element
 from transformer.exceptions import NotSupportedBPMNElement
@@ -38,7 +40,7 @@ class FlowRef(BaseModel):
 class GenericBPMNNode(GenericIdNode):
     """BPMN extension of GenericIdNode with name, incoming and outgoing attribute."""
 
-    name: str | None = attr(default=None)
+    name: Optional[str] = attr(default=None)
     incoming: set[str] = element("incoming", default_factory=set)
     outgoing: set[str] = element("outgoing", default_factory=set)
 
