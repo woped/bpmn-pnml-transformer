@@ -1,4 +1,5 @@
-from typing import Callable
+"""Initiate the preprocessing and transformation of pnml to bpmn."""
+from collections.abc import Callable
 
 from transformer.models.bpmn.base import Gateway
 from transformer.models.bpmn.bpmn import (
@@ -11,9 +12,6 @@ from transformer.models.bpmn.bpmn import (
     XorGateway,
 )
 from transformer.models.pnml.pnml import Net, Place, Pnml, Transition
-from transformer.transform_petrinet_to_bpmn.preprocess_pnml.split_different_operator import (
-    split_different_operators,
-)
 from transformer.transform_petrinet_to_bpmn.workflow_helper import (
     find_workflow_operators,
     find_workflow_subprocesses,
@@ -21,8 +19,14 @@ from transformer.transform_petrinet_to_bpmn.workflow_helper import (
     handle_workflow_subprocesses,
 )
 
+from transformer.transform_petrinet_to_bpmn.preprocess_pnml import (
+    split_different_operator as sdo
+)
+split_different_operators = sdo.split_different_operators
+
 
 def remove_silent_tasks(bpmn: Process):
+    """Remove silent tasks (Without name)."""
     for task in bpmn.tasks.copy():
         if task.name is not None:
             continue
@@ -31,6 +35,7 @@ def remove_silent_tasks(bpmn: Process):
 
 
 def remove_unnecessary_gateways(bpmn: Process):
+    """Remove unnecessary gateways (In and out degree <= 1)."""
     gw_nodes = {
         node for node in bpmn._flatten_node_typ_map() if issubclass(type(node), Gateway)
     }
@@ -42,6 +47,7 @@ def remove_unnecessary_gateways(bpmn: Process):
 
 
 def transform_petrinet_to_bpmn(net: Net):
+    """Initiate the transformation of a preprocessed petri net to bpmn."""
     bpmn_general = BPMN.generate_empty_bpmn(net.id or "new_net")
     bpmn = bpmn_general.process
 
@@ -109,6 +115,7 @@ def transform_petrinet_to_bpmn(net: Net):
 
 
 def apply_preprocessing(net: Net, funcs: list[Callable[[Net], None]]):
+    """Preprocess the whole petri net."""
     for p in net.pages:
         apply_preprocessing(p.net, funcs)
 
@@ -117,6 +124,7 @@ def apply_preprocessing(net: Net, funcs: list[Callable[[Net], None]]):
 
 
 def pnml_to_bpmn(pnml: Pnml):
+    """Process and transform a petri net to bpmn."""
     net = pnml.net
 
     apply_preprocessing(net, [split_different_operators])

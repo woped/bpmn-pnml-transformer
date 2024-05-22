@@ -1,3 +1,4 @@
+"""Preprocess combined workflow operators to individual workflow operators."""
 from transformer.models.pnml.pnml import Net, Place
 from transformer.models.pnml.workflow import WorkflowBranchingType
 from transformer.transform_bpmn_to_petrinet.transform_workflow_helper import (
@@ -12,8 +13,8 @@ from transformer.transform_petrinet_to_bpmn.workflow_helper import (
 
 
 def split_different_operators(net: Net):
-    """
-    Combined Workflowoperators (And-Xor, Xor-And) can't be handled by BPMN-Elements.
+    """Combined Workflowoperators (And-Xor, Xor-And) can't be handled by BPMN-Elements.
+
     -> Split them into individual Workflowoperators
     """
     wf_operators = [
