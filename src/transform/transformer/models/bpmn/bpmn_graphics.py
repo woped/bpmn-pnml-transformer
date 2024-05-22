@@ -1,5 +1,4 @@
 """BPMNDI based objects."""
-from typing import Optional, Union
 
 from pydantic_xml import attr, element
 

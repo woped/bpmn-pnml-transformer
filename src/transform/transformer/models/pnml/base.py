@@ -1,5 +1,4 @@
 """PNML Extensions for BaseModel."""
-from typing import Optional
 
 from pydantic_xml import attr, element
 
