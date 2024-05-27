@@ -3,6 +3,7 @@ from transform.transformer.utility.bpmn import find_end_events, find_start_event
 
 
 def extend_subprocess(subprocesses: set[Process], parent_process: Process):
+    """Fully extend a set of subprocesses into a single parent process."""
     for subprocess in subprocesses.copy():
         #  look for start and end
         # find with zero out/in degree

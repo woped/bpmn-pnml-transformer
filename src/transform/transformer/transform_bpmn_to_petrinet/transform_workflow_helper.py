@@ -1,4 +1,6 @@
-from typing import Callable, cast
+"""Helper methods for bpmn to pnml (Workflow operators and elements)."""
+from typing import cast
+from collections.abc import Callable
 
 from transform.transformer.models.bpmn.base import GenericBPMNNode
 from transform.transformer.models.bpmn.bpmn import AndGateway, Process, XorGateway
@@ -18,12 +20,14 @@ from transform.transformer.utility.utility import create_arc_name, create_silent
 def create_workflow_operator_helper_transition(
     net: Net, id: str, name: str | None, i: int, t: WorkflowBranchingType
 ):
+    """Return a transition as a workflow operator helper element."""
     transition = net.add_element(Transition.create(id=f"{id}_op_{i}", name=name))
     transition.mark_as_workflow_operator(t, id)
     return transition
 
 
 def add_arc(net: Net, source: NetElement, target: NetElement):
+    """Add arc between source and target net elements for a net."""
     if type(source) is not type(target):
         net.add_arc(source, target, create_arc_name(source.id, target.id))
     elif isinstance(source, Place):
@@ -48,6 +52,7 @@ def add_wf_xor_split(
     id: str,
     name: str | None,
 ):
+    """Add workflow xor split for in place and out places."""
     for i, out in enumerate(out_places):
         t = create_workflow_operator_helper_transition(
             net, id, name, i + 1, WorkflowBranchingType.XorSplit
@@ -63,6 +68,7 @@ def add_wf_xor_join(
     id: str,
     name: str | None,
 ):
+    """Add workflow xor join for  in places and out place."""
     for i, in_place in enumerate(in_places):
         t = create_workflow_operator_helper_transition(
             net, id, name, i + 1, WorkflowBranchingType.XorJoin
@@ -78,6 +84,7 @@ def add_wf_and_split(
     id: str,
     name: str | None,
 ):
+    """Add workflow and split for in place and out places."""
     t = create_workflow_operator_helper_transition(
         net, id, name, 1, WorkflowBranchingType.AndSplit
     )
@@ -93,6 +100,7 @@ def add_wf_and_join(
     id: str,
     name: str | None,
 ):
+    """Add workflow and join for  in places and out place."""
     t = create_workflow_operator_helper_transition(
         net, id, name, 1, WorkflowBranchingType.AndJoin
     )
@@ -108,6 +116,7 @@ def add_wf_xor_split_join(
     id: str,
     name: str | None,
 ):
+    """Add workflow xor split-join for in places and out places."""
     linking_place = net.add_element(Place.create(id=f"P_CENTER_{id}"))
     linking_place.mark_as_workflow_operator(WorkflowBranchingType.XorJoinSplit, id)
 
@@ -133,6 +142,7 @@ def add_wf_and_split_join(
     id: str,
     name: str | None,
 ):
+    """Add workflow and split-join for in places and out places."""
     t = create_workflow_operator_helper_transition(
         net, id, name, 1, WorkflowBranchingType.AndJoinSplit
     )
@@ -149,6 +159,7 @@ type_map = {
 
 
 def handle_workflow_operators(net: Net, bpmn: Process, node: GenericBPMNNode) -> bool:
+    """Handle given operator for a bpmn process to petri net process."""
     node_type = type(node)
     f_split, f_join, f_split_join = type_map[node_type]  # type: ignore
     in_degree, out_degree = node.get_in_degree(), node.get_out_degree()
@@ -190,6 +201,7 @@ def handle_workflow_elements(
     workflow_nodes: set[GenericBPMNNode],
     caller_func: Callable[[Process, bool], Pnml],
 ):
+    """Handle given workflow element for a bpmn process to petri net process."""
     for node in workflow_nodes:
         if isinstance(node, Process):
             if node.get_in_degree() != 1 and node.get_out_degree != 1:
@@ -201,7 +213,8 @@ def handle_workflow_elements(
                 Transition.create(node.id, node.name).mark_as_workflow_subprocess()
             )
 
-            # WOPED subprocess start and endplaces must have the same id as the incoming/outgoing node of the subprocess
+            # WOPED subprocess start and endplaces must have the same id as the incoming/
+            #outgoing node of the subprocess
             outer_in_id, outer_out_id = (
                 list(bpmn.get_incoming(node.id))[0].sourceRef,
                 list(bpmn.get_outgoing(node.id))[0].targetRef,
@@ -210,7 +223,8 @@ def handle_workflow_elements(
                 net.get_element(outer_in_id),
                 net.get_element(outer_out_id),
             )
-            # if incoming/outgoing is from type transition a place will inserted after the handling of the workflow elements
+            # if incoming/outgoing is from type transition a place will inserted after
+            #the handling of the workflow elements
             # -> actual id of subprocess start/endevents must have id of new place
             if isinstance(outer_in, Transition):
                 outer_in_id = create_silent_node_name(

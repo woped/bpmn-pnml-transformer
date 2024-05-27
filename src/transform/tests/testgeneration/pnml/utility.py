@@ -3,6 +3,7 @@ from transform.transformer.models.pnml.pnml import Pnml
 
 
 def create_petri_net(test_case_name: str, flows: list[list[NetElement]]):
+    """Returns a test case petri net out of a list of net elements."""
     net_helper = Pnml.generate_empty_net(test_case_name)
     for flow in flows:
         for element in flow:

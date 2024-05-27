@@ -1,3 +1,4 @@
+"""Generate supported test cases for Workflow transformations."""
 from testgeneration.bpmn.utility import create_bpmn
 from testgeneration.pnml.helper_workflow import (
     create_operator_place,
@@ -19,6 +20,7 @@ from transform.transformer.utility.utility import create_silent_node_name
 
 
 def gateway_parallel_join_split():
+    """Return a BPMN and workflow net with AND gates."""
     case = "parallel_workflow_elements"
     se_id = "elem_1"
     ee_id = "elem_2"
@@ -100,6 +102,7 @@ def gateway_parallel_join_split():
 
 
 def gateway_exclusive_join_split():
+    """Return a BPMN and workflow net with XOR gates."""
     case = "exclusive_workflow_elements"
     se_id = "elem_1"
     ee_id = "elem_2"
@@ -214,6 +217,7 @@ def gateway_exclusive_join_split():
 
 
 def gateway_side_by_side_xor_and():
+    """Return a BPMN and workflow net with XOR+AND gates."""
     case = "gateway_side_by_side_xor_and"
     se_id = "elem_1"
     ee_id = "elem_2"
@@ -317,6 +321,7 @@ def gateway_side_by_side_xor_and():
 
 
 def gateway_side_by_side_and_xor():
+    """Return a BPMN and workflow net with AND+XOR gates."""
     case = "gateway_side_by_side_and_xor"
     se_id = "elem_1"
     ee_id = "elem_2"
@@ -419,6 +424,7 @@ def gateway_side_by_side_and_xor():
 
 
 def xor_and_split():
+    """Return a BPMN and workflow net with mixed gates."""
     case = "gateway_xor_and_split"
     se_id = "elem_1"
     ee_id = "elem_2"
@@ -532,6 +538,7 @@ def xor_and_split():
 
 
 def and_xor_split():
+    """Return a BPMN and workflow net with mixed gates."""
     case = "gateway_and_xor_split"
     se_id = "elem_1"
     ee_id = "elem_2"
@@ -643,6 +650,7 @@ def and_xor_split():
 
 
 def subprocess():
+    """Return a BPMN and workflow net with a subprocess."""
     case = "subprocess"
     se_id = "elem_1"
     ee_id = "elem_2"

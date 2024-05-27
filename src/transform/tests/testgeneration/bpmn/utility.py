@@ -1,3 +1,4 @@
+"""Utility function to create and modify BPMN models."""
 import io
 from typing import Any
 from xml.dom import minidom
@@ -8,6 +9,7 @@ from transform.transformer.utility.utility import create_arc_name
 
 
 def create_bpmn(test_case_name: str, flows: list[list[GenericBPMNNode]]):
+    """Returns a test case bpmn out of a list of nodes."""
     bpmn = BPMN.generate_empty_bpmn(test_case_name)
     all_flows = []
     for flow in flows:
@@ -20,6 +22,7 @@ def create_bpmn(test_case_name: str, flows: list[list[GenericBPMNNode]]):
 def create_flows(
     bpmn_in: BPMN, row: list[GenericBPMNNode], arc_label: dict[Any, str] | None = None
 ) -> list[Flow]:
+    """Create flows out of nodes."""
     bpmn = bpmn_in.process
     if not arc_label:
         arc_label = {}
@@ -38,6 +41,7 @@ def create_flows(
 
 
 def rename_bpmn_xml(xml_content: str, new_tag: str):
+    """Rename the BPMN tasks."""
     dom = minidom.parseString(xml_content)
     hit = dom.getElementsByTagName("bpmn:task")[0]
     hit.tagName = new_tag
@@ -49,6 +53,7 @@ def rename_bpmn_xml(xml_content: str, new_tag: str):
 
 
 def insert_bpmn_xml(xml_content: str, new_tag: str, force_id: str = "temp"):
+    """Insert a bpmn node in the XML."""
     dom = minidom.parseString(xml_content)
     process_tag = dom.getElementsByTagName("bpmn:process")
     hit = process_tag[0]

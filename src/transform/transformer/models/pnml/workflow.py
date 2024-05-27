@@ -1,3 +1,4 @@
+"""Petri net workflow operators."""
 from enum import Enum
 
 from pydantic_xml import attr
@@ -6,6 +7,7 @@ from transform.transformer.utility.utility import BaseModel
 
 
 class WorkflowBranchingType(int, Enum):
+    """Workflow type definition."""
     AndSplit = 101
     AndJoin = 102
     XorSplit = 104
@@ -18,5 +20,6 @@ class WorkflowBranchingType(int, Enum):
 
 
 class Operator(BaseModel, tag="operator"):
+    """Operator extension of BaseModel (+id, type)."""
     id: str = attr()
     type: WorkflowBranchingType = attr()

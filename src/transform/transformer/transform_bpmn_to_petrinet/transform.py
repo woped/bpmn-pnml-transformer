@@ -1,4 +1,5 @@
-from typing import Callable
+"""Methods to initiate a bpmn to petri net transformation."""
+from collections.abc import Callable
 
 from transform.transformer.models.bpmn.base import GenericBPMNNode
 from transform.transformer.models.bpmn.bpmn import (
@@ -29,8 +30,17 @@ from transform.transformer.transform_bpmn_to_petrinet.transform_workflow_helper 
 )
 from transform.transformer.utility.utility import create_silent_node_name
 
+from transformer.transform_bpmn_to_petrinet.preprocess_bpmn import (
+    inclusive_bpmn_preprocess as ibp,
+    insert_adjacent_subprocesses as ias
+)
+
+replace_inclusive_gateways = ibp.replace_inclusive_gateways
+insert_temp_between_adjacent_subprocesses = ias.insert_temp_between_adjacent_subprocesses
+
 
 def transform_bpmn_to_petrinet(bpmn: Process, is_workflow_net: bool = False):
+    """Return a petri net transformed from a processed bpmn process (+Workflow attr.)."""
     pnml = Pnml.generate_empty_net(bpmn.id)
     net = pnml.net
 
@@ -46,7 +56,7 @@ def transform_bpmn_to_petrinet(bpmn: Process, is_workflow_net: bool = False):
 
     # handle normals nodes
     for node in nodes:
-        if isinstance(node, (Task, AndGateway)):
+        if isinstance(node, Task | AndGateway):
             net.add_element(
                 Transition.create(
                     id=node.id,
@@ -60,8 +70,8 @@ def transform_bpmn_to_petrinet(bpmn: Process, is_workflow_net: bool = False):
                 )
             )
         elif isinstance(
-            node, (OrGateway, XorGateway, StartEvent, EndEvent, GenericBPMNNode)
-        ):
+            node, OrGateway | XorGateway | StartEvent | EndEvent | GenericBPMNNode
+            ):
             net.add_element(Place(id=node.id))
         else:
             raise Exception(f"{type(node)} not supported")
@@ -92,6 +102,7 @@ def transform_bpmn_to_petrinet(bpmn: Process, is_workflow_net: bool = False):
 
 
 def apply_preprocessing(bpmn: Process, funcs: list[Callable[[Process], None]]):
+    """Preprocess all subprocesses of process."""
     for p in bpmn.subprocesses:
         apply_preprocessing(p, funcs)
 
@@ -100,6 +111,7 @@ def apply_preprocessing(bpmn: Process, funcs: list[Callable[[Process], None]]):
 
 
 def bpmn_to_st_net(bpmn: BPMN):
+    """Return a processed and transformed petri net (non workflow) of process."""
     extend_subprocess(bpmn.process.subprocesses, bpmn.process)
 
     apply_preprocessing(bpmn.process, [replace_inclusive_gateways])
@@ -108,6 +120,7 @@ def bpmn_to_st_net(bpmn: BPMN):
 
 
 def bpmn_to_workflow_net(bpmn: BPMN):
+    """Return a processed and transformed petri net (workflow) of process."""
     apply_preprocessing(
         bpmn.process,
         [
@@ -120,5 +133,6 @@ def bpmn_to_workflow_net(bpmn: BPMN):
 
 
 def bpmn_to_st_net_from_xml(bpmn_xml: str):
+    """Return a processed and transformed petri net (non workflow) of xml file."""
     bpmn = BPMN.from_xml(bpmn_xml)
     return bpmn_to_st_net(bpmn)

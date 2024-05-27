@@ -1,3 +1,4 @@
+"""Methods to compare BPMNs by comparing all nodes with selected attributes."""
 from typing import cast
 
 from transform.transformer.equality.utils import create_type_dict, to_comp_string
@@ -10,6 +11,7 @@ from transform.transformer.models.bpmn.bpmn import (
 
 
 def bpmn_element_to_comp_value(e: GenericBPMNNode | Flow):
+    """Returns a concatenation of a by in/source and out/target comparable BPMN node."""
     if issubclass(type(e), GenericBPMNNode):
         e = cast(GenericBPMNNode, e)
         return to_comp_string(e.id, e.name, sorted(e.outgoing), sorted(e.incoming))
@@ -20,12 +22,14 @@ def bpmn_element_to_comp_value(e: GenericBPMNNode | Flow):
 
 
 def bpmn_type_map(bpmn: Process):
+    """Returns a by type grouped dictionary of the bpmn elements."""
     return create_type_dict(
         [*bpmn._flatten_node_typ_map(), *bpmn.flows], bpmn_element_to_comp_value
     )
 
 
 def get_all_processes_by_id(bpmn: Process, m: dict[str, Process]):
+    """Get all subprocesses as a dictionary by ID (Recursive function)."""
     if bpmn.id not in m:
         m[bpmn.id] = bpmn
     if len(bpmn.subprocesses) == 0:
@@ -36,6 +40,7 @@ def get_all_processes_by_id(bpmn: Process, m: dict[str, Process]):
 
 
 def compare_bpmn(bpmn1_comp: BPMN, bpmn2_comp: BPMN):
+    """Returns a boolean if the diagrams are equal and an optional error message."""
     bpmn1_processes: dict[str, Process] = {}
     get_all_processes_by_id(bpmn1_comp.process, bpmn1_processes)
     bpmn2_processes: dict[str, Process] = {}
@@ -59,7 +64,8 @@ def compare_bpmn(bpmn1_comp: BPMN, bpmn2_comp: BPMN):
                 diff_1_to_2 = bpmn1_types[k].difference(bpmn2_types[k])
                 diff_2_to_1 = bpmn2_types[k].difference(bpmn1_types[k])
                 errors.append(
-                    f"{bpmn_id}\n{k} difference equality| 1 to 2: {diff_1_to_2} | 2 to 1: {diff_2_to_1}"
+                    f"{bpmn_id}\n{k} difference equality| 1 to 2: {
+                        diff_1_to_2}| 2 to 1: {diff_2_to_1}"
                 )
     if len(errors) > 0:
         joined_errors = "\n".join(errors)

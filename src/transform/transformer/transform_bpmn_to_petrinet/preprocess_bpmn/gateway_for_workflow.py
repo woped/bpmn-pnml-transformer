@@ -1,3 +1,4 @@
+"""Process gateways for bpmn workflows."""
 from typing import cast
 
 from transform.transformer.models.bpmn.base import Gateway, GenericBPMNNode
@@ -5,6 +6,7 @@ from transform.transformer.models.bpmn.bpmn import Flow, Process
 
 
 def remove_unnecessary_gateways(bpmn: Process, gateways: set[Gateway]):
+    """Detect and remove unnecessary gateways in a set of gateways from a process."""
     to_remove_gws = []
     for gw in gateways:
         if gw.get_in_degree() > 1 or gw.get_out_degree() > 1:
@@ -24,6 +26,7 @@ def remove_unnecessary_gateways(bpmn: Process, gateways: set[Gateway]):
 
 
 def add_pn_place_between_adjacent_gateways(bpmn: Process, gateways: set[Gateway]):
+    """Add place between neighboring gateways in a list of gateways."""
     for gw in gateways:
         out_nodes: list[tuple[GenericBPMNNode, Flow]] = [
             (bpmn.get_node(x.targetRef), x) for x in bpmn.get_outgoing(gw.id)
@@ -42,6 +45,7 @@ def add_pn_place_between_adjacent_gateways(bpmn: Process, gateways: set[Gateway]
 
 
 def get_gateways(bpmn: Process):
+    """Get all gateways of a process."""
     nodes = bpmn._flatten_node_typ_map()
     gateways = cast(
         set[Gateway], {node for node in nodes if issubclass(type(node), Gateway)}
@@ -50,6 +54,7 @@ def get_gateways(bpmn: Process):
 
 
 def preprocess_gateways(bpmn: Process):
+    """Preprocess all gateways of a process."""
     gateways = get_gateways(bpmn)
     if len(gateways) == 0:
         return

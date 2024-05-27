@@ -1,3 +1,4 @@
+"""Generates BPMN and according petri net for various workflow cases ."""
 from testgeneration.bpmn.utility import create_bpmn
 from testgeneration.pnml.helper_workflow import (
     create_operator_place,
@@ -19,6 +20,7 @@ from transform.transformer.utility.utility import create_silent_node_name
 
 
 def reduce_unnecessary_gw():
+    """Return a simple BPMN and the according petri net with reduced gateways."""
     case = "reduce_unnecessary_gw"
     se_id = "elem_1"
     gw_id = "gw"
@@ -39,6 +41,7 @@ def reduce_unnecessary_gw():
 
 
 def gateway_parallel_join_split():
+    """Return a simple BPMN and the according workflow net with AND gates."""
     case = "parallel_workflow_elements"
     se_id = "elem_1"
     ee_id = "elem_2"
@@ -118,6 +121,7 @@ def gateway_parallel_join_split():
 
 
 def gateway_exclusive_join_split():
+    """Return a simple BPMN and the according workflow net for an with XOR gates."""
     case = "exclusive_workflow_elements"
     se_id = "elem_1"
     ee_id = "elem_2"
@@ -230,6 +234,7 @@ def gateway_exclusive_join_split():
 
 
 def gateway_side_by_side_xor_and():
+    """Return a simple BPMN and the according workflow net with mixed gates."""
     case = "gateway_side_by_side_xor_and"
     se_id = "elem_1"
     ee_id = "elem_2"
@@ -331,6 +336,7 @@ def gateway_side_by_side_xor_and():
 
 
 def gateway_side_by_side_and_xor():
+    """Return a simple BPMN and the according workflow net with XOR+AND gates."""
     case = "gateway_side_by_side_and_xor"
     se_id = "elem_1"
     ee_id = "elem_2"
@@ -432,6 +438,7 @@ def gateway_side_by_side_and_xor():
 
 
 def subprocess():
+    """Return a simple BPMN and the according workflow net with a subprocess."""
     case = "subprocess"
     se_id = "elem_1"
     ee_id = "elem_2"

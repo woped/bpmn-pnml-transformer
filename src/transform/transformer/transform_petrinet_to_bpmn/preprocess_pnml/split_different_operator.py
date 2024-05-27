@@ -12,8 +12,8 @@ from transform.transformer.transform_petrinet_to_bpmn.workflow_helper import (
 
 
 def split_different_operators(net: Net):
-    """
-    Combined Workflowoperators (And-Xor, Xor-And) can't be handled by BPMN-Elements.
+    """Combined Workflowoperators (And-Xor, Xor-And) can't be handled by BPMN-Elements.
+
     -> Split them into individual Workflowoperators
     """
     wf_operators = [
