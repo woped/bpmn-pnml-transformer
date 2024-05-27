@@ -21,7 +21,7 @@ requests==2.32.2
 ruff==0.4.5
 setuptools==70.0.0
 urllib3==2.2.1
-watchdog==4.0.0
+watchdog==4.0.1
 Werkzeug==3.0.3
 wheel==0.43.0
 # 
