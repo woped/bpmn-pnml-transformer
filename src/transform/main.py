@@ -1,6 +1,7 @@
 """API to transform a given model into a selected direction."""
 import flask
 import functions_framework
+import os
 from flask import jsonify
 from transformer.models.bpmn.bpmn import BPMN
 from transformer.models.pnml.pnml import Pnml
@@ -9,7 +10,31 @@ from transformer.transform_bpmn_to_petrinet.transform import (
     bpmn_to_workflow_net,
 )
 from transformer.transform_petrinet_to_bpmn.transform import pnml_to_bpmn
+from google.cloud import firestore
+from flask import abort
 
+os.environ["FIRESTORE_EMULATOR_HOST"] = "localhost:8244"
+
+db = firestore.Client()
+
+def check_tokens():
+    if db is None:
+        raise Exception("No database available")
+    doc_ref = db.collection("api-tokens").document("token-document")
+    doc = doc_ref.get()
+
+
+    if doc.exists:
+        tokens = doc.to_dict().get("tokens",0)
+
+        if tokens <= 0:
+            raise Exception("No tokens available")
+        
+        else:
+            doc_ref.update({"tokens": tokens-1})
+
+    else:
+        raise Exception("No document available")
 
 @functions_framework.http
 def post_transform(request: flask.Request):
@@ -22,6 +47,8 @@ def post_transform(request: flask.Request):
         request: A request with a parameter "direction" as transformation direction
         and a form with the xml model "bpmn" or "pnml".
     """
+    check_tokens()
+    
     transform_direction = request.args.get("direction")
     if transform_direction == "bpmntopnml":
         bpmn_xml_content = request.form["bpmn"]
