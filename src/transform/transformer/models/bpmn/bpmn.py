@@ -382,7 +382,7 @@ class BPMN(BPMNNamespace, tag="definitions"):
     def to_string(self) -> str:
         """Transform this instance into a string and creates placeholder graphics."""
         self.set_graphics()
-        return cast(str, self.to_xml(encoding="unicode", pretty_print=True))
+        return cast(str, self.to_xml(encoding="unicode", pretty_print=False))
 
     def write_to_file(self, path: str):
         """Save this instance xml encoded to a file."""

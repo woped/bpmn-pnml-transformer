@@ -7,7 +7,6 @@ import pm4py
 from pm4py.objects.petri_net.obj import Marking
 from pydantic import PrivateAttr
 from pydantic_xml import attr, element
-
 from transformer.models.pnml.base import (
     GenericNetNode,
     Graphics,
@@ -25,6 +24,7 @@ from transformer.utility.utility import (
 
 class Transition(NetElement, tag="transition"):
     """Transition extension of NetElement."""
+
     @staticmethod
     def create(id: str, name: str | None = None):
         """Returns an instance of a transition."""
@@ -33,6 +33,7 @@ class Transition(NetElement, tag="transition"):
 
 class Place(NetElement, tag="place"):
     """Place extension of NetElement."""
+
     @staticmethod
     def create(id: str, name: str | None = None):
         """Returns instance of a place."""
@@ -41,6 +42,7 @@ class Place(NetElement, tag="place"):
 
 class Arc(BaseModel, tag="arc"):
     """Arc extension of BaseModel (+ID,source,target,inscription...)."""
+
     id: str = attr()
     source: str = attr()
     target: str = attr()
@@ -55,11 +57,13 @@ class Arc(BaseModel, tag="arc"):
 
 class Page(GenericNetNode, tag="page"):
     """Page extension of GenericNetNode (+Net)."""
+
     net: "Net"
 
 
 class Net(BaseModel, tag="net"):
     """Net extension of BaseModel (+ID, type_field, places, transitions, arcs...)."""
+
     type_field: str | None = attr(default=None, alias="type")
     id: str | None = attr(default=None)
 
@@ -155,9 +159,7 @@ class Net(BaseModel, tag="net"):
             self.add_arc(source, t)
             self.add_arc(t, target)
         elif isinstance(source, Transition) and isinstance(target, Transition):
-            p = self.add_element(
-                Place(id=create_silent_node_name(source.id, target.id))
-            )
+            p = self.add_element(Place(id=create_silent_node_name(source.id, target.id)))
             self.add_arc(source, p)
             self.add_arc(p, target)
         else:
@@ -258,11 +260,12 @@ Page.model_rebuild()
 
 class Pnml(BaseModel, tag="pnml"):
     """Petri net extension of base model."""
+
     net: Net
 
     def to_string(self) -> str:
         """Return string of net instance."""
-        return cast(str, self.to_xml(encoding="unicode", pretty_print=True))
+        return cast(str, self.to_xml(encoding="unicode", pretty_print=False))
 
     def write_to_file(self, path: str):
         """Save net to file."""
