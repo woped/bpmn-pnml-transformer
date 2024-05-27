@@ -2,8 +2,8 @@ from typing import Optional
 
 from pydantic import ValidationInfo, model_validator
 from pydantic_xml import attr, element
-from transformer.exceptions import NotSupportedBPMNElement
-from transformer.utility.utility import BaseModel
+from transform.transformer.exceptions import NotSupportedBPMNElement
+from transform.transformer.utility.utility import BaseModel
 
 ns_map = {
     "bpmn": "http://www.omg.org/spec/BPMN/20100524/MODEL",

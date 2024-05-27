@@ -1,7 +1,7 @@
 from typing import Callable
 
-from transformer.models.bpmn.base import GenericBPMNNode
-from transformer.models.bpmn.bpmn import (
+from transform.transformer.models.bpmn.base import GenericBPMNNode
+from transform.transformer.models.bpmn.bpmn import (
     BPMN,
     AndGateway,
     EndEvent,
@@ -11,23 +11,23 @@ from transformer.models.bpmn.bpmn import (
     Task,
     XorGateway,
 )
-from transformer.models.pnml.pnml import Place, Pnml, Transition
-from transformer.transform_bpmn_to_petrinet.preprocess_bpmn.extend_process import (
+from transform.transformer.models.pnml.pnml import Place, Pnml, Transition
+from transform.transformer.transform_bpmn_to_petrinet.preprocess_bpmn.extend_process import (
     extend_subprocess,
 )
-from transformer.transform_bpmn_to_petrinet.preprocess_bpmn.gateway_for_workflow import (
+from transform.transformer.transform_bpmn_to_petrinet.preprocess_bpmn.gateway_for_workflow import (
     preprocess_gateways,
 )
-from transformer.transform_bpmn_to_petrinet.preprocess_bpmn.inclusive_bpmn_preprocess import (
+from transform.transformer.transform_bpmn_to_petrinet.preprocess_bpmn.inclusive_bpmn_preprocess import (
     replace_inclusive_gateways,
 )
-from transformer.transform_bpmn_to_petrinet.preprocess_bpmn.insert_adjacent_subprocesses import (
+from transform.transformer.transform_bpmn_to_petrinet.preprocess_bpmn.insert_adjacent_subprocesses import (
     insert_temp_between_adjacent_subprocesses,
 )
-from transformer.transform_bpmn_to_petrinet.transform_workflow_helper import (
+from transform.transformer.transform_bpmn_to_petrinet.transform_workflow_helper import (
     handle_workflow_elements,
 )
-from transformer.utility.utility import create_silent_node_name
+from transform.transformer.utility.utility import create_silent_node_name
 
 
 def transform_bpmn_to_petrinet(bpmn: Process, is_workflow_net: bool = False):

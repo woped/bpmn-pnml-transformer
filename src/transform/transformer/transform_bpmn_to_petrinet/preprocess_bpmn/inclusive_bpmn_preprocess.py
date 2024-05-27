@@ -1,7 +1,7 @@
 from typing import cast
 
-from transformer.models.bpmn.base import GenericBPMNNode
-from transformer.models.bpmn.bpmn import (
+from transform.transformer.models.bpmn.base import GenericBPMNNode
+from transform.transformer.models.bpmn.bpmn import (
     AndGateway,
     Flow,
     OrGateway,
@@ -9,7 +9,7 @@ from transformer.models.bpmn.bpmn import (
     Task,
     XorGateway,
 )
-from transformer.utility.utility import create_arc_name
+from transform.transformer.utility.utility import create_arc_name
 
 
 def traverse_matching_gw(

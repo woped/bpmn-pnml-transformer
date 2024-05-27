@@ -1,18 +1,18 @@
 from typing import Callable, cast
 
-from transformer.models.bpmn.base import GenericBPMNNode
-from transformer.models.bpmn.bpmn import AndGateway, Process, XorGateway
-from transformer.models.pnml.base import NetElement
-from transformer.models.pnml.pnml import (
+from transform.transformer.models.bpmn.base import GenericBPMNNode
+from transform.transformer.models.bpmn.bpmn import AndGateway, Process, XorGateway
+from transform.transformer.models.pnml.base import NetElement
+from transform.transformer.models.pnml.pnml import (
     Net,
     Page,
     Place,
     Pnml,
     Transition,
 )
-from transformer.models.pnml.workflow import WorkflowBranchingType
-from transformer.utility.bpmn import find_end_events, find_start_events
-from transformer.utility.utility import create_arc_name, create_silent_node_name
+from transform.transformer.models.pnml.workflow import WorkflowBranchingType
+from transform.transformer.utility.bpmn import find_end_events, find_start_events
+from transform.transformer.utility.utility import create_arc_name, create_silent_node_name
 
 
 def create_workflow_operator_helper_transition(

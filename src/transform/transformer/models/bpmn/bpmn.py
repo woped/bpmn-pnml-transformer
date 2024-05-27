@@ -8,14 +8,14 @@ from lxml import etree, objectify
 from pydantic import PrivateAttr
 from pydantic_xml import attr, element
 
-from transformer.exceptions import NotSupportedBPMNElement
-from transformer.models.bpmn.base import (
+from transform.transformer.exceptions import NotSupportedBPMNElement
+from transform.transformer.models.bpmn.base import (
     BPMNNamespace,
     Gateway,
     GenericBPMNNode,
     GenericIdNode,
 )
-from transformer.models.bpmn.bpmn_graphics import (
+from transform.transformer.models.bpmn.bpmn_graphics import (
     BPMNDiagram,
     BPMNEdge,
     BPMNLabel,
@@ -24,8 +24,8 @@ from transformer.models.bpmn.bpmn_graphics import (
     DCBounds,
     DIWaypoint,
 )
-from transformer.models.bpmn.not_supported_models import CatchEvent, ThrowEvent
-from transformer.utility.utility import create_arc_name, get_tag_name
+from transform.transformer.models.bpmn.not_supported_models import CatchEvent, ThrowEvent
+from transform.transformer.utility.utility import create_arc_name, get_tag_name
 
 not_supported_elements = {
     # custom element

@@ -1,8 +1,8 @@
 from typing import cast
 
-from transformer.equality.utils import create_type_dict, to_comp_string
-from transformer.models.bpmn.base import GenericBPMNNode
-from transformer.models.bpmn.bpmn import (
+from transform.transformer.equality.utils import create_type_dict, to_comp_string
+from transform.transformer.models.bpmn.base import GenericBPMNNode
+from transform.transformer.models.bpmn.bpmn import (
     BPMN,
     Flow,
     Process,

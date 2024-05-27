@@ -1,5 +1,5 @@
-from transformer.models.bpmn.base import GenericBPMNNode
-from transformer.models.bpmn.bpmn import Flow, Process
+from transform.transformer.models.bpmn.base import GenericBPMNNode
+from transform.transformer.models.bpmn.bpmn import Flow, Process
 
 
 def insert_temp_between_adjacent_subprocesses(bpmn: Process):

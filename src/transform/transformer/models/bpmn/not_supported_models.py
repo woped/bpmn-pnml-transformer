@@ -1,4 +1,4 @@
-from transformer.models.bpmn.base import NotSupportedNode
+from transform.transformer.models.bpmn.base import NotSupportedNode
 
 
 class TextAnnotation(NotSupportedNode, tag="textAnnotation"):

@@ -2,7 +2,7 @@ from enum import Enum
 
 from pydantic_xml import attr
 
-from transformer.utility.utility import BaseModel
+from transform.transformer.utility.utility import BaseModel
 
 
 class WorkflowBranchingType(int, Enum):

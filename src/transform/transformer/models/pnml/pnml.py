@@ -7,7 +7,7 @@ from pm4py.objects.petri_net.obj import Marking
 from pydantic import PrivateAttr
 from pydantic_xml import attr, element
 
-from transformer.models.pnml.base import (
+from transform.transformer.models.pnml.base import (
     GenericNetNode,
     Graphics,
     Inscription,
@@ -15,7 +15,7 @@ from transformer.models.pnml.base import (
     NetElement,
     Toolspecific,
 )
-from transformer.utility.utility import (
+from transform.transformer.utility.utility import (
     BaseModel,
     create_arc_name,
     create_silent_node_name,

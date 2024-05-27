@@ -1,8 +1,8 @@
-from transformer.models.pnml.pnml import (
+from transform.transformer.models.pnml.pnml import (
     Place,
     Transition,
 )
-from transformer.models.pnml.workflow import WorkflowBranchingType
+from transform.transformer.models.pnml.workflow import WorkflowBranchingType
 
 
 def create_operator_place(id: str, t: WorkflowBranchingType):

@@ -2,13 +2,13 @@
 import flask
 import functions_framework
 from flask import jsonify
-from transformer.models.bpmn.bpmn import BPMN
-from transformer.models.pnml.pnml import Pnml
-from transformer.transform_bpmn_to_petrinet.transform import (
+from transform.transformer.models.bpmn.bpmn import BPMN
+from transform.transformer.models.pnml.pnml import Pnml
+from transform.transformer.transform_bpmn_to_petrinet.transform import (
     bpmn_to_st_net,
     bpmn_to_workflow_net,
 )
-from transformer.transform_petrinet_to_bpmn.transform import pnml_to_bpmn
+from transform.transformer.transform_petrinet_to_bpmn.transform import pnml_to_bpmn
 
 
 @functions_framework.http

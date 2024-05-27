@@ -2,8 +2,8 @@ from typing import Optional, Union
 
 from pydantic_xml import attr, element
 
-from transformer.models.bpmn.base import ns_map
-from transformer.utility.utility import BaseModel
+from transform.transformer.models.bpmn.base import ns_map
+from transform.transformer.utility.utility import BaseModel
 
 
 class BPMNDINamespace(BaseModel, ns="bpmndi", nsmap=ns_map):

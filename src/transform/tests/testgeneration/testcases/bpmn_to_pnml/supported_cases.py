@@ -1,7 +1,7 @@
 from testgeneration.bpmn.utility import create_bpmn
 from testgeneration.pnml.utility import create_petri_net
 
-from transformer.models.bpmn.bpmn import (
+from transform.transformer.models.bpmn.bpmn import (
     BPMN,
     AndGateway,
     EndEvent,
@@ -10,8 +10,8 @@ from transformer.models.bpmn.bpmn import (
     Task,
     XorGateway,
 )
-from transformer.models.pnml.pnml import Place, Pnml, Transition
-from transformer.utility.utility import create_silent_node_name
+from transform.transformer.models.pnml.pnml import Place, Pnml, Transition
+from transform.transformer.utility.utility import create_silent_node_name
 
 
 def start_end():

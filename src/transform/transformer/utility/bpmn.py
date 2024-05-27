@@ -1,4 +1,4 @@
-from transformer.models.bpmn.bpmn import Process
+from transform.transformer.models.bpmn.bpmn import Process
 
 
 def find_start_events(process: Process):
