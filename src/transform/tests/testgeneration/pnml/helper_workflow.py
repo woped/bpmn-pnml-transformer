@@ -1,3 +1,5 @@
+"""Module for creating operator places and transitions in a workflow using PNML."""
+
 from transform.transformer.models.pnml.pnml import (
     Place,
     Transition,

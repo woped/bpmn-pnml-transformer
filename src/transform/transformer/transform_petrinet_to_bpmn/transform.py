@@ -12,9 +12,6 @@ from transform.transformer.models.bpmn.bpmn import (
     XorGateway,
 )
 from transform.transformer.models.pnml.pnml import Net, Place, Pnml, Transition
-from transform.transformer.transform_petrinet_to_bpmn.preprocess_pnml.split_different_operator import (
-    split_different_operators,
-)
 from transform.transformer.transform_petrinet_to_bpmn.workflow_helper import (
     find_workflow_operators,
     find_workflow_subprocesses,

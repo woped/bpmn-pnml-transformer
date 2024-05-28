@@ -1,3 +1,10 @@
+"""Module for adding temporary subprocess linking nodes.
+
+Provides functionality to add temporary subprocess linking nodes between 
+adjacent subprocesses in BPMN models.
+"""
+
+
 from transform.transformer.models.bpmn.base import GenericBPMNNode
 from transform.transformer.models.bpmn.bpmn import Flow, Process
 

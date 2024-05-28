@@ -13,17 +13,11 @@ from transform.transformer.models.bpmn.bpmn import (
     XorGateway,
 )
 from transform.transformer.models.pnml.pnml import Place, Pnml, Transition
-from transform.transformer.transform_bpmn_to_petrinet.preprocess_bpmn.extend_process import (
+from transform.transformer.transform_bpmn_to_petrinet.preprocess_bpmn.extend_process import ( # noqa: E501
     extend_subprocess,
 )
-from transform.transformer.transform_bpmn_to_petrinet.preprocess_bpmn.gateway_for_workflow import (
+from transform.transformer.transform_bpmn_to_petrinet.preprocess_bpmn.gateway_for_workflow import ( # noqa: E501
     preprocess_gateways,
-)
-from transform.transformer.transform_bpmn_to_petrinet.preprocess_bpmn.inclusive_bpmn_preprocess import (
-    replace_inclusive_gateways,
-)
-from transform.transformer.transform_bpmn_to_petrinet.preprocess_bpmn.insert_adjacent_subprocesses import (
-    insert_temp_between_adjacent_subprocesses,
 )
 from transform.transformer.transform_bpmn_to_petrinet.transform_workflow_helper import (
     handle_workflow_elements,
@@ -34,6 +28,7 @@ from transformer.transform_bpmn_to_petrinet.preprocess_bpmn import (
     inclusive_bpmn_preprocess as ibp,
     insert_adjacent_subprocesses as ias
 )
+
 
 replace_inclusive_gateways = ibp.replace_inclusive_gateways
 insert_temp_between_adjacent_subprocesses = ias.insert_temp_between_adjacent_subprocesses

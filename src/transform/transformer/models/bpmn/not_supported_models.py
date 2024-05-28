@@ -1,3 +1,5 @@
+"""Module for defining extensions of unsupported BPMN nodes."""
+
 from transform.transformer.models.bpmn.base import NotSupportedNode
 
 
