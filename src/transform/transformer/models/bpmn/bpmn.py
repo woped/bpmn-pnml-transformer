@@ -16,7 +16,6 @@ from transformer.models.bpmn.base import (
     Gateway,
     GenericBPMNNode,
     GenericIdNode,
-    ns_map,
 )
 from transformer.models.bpmn.bpmn_graphics import (
     BPMNDiagram,

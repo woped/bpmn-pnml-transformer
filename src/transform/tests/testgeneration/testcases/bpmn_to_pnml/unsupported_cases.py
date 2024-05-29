@@ -1,8 +1,10 @@
 """Generate unsupported cases for BPMN to PNML."""
+
 import shutil
 
 from testgeneration.bpmn.utility import create_bpmn, rename_bpmn_xml
 from testgeneration.utility import create_file_path, read_bpmn_file
+
 from transformer.models.bpmn.bpmn import EndEvent, StartEvent, Task
 
 
@@ -45,7 +47,7 @@ def generate():
         "IntermediateCatchEvent",
         "BoundaryEvent",
     ]:
-        r = rename_bpmn_xml(bpmn, f"bpmn:{case_name}")
+        r = rename_bpmn_xml(bpmn, f"{case_name}")
         bpmns.append((r, case_name))
     shutil.rmtree(create_file_path("", temp_case_name).rsplit("/", 1)[0])
     return bpmns

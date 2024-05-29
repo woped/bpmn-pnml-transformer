@@ -1,7 +1,6 @@
 """Methods to initiate a bpmn to petri net transformation."""
 
 from collections.abc import Callable
-from pathlib import Path
 
 from transformer.models.bpmn.base import Gateway, GenericBPMNNode
 from transformer.models.bpmn.bpmn import (
@@ -19,7 +18,7 @@ from transformer.transform_bpmn_to_petrinet.preprocess_bpmn import (
     inclusive_bpmn_preprocess as ibp,
 )
 from transformer.transform_bpmn_to_petrinet.preprocess_bpmn import (
-    insert_adjacent_subprocesses as ias,
+    insert_adjacent_mapped_transition as ias,
 )
 from transformer.transform_bpmn_to_petrinet.preprocess_bpmn.extend_process import (
     extend_subprocess,
@@ -34,7 +33,9 @@ from transformer.transform_bpmn_to_petrinet.transform_workflow_helper import (
 from transformer.utility.utility import create_silent_node_name
 
 replace_inclusive_gateways = ibp.replace_inclusive_gateways
-insert_temp_between_adjacent_subprocesses = ias.insert_temp_between_adjacent_subprocesses
+insert_temp_between_adjacent_mapped_transitions = (
+    ias.insert_temp_between_adjacent_mapped_transition
+)
 
 
 def transform_bpmn_to_petrinet(bpmn: Process, is_workflow_net: bool = False):
@@ -131,7 +132,7 @@ def bpmn_to_workflow_net(bpmn: BPMN):
         [
             replace_inclusive_gateways,
             preprocess_gateways,
-            insert_temp_between_adjacent_subprocesses,
+            insert_temp_between_adjacent_mapped_transitions,
         ],
     )
     return transform_bpmn_to_petrinet(bpmn.process, True)
