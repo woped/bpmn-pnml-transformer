@@ -22,6 +22,7 @@ from transformer.transform_petrinet_to_bpmn.workflow_helper import (
     handle_workflow_operators,
     handle_workflow_subprocesses,
 )
+from transformer.utility.utility import create_arc_name
 
 split_different_operators = sdo.split_different_operators
 
@@ -37,16 +38,31 @@ def remove_silent_tasks(bpmn: Process):
 
 def remove_unnecessary_gateways(bpmn: Process):
     """Remove unnecessary gateways (In and out degree <= 1)."""
-    gw_nodes = {
-        node for node in bpmn._flatten_node_typ_map() if issubclass(type(node), Gateway)
-    }
-    for gw_node in gw_nodes:
-        if gw_node.get_in_degree() > 1 or gw_node.get_out_degree() > 1:
-            continue
-        if gw_node.get_in_degree() == 0 or gw_node.get_out_degree() == 0:
-            continue
-        source_id, target_id = bpmn.remove_node_with_connecting_flows(gw_node)
-        bpmn.add_flow(bpmn.get_node(source_id), bpmn.get_node(target_id))
+    is_rerun_reduce = True
+    while is_rerun_reduce:
+        is_rerun_reduce = False
+
+        gw_nodes = [
+            node
+            for node in bpmn._flatten_node_typ_map()
+            if issubclass(type(node), Gateway)
+        ]
+        for gw_node in gw_nodes:
+            if gw_node.get_in_degree() > 1 or gw_node.get_out_degree() > 1:
+                continue
+            if gw_node.get_in_degree() == 0 or gw_node.get_out_degree() == 0:
+                continue
+
+            source_id, target_id = bpmn.remove_node_with_connecting_flows(gw_node)
+            new_flow_id = create_arc_name(source_id, target_id)
+            if new_flow_id in bpmn._temp_flows:
+                continue
+
+            bpmn.add_flow(
+                bpmn.get_node(source_id), bpmn.get_node(target_id), id=new_flow_id
+            )
+
+            is_rerun_reduce = True
 
 
 def transform_petrinet_to_bpmn(net: Net):

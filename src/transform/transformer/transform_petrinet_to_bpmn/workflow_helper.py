@@ -1,4 +1,5 @@
 """Handle workflow subprocesses and operators of petri net and handle them in bpmn."""
+
 from collections.abc import Callable
 
 from pydantic import BaseModel, Field
@@ -12,6 +13,7 @@ from transformer.models.pnml.workflow import WorkflowBranchingType
 
 class WorkflowOperatorWrapper(BaseModel):
     """WorkflowOperatorWrapper extension of BaseModel (+ID, name, type, nodes...)."""
+
     id: str
     name: str | None = None
     t: WorkflowBranchingType
@@ -106,6 +108,7 @@ def handle_workflow_subprocesses(
         inner_bpmn = caller_func(page_net).process
         inner_bpmn.id = sb_id
         inner_bpmn.name = subprocess_transition.get_name()
+        inner_bpmn.isExecutable = None
         bpmn.add_node(inner_bpmn)
 
 
