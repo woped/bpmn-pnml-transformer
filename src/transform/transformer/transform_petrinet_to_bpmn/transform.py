@@ -1,4 +1,5 @@
 """Initiate the preprocessing and transformation of pnml to bpmn."""
+
 from collections.abc import Callable
 
 from transformer.models.bpmn.base import Gateway
@@ -12,6 +13,9 @@ from transformer.models.bpmn.bpmn import (
     XorGateway,
 )
 from transformer.models.pnml.pnml import Net, Place, Pnml, Transition
+from transformer.transform_petrinet_to_bpmn.preprocess_pnml import (
+    split_different_operator as sdo,
+)
 from transformer.transform_petrinet_to_bpmn.workflow_helper import (
     find_workflow_operators,
     find_workflow_subprocesses,
@@ -19,9 +23,6 @@ from transformer.transform_petrinet_to_bpmn.workflow_helper import (
     handle_workflow_subprocesses,
 )
 
-from transformer.transform_petrinet_to_bpmn.preprocess_pnml import (
-    split_different_operator as sdo
-)
 split_different_operators = sdo.split_different_operators
 
 
@@ -41,6 +42,8 @@ def remove_unnecessary_gateways(bpmn: Process):
     }
     for gw_node in gw_nodes:
         if gw_node.get_in_degree() > 1 or gw_node.get_out_degree() > 1:
+            continue
+        if gw_node.get_in_degree() == 0 or gw_node.get_out_degree() == 0:
             continue
         source_id, target_id = bpmn.remove_node_with_connecting_flows(gw_node)
         bpmn.add_flow(bpmn.get_node(source_id), bpmn.get_node(target_id))
