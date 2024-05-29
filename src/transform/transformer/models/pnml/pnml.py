@@ -1,4 +1,5 @@
 """PNML objects and operations."""
+
 import os
 from pathlib import Path
 from typing import cast
@@ -7,6 +8,7 @@ import pm4py
 from pm4py.objects.petri_net.obj import Marking
 from pydantic import PrivateAttr
 from pydantic_xml import attr, element
+
 from transformer.models.pnml.base import (
     GenericNetNode,
     Graphics,
@@ -221,7 +223,7 @@ class Net(BaseModel, tag="net"):
     def get_element(self, id: str):
         """Return element by id."""
         if id not in self._temp_elements:
-            raise Exception("Cant get nonexisting Node")
+            raise Exception(f"Cant get nonexisting Node with id {id}")
         return self._temp_elements[id]
 
     def get_page(self, id: str):

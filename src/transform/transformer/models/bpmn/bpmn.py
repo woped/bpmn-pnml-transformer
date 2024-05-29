@@ -16,6 +16,7 @@ from transformer.models.bpmn.base import (
     Gateway,
     GenericBPMNNode,
     GenericIdNode,
+    ns_map,
 )
 from transformer.models.bpmn.bpmn_graphics import (
     BPMNDiagram,
@@ -103,12 +104,11 @@ class Task(GenericBPMNNode, tag="task"):
 class Process(GenericBPMNNode):
     """Process extension of GenericBPMNNode."""
 
-    isExecutable: bool = attr(default=False)
+    isExecutable: bool | None = attr(default=None)
 
-    flows: set[Flow] = element(default_factory=set)
+    start_events: set[StartEvent] = element(default_factory=set)
 
     tasks: set[Task] = element(default_factory=set)
-    start_events: set[StartEvent] = element(default_factory=set)
     end_events: set[EndEvent] = element(default_factory=set)
 
     xor_gws: set[XorGateway] = element(default_factory=set)
@@ -116,6 +116,8 @@ class Process(GenericBPMNNode):
     and_gws: set[AndGateway] = element(default_factory=set)
 
     subprocesses: set["Process"] = element(default_factory=set, tag="subProcess")
+
+    flows: set[Flow] = element(default_factory=set)
 
     not_supported: list[ThrowEvent | CatchEvent] = element(default_factory=list)
 
@@ -379,7 +381,7 @@ class BPMN(BPMNNamespace, tag="definitions"):
     @staticmethod
     def generate_empty_bpmn(id="new_bpmn"):
         """Return an empty bpmn with a process."""
-        return BPMN(process=Process(id=id))
+        return BPMN(process=Process(id=id, isExecutable=True))
 
     def to_string(self) -> str:
         """Transform this instance into a string and creates placeholder graphics."""
@@ -411,7 +413,9 @@ class BPMN(BPMNNamespace, tag="definitions"):
                 bpmnElement=node.id,
                 bounds=DCBounds(width=100, height=80),
             )
-            if node.name:
+            if isinstance(node, Process):
+                s.isExpanded = True
+            if node.name and not isinstance(node, Process | Task):
                 s.label = BPMNLabel(bounds=DCBounds(width=50, height=20))
             p.eles.append(s)
 

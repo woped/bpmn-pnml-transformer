@@ -15,7 +15,9 @@ ns_map = {
 }
 
 
-class BPMNNamespace(BaseBPMNModel, ns="bpmn", nsmap=ns_map):
+class BPMNNamespace(
+    BaseBPMNModel,
+):
     """Extension of BaseBPMNModel with namespace bpmn and namespace map."""
 
     pass

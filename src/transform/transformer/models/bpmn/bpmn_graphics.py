@@ -15,7 +15,7 @@ class BPMNDINamespace(BaseBPMNModel, ns="bpmndi", nsmap=ns_map):
 class BPMNDIID(BPMNDINamespace):
     """BPMNDIID extension of BPMNDINamespace with string ID attribute."""
 
-    id: str = attr()
+    id: str | None = attr(default=None)
 
 
 class BPMNDIObject(BPMNDIID):

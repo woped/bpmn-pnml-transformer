@@ -1,6 +1,7 @@
 """Methods to initiate a bpmn to petri net transformation."""
 
 from collections.abc import Callable
+from pathlib import Path
 
 from transformer.models.bpmn.base import Gateway, GenericBPMNNode
 from transformer.models.bpmn.bpmn import (
