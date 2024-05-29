@@ -27,17 +27,17 @@ class BPMNDIObject(BPMNDIID):
 class DCBounds(BaseModel, tag="Bounds", ns="dc", nsmap=ns_map):
     """DCBounds extension of BaseModel with x,y, width and height xml attributes."""
 
-    x: int = attr()
-    y: int = attr()
-    width: int = attr()
-    height: int = attr()
+    x: float = attr()
+    y: float = attr()
+    width: float = attr()
+    height: float = attr()
 
 
 class DIWaypoint(BaseModel, tag="waypoint", ns="di", nsmap=ns_map):
     """DIWaypoint extension of BaseModel with x and y xml attribute."""
 
-    x: int = attr()
-    y: int = attr()
+    x: float = attr()
+    y: float = attr()
 
 
 class BPMNLabel(BPMNDINamespace, tag="BPMNLabel"):
