@@ -29,6 +29,16 @@ class BaseModel(
     BaseXmlModel,
     search_mode="unordered",
     skip_empty=True,
+):
+    """BaseModel extension of BaseXmlModel."""
+
+    pass
+
+
+class BaseBPMNModel(
+    BaseXmlModel,
+    search_mode="unordered",
+    skip_empty=True,
     nsmap={"": "http://www.omg.org/spec/BPMN/20100524/MODEL"},
 ):
     """BaseModel extension of BaseXmlModel."""

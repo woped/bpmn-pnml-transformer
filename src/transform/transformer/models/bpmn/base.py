@@ -4,7 +4,7 @@ from pydantic import ValidationInfo, model_validator
 from pydantic_xml import attr, element
 
 from transformer.exceptions import NotSupportedBPMNElement
-from transformer.utility.utility import BaseModel
+from transformer.utility.utility import BaseBPMNModel
 
 ns_map = {
     "bpmn": "http://www.omg.org/spec/BPMN/20100524/MODEL",
@@ -15,8 +15,8 @@ ns_map = {
 }
 
 
-class BPMNNamespace(BaseModel, ns="bpmn", nsmap=ns_map):
-    """Extension of BaseModel with namespace bpmn and namespace map."""
+class BPMNNamespace(BaseBPMNModel, ns="bpmn", nsmap=ns_map):
+    """Extension of BaseBPMNModel with namespace bpmn and namespace map."""
 
     pass
 
@@ -31,8 +31,8 @@ class GenericIdNode(BPMNNamespace):
         return hash((type(self),) + (self.id,))
 
 
-class FlowRef(BaseModel):
-    """Extension of BaseModel."""
+class FlowRef(BaseBPMNModel):
+    """Extension of BaseBPMNModel."""
 
     text: str
 

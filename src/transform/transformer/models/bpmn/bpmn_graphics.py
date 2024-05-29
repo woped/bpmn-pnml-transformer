@@ -3,11 +3,11 @@
 from pydantic_xml import attr, element
 
 from transformer.models.bpmn.base import ns_map
-from transformer.utility.utility import BaseModel
+from transformer.utility.utility import BaseBPMNModel
 
 
-class BPMNDINamespace(BaseModel, ns="bpmndi", nsmap=ns_map):
-    """BPMNDINNamespace extension of BaseModel."""
+class BPMNDINamespace(BaseBPMNModel, ns="bpmndi", nsmap=ns_map):
+    """BPMNDINNamespace extension of BaseBPMNModel."""
 
     pass
 
@@ -24,8 +24,8 @@ class BPMNDIObject(BPMNDIID):
     bpmnElement: str = attr()
 
 
-class DCBounds(BaseModel, tag="Bounds", ns="omgdc", nsmap=ns_map):
-    """DCBounds extension of BaseModel with x,y, width and height xml attributes."""
+class DCBounds(BaseBPMNModel, tag="Bounds", ns="omgdc", nsmap=ns_map):
+    """DCBounds extension of BaseBPMNModel with x,y, width and height xml attributes."""
 
     x: float = attr(default=0)
     y: float = attr(default=0)
@@ -33,8 +33,8 @@ class DCBounds(BaseModel, tag="Bounds", ns="omgdc", nsmap=ns_map):
     height: float = attr()
 
 
-class DIWaypoint(BaseModel, tag="waypoint", ns="omgdi", nsmap=ns_map):
-    """DIWaypoint extension of BaseModel with x and y xml attribute."""
+class DIWaypoint(BaseBPMNModel, tag="waypoint", ns="omgdi", nsmap=ns_map):
+    """DIWaypoint extension of BaseBPMNModel with x and y xml attribute."""
 
     x: float = attr(default=0)
     y: float = attr(default=0)

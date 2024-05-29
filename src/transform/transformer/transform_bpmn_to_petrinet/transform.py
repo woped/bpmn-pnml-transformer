@@ -1,7 +1,8 @@
 """Methods to initiate a bpmn to petri net transformation."""
+
 from collections.abc import Callable
 
-from transformer.models.bpmn.base import GenericBPMNNode
+from transformer.models.bpmn.base import Gateway, GenericBPMNNode
 from transformer.models.bpmn.bpmn import (
     BPMN,
     AndGateway,
@@ -13,6 +14,12 @@ from transformer.models.bpmn.bpmn import (
     XorGateway,
 )
 from transformer.models.pnml.pnml import Place, Pnml, Transition
+from transformer.transform_bpmn_to_petrinet.preprocess_bpmn import (
+    inclusive_bpmn_preprocess as ibp,
+)
+from transformer.transform_bpmn_to_petrinet.preprocess_bpmn import (
+    insert_adjacent_subprocesses as ias,
+)
 from transformer.transform_bpmn_to_petrinet.preprocess_bpmn.extend_process import (
     extend_subprocess,
 )
@@ -20,14 +27,10 @@ from transformer.transform_bpmn_to_petrinet.preprocess_bpmn.gateway_for_workflow
     preprocess_gateways,
 )
 from transformer.transform_bpmn_to_petrinet.transform_workflow_helper import (
-    handle_workflow_elements,
+    handle_gateways,
+    handle_subprocesses,
 )
 from transformer.utility.utility import create_silent_node_name
-
-from transformer.transform_bpmn_to_petrinet.preprocess_bpmn import (
-    inclusive_bpmn_preprocess as ibp,
-    insert_adjacent_subprocesses as ias
-)
 
 replace_inclusive_gateways = ibp.replace_inclusive_gateways
 insert_temp_between_adjacent_subprocesses = ias.insert_temp_between_adjacent_subprocesses
@@ -41,12 +44,16 @@ def transform_bpmn_to_petrinet(bpmn: Process, is_workflow_net: bool = False):
     nodes = set(bpmn._flatten_node_typ_map())
 
     # find workflow specific nodes
-    to_handle_as_workflow_element = {XorGateway, AndGateway, Process}
+    to_handle_gateways: list[Gateway] = []
+    to_handle_subprocesses: list[Process] = []
+
     if is_workflow_net:
-        workflow_nodes: set[GenericBPMNNode] = set(
-            [x for x in nodes if type(x) in to_handle_as_workflow_element]
-        )
-        nodes = nodes.difference(workflow_nodes)
+        for node in nodes:
+            if isinstance(node, Process):
+                to_handle_subprocesses.append(node)
+            elif isinstance(node, Gateway):
+                to_handle_gateways.append(node)
+        nodes = nodes.difference(to_handle_gateways, to_handle_subprocesses)
 
     # handle normals nodes
     for node in nodes:
@@ -65,14 +72,17 @@ def transform_bpmn_to_petrinet(bpmn: Process, is_workflow_net: bool = False):
             )
         elif isinstance(
             node, OrGateway | XorGateway | StartEvent | EndEvent | GenericBPMNNode
-            ):
+        ):
             net.add_element(Place(id=node.id))
         else:
             raise Exception(f"{type(node)} not supported")
 
     # handle workflow specific nodes
-    if is_workflow_net and workflow_nodes:
-        handle_workflow_elements(bpmn, net, workflow_nodes, transform_bpmn_to_petrinet)
+    if is_workflow_net and (to_handle_gateways or to_handle_subprocesses):
+        handle_subprocesses(
+            net, bpmn, to_handle_subprocesses, transform_bpmn_to_petrinet
+        )
+        handle_gateways(net, bpmn, to_handle_gateways)
 
     # handle remaining flows
     for flow in bpmn.flows:
