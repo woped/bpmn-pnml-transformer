@@ -1,4 +1,5 @@
 """General transformer utility (get name, create basic elements/nodes)."""
+
 from xml.etree.ElementTree import Element
 
 from lxml import etree
@@ -24,6 +25,12 @@ def create_arc_name(source: str | None, target: str | None):
     return f"{source}TO{target}"
 
 
-class BaseModel(BaseXmlModel, search_mode="unordered", skip_empty=True):
+class BaseModel(
+    BaseXmlModel,
+    search_mode="unordered",
+    skip_empty=True,
+    nsmap={"": "http://www.omg.org/spec/BPMN/20100524/MODEL"},
+):
     """BaseModel extension of BaseXmlModel."""
+
     pass

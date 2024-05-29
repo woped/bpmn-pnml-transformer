@@ -2,6 +2,7 @@
 
 from pydantic import ValidationInfo, model_validator
 from pydantic_xml import attr, element
+
 from transformer.exceptions import NotSupportedBPMNElement
 from transformer.utility.utility import BaseModel
 
@@ -9,8 +10,8 @@ ns_map = {
     "bpmn": "http://www.omg.org/spec/BPMN/20100524/MODEL",
     "bpmndi": "http://www.omg.org/spec/BPMN/20100524/DI",
     "xsi": "http://www.w3.org/2001/XMLSchema-instance",
-    "dc": "http://www.omg.org/spec/DD/20100524/DC",
-    "di": "http://www.omg.org/spec/DD/20100524/DI",
+    "omgdc": "http://www.omg.org/spec/DD/20100524/DC",
+    "omgdi": "http://www.omg.org/spec/DD/20100524/DI",
 }
 
 

@@ -1,4 +1,5 @@
 """BPMN objects and handling."""
+
 import os
 from pathlib import Path
 from typing import cast
@@ -8,6 +9,7 @@ import pm4py
 from lxml import etree, objectify
 from pydantic import PrivateAttr
 from pydantic_xml import attr, element
+
 from transformer.exceptions import NotSupportedBPMNElement
 from transformer.models.bpmn.base import (
     BPMNNamespace,
@@ -399,7 +401,7 @@ class BPMN(BPMNNamespace, tag="definitions"):
                 BPMNEdge(
                     id=f"{flow.id}_di",
                     bpmnElement=flow.id,
-                    waypoints=[DIWaypoint(x=0, y=0), DIWaypoint(x=0, y=0)],
+                    waypoints=[DIWaypoint(), DIWaypoint()],
                 )
             )
 
@@ -407,10 +409,10 @@ class BPMN(BPMNNamespace, tag="definitions"):
             s = BPMNShape(
                 id=f"{node.id}_di",
                 bpmnElement=node.id,
-                bounds=DCBounds(x=0, y=0, width=20, height=20),
+                bounds=DCBounds(width=100, height=80),
             )
             if node.name:
-                s.label = BPMNLabel(bounds=DCBounds(x=0, y=0, width=20, height=20))
+                s.label = BPMNLabel(bounds=DCBounds(width=50, height=20))
             p.eles.append(s)
 
         d.plane = p

@@ -24,20 +24,20 @@ class BPMNDIObject(BPMNDIID):
     bpmnElement: str = attr()
 
 
-class DCBounds(BaseModel, tag="Bounds", ns="dc", nsmap=ns_map):
+class DCBounds(BaseModel, tag="Bounds", ns="omgdc", nsmap=ns_map):
     """DCBounds extension of BaseModel with x,y, width and height xml attributes."""
 
-    x: float = attr()
-    y: float = attr()
+    x: float = attr(default=0)
+    y: float = attr(default=0)
     width: float = attr()
     height: float = attr()
 
 
-class DIWaypoint(BaseModel, tag="waypoint", ns="di", nsmap=ns_map):
+class DIWaypoint(BaseModel, tag="waypoint", ns="omgdi", nsmap=ns_map):
     """DIWaypoint extension of BaseModel with x and y xml attribute."""
 
-    x: float = attr()
-    y: float = attr()
+    x: float = attr(default=0)
+    y: float = attr(default=0)
 
 
 class BPMNLabel(BPMNDINamespace, tag="BPMNLabel"):
