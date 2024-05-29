@@ -104,7 +104,9 @@ def transform_petrinet_to_bpmn(net: Net):
             net.get_out_degree(transition),
         )
         if in_degree == 0 or out_degree == 0:
-            raise Exception("what to do with transition source/sink")
+            bpmn.add_node(StartEvent(id=place.id))
+        elif out_degree == 0:
+            bpmn.add_node(EndEvent(id=place.id))
         elif in_degree == 1 and out_degree == 1:
             bpmn.add_node(Task(id=transition.id, name=transition.get_name()))
         else:
