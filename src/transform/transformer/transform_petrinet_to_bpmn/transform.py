@@ -91,11 +91,11 @@ def transform_petrinet_to_bpmn(net: Net):
     for place in places:
         in_degree, out_degree = net.get_in_degree(place), net.get_out_degree(place)
         if in_degree == 0:
-            bpmn.add_node(StartEvent(id=place.id))
+            bpmn.add_node(StartEvent(id=place.id, name=place.get_name()))
         elif out_degree == 0:
-            bpmn.add_node(EndEvent(id=place.id))
+            bpmn.add_node(EndEvent(id=place.id, name=place.get_name()))
         else:
-            bpmn.add_node(XorGateway(id=place.id))
+            bpmn.add_node(XorGateway(id=place.id, name=place.get_name()))
 
     # handle normal transitions
     for transition in transitions:
@@ -104,9 +104,9 @@ def transform_petrinet_to_bpmn(net: Net):
             net.get_out_degree(transition),
         )
         if in_degree == 0 or out_degree == 0:
-            bpmn.add_node(StartEvent(id=place.id))
+            bpmn.add_node(StartEvent(id=place.id, name=transition.get_name()))
         elif out_degree == 0:
-            bpmn.add_node(EndEvent(id=place.id))
+            bpmn.add_node(EndEvent(id=place.id, name=transition.get_name()))
         elif in_degree == 1 and out_degree == 1:
             bpmn.add_node(Task(id=transition.id, name=transition.get_name()))
         else:
