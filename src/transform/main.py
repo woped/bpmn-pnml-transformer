@@ -3,6 +3,7 @@
 import flask
 import functions_framework
 from flask import jsonify
+
 from transformer.models.bpmn.bpmn import BPMN
 from transformer.models.pnml.pnml import Pnml
 from transformer.transform_bpmn_to_petrinet.transform import (
@@ -26,7 +27,10 @@ def post_transform(request: flask.Request):
     transform_direction = request.args.get("direction")
     if transform_direction == "bpmntopnml":
         bpmn_xml_content = request.form["bpmn"]
-        isTargetWorkflow = request.form.get("isTargetWorkflow", default=False, type=bool)
+        isTargetWorkflow = (
+            request.form.get("isTargetWorkflow", "false").lower() == "true"
+        )
+
         bpmn = BPMN.from_xml(bpmn_xml_content)
         if isTargetWorkflow:
             transformed_pnml = bpmn_to_workflow_net(bpmn)
