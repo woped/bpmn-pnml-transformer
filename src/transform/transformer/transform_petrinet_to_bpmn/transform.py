@@ -37,7 +37,7 @@ def remove_silent_tasks(bpmn: Process):
 
 
 def remove_unnecessary_gateways(bpmn: Process):
-    """Remove unnecessary gateways (In and out degree <= 1)."""
+    """Remove unnecessary gateways (In and out degree == 1)."""
     is_rerun_reduce = True
     while is_rerun_reduce:
         is_rerun_reduce = False
@@ -136,7 +136,7 @@ def transform_petrinet_to_bpmn(net: Net):
 
 
 def apply_preprocessing(net: Net, funcs: list[Callable[[Net], None]]):
-    """Preprocess the whole petri net."""
+    """Recursively apply each preprocessing to the net and each page."""
     for p in net.pages:
         apply_preprocessing(p.net, funcs)
 
