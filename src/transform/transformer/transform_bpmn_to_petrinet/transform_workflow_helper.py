@@ -1,4 +1,4 @@
-"""Helper methods for bpmn to pnml (Workflow operators and elements)."""
+"""Helper methods for bpmn to workflow net."""
 
 from collections.abc import Callable
 from typing import cast
@@ -166,7 +166,7 @@ def handle_gateways(net: Net, bpmn: Process, gateways: list[Gateway]):
 
 
 def handle_gateway(net: Net, bpmn: Process, node: GenericBPMNNode):
-    """Handle given operator for a bpmn process to petri net process."""
+    """Transform a gateway to workflow operator."""
     node_type = type(node)
     f_split, f_join, f_split_join = type_map[node_type]  # type: ignore
     in_degree, out_degree = node.get_in_degree(), node.get_out_degree()
@@ -207,7 +207,7 @@ def handle_subprocesses(
     subprocesses: list[Process],
     caller_func: Callable[[Process, bool], Pnml],
 ):
-    """Handle given workflow element for a bpmn process to petri net process."""
+    """Transform a BPMN subprocess to workflow subprocess."""
     for subprocess in subprocesses:
         if subprocess.get_in_degree() != 1 and subprocess.get_out_degree != 1:
             raise Exception("Subprocess must have exactly one in and outgoing flow!")

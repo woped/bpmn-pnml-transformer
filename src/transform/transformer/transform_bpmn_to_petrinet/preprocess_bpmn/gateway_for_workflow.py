@@ -1,4 +1,5 @@
 """Process gateways for bpmn workflows."""
+
 from typing import cast
 
 from transformer.models.bpmn.base import Gateway, GenericBPMNNode
@@ -6,7 +7,10 @@ from transformer.models.bpmn.bpmn import Flow, Process
 
 
 def remove_unnecessary_gateways(bpmn: Process, gateways: set[Gateway]):
-    """Detect and remove unnecessary gateways in a set of gateways from a process."""
+    """Detect and remove unnecessary gateways in a set of gateways from a process.
+
+    An unnecessary gateway has a indegree and outdegree of <= 1.
+    """
     to_remove_gws = []
     for gw in gateways:
         if gw.get_in_degree() > 1 or gw.get_out_degree() > 1:
@@ -54,7 +58,12 @@ def get_gateways(bpmn: Process):
 
 
 def preprocess_gateways(bpmn: Process):
-    """Preprocess all gateways of a process."""
+    """Preprocess all gateways of a process.
+
+    Part of the preprocessing is:
+    - removing unnecessary gateways
+    - add a helper node between adjacent gateways
+    """
     gateways = get_gateways(bpmn)
     if len(gateways) == 0:
         return
