@@ -1,4 +1,4 @@
-"""PNML Extensions for BaseModel."""
+"""BaseModels for BPMN-XML-Mappings."""
 
 from pydantic_xml import attr, element
 
@@ -39,7 +39,7 @@ class Name(BaseModel, tag="name"):
 
 
 class Toolspecific(BaseModel, tag="toolspecific"):
-    """Toolspecific extension of BaseModel (+tool, version, transition,operator...)."""
+    """WOPED Toolspecific extension of BaseModel."""
 
     tool: str = attr(default=WOPED)
     version: str = attr(default="1.0")
@@ -76,7 +76,7 @@ class GenericNetNode(GenericNetIDNode):
 
 
 class NetElement(GenericNetNode):
-    """Generic NetElement extension of GenericNetNode (+name, graphics, toolspecific)."""
+    """NetElement extension of GenericNetNode (+name, graphics, toolspecific)."""
 
     name: Name | None = None
     graphics: Graphics | None = None
@@ -89,7 +89,7 @@ class NetElement(GenericNetNode):
         return self.name.title
 
     def __hash__(self):
-        """Return instance hashed."""
+        """Return instance hashed by type and id."""
         return hash((type(self),) + (self.id,))
 
     def is_workflow_operator(self):
