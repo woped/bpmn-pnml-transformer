@@ -1,11 +1,9 @@
 """BPMN objects and handling."""
 
-import os
 from pathlib import Path
 from typing import cast
 from xml.etree.ElementTree import Element
 
-import pm4py
 from lxml import etree, objectify
 from pydantic import PrivateAttr
 from pydantic_xml import attr, element
@@ -420,19 +418,3 @@ class BPMN(BPMNNamespace, tag="definitions"):
 
         d.plane = p
         self.diagram = d
-
-    def to_pm4py_vis(self, file_path: str):
-        """Generate visualisation with pm4py."""
-        TEMP_FILE = "temp.bpmn"
-        self.write_to_file(TEMP_FILE)
-        bpmn_pm4py = pm4py.read_bpmn(TEMP_FILE)
-        pm4py.save_vis_bpmn(bpmn_pm4py, file_path)
-        os.remove(TEMP_FILE)
-
-    def bpmn_helper_to_pm4py_bpmn(self, file_path: str):
-        """Write instance to pm4py file."""
-        TEMP_FILE = "temp.bpmn"
-        self.write_to_file(TEMP_FILE)
-        bpmn_pm4py = pm4py.read_bpmn(TEMP_FILE)
-        pm4py.write_bpmn(bpmn_pm4py, file_path)
-        os.remove(TEMP_FILE)

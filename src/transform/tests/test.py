@@ -67,10 +67,6 @@ def save_failed_bpmn_to_pnml_transformation(
     pn_transformed.write_to_file(create_path("transformed.pnml"))
     bpmn.write_to_file(create_path("source.bpmn"))
 
-    bpmn.to_pm4py_vis(create_path("bpmn.png"))
-    pn_expected.to_pm4py_vis(create_path("expected.png"))
-    pn_transformed.to_pm4py_vis(create_path("transformed.png"))
-
 
 def save_failed_pnml_to_bpmn_transformation(
     bpmn_expected: BPMN, bpmn_transformed: BPMN, net: Pnml, case: str
@@ -95,10 +91,6 @@ def save_failed_pnml_to_bpmn_transformation(
     bpmn_expected.write_to_file(create_path("expected.bpmn"))
     bpmn_transformed.write_to_file(create_path("transformed.bpmn"))
     net.write_to_file(create_path("source.pnml"))
-
-    bpmn_expected.to_pm4py_vis(create_path("expected.png"))
-    bpmn_transformed.to_pm4py_vis(create_path("transformed.png"))
-    net.to_pm4py_vis(create_path("source.png"))
 
 
 class TestPetriNetToBPMN(unittest.TestCase):

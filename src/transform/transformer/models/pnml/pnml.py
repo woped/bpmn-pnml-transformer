@@ -1,11 +1,8 @@
 """PNML objects and operations."""
 
-import os
 from pathlib import Path
 from typing import cast
 
-import pm4py
-from pm4py.objects.petri_net.obj import Marking
 from pydantic import PrivateAttr
 from pydantic_xml import attr, element
 
@@ -272,14 +269,6 @@ class Pnml(BaseModel, tag="pnml"):
     def write_to_file(self, path: str):
         """Save net to file."""
         Path(path).write_text(self.to_string())
-
-    def to_pm4py_vis(self, file_path: str):
-        """Safe pm4py visiualised petri net."""
-        TEMP_FILE = "temp.pnml"
-        self.write_to_file(TEMP_FILE)
-        net = pm4py.read_pnml(TEMP_FILE)[0]
-        pm4py.save_vis_petri_net(net, Marking(), Marking(), file_path)
-        os.remove(TEMP_FILE)
 
     @staticmethod
     def from_xml_str(xml_content: str):
