@@ -51,7 +51,7 @@ class Arc(BaseModel, tag="arc"):
 
     def __hash__(self):
         """Retuns a hashed of the arc instance."""
-        return hash((type(self),) + (self.id,))
+        return hash((type(self),) + (self.id,) + (self.source,) + (self.target,))
 
 
 class Page(GenericNetNode, tag="page"):
@@ -81,7 +81,7 @@ class Net(BaseModel, tag="net"):
     _type_map: dict[type[GenericNetNode], set[GenericNetNode]] = PrivateAttr(
         default_factory=dict
     )
-    _temp_arcs: dict[str, Arc] = PrivateAttr(default_factory=dict)
+    _temp_arcs: dict[int, Arc] = PrivateAttr(default_factory=dict)
     _temp_node_id_to_incoming: dict[str, set[Arc]] = PrivateAttr(default_factory=dict)
     _temp_node_id_to_outgoing: dict[str, set[Arc]] = PrivateAttr(default_factory=dict)
 
@@ -115,7 +115,7 @@ class Net(BaseModel, tag="net"):
             self._temp_elements[transition.id] = transition
 
         for arc in self.arcs:
-            self._temp_arcs[arc.id] = arc
+            self._temp_arcs[hash(arc)] = arc
             self._update_arc_incoming_outgoing(arc)
 
     def _flatten_node_typ_map(self):
@@ -181,15 +181,14 @@ class Net(BaseModel, tag="net"):
         self.add_element(target)
 
         a = Arc(id=id, source=source.id, target=target.id)
-        self._temp_arcs[id] = a
+        self._temp_arcs[hash(a)] = a
         self._update_arc_incoming_outgoing(a)
 
         self.arcs.add(a)
 
     def remove_arc(self, arc: Arc):
         """Remove arc based on instance."""
-        arc_id = arc.id
-        self._temp_arcs.pop(arc_id)
+        self._temp_arcs.pop(hash(arc))
         if arc.target:
             self._temp_node_id_to_incoming[arc.target].remove(arc)
         if arc.source:
