@@ -87,10 +87,14 @@ class Net(BaseModel, tag="net"):
 
     def get_incoming(self, id: str):
         """Return the incoming arcs of a node by id."""
+        if id not in self._temp_node_id_to_incoming:
+            return {}
         return self._temp_node_id_to_incoming[id]
 
     def get_outgoing(self, id: str):
         """Return the outgoing arcs of a node by id."""
+        if id not in self._temp_node_id_to_outgoing:
+            return {}
         return self._temp_node_id_to_outgoing[id]
 
     def __init__(self, **data):

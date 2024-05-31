@@ -129,8 +129,8 @@ def transform_petrinet_to_bpmn(net: Net):
         bpmn.add_flow(source, target)
 
     # Postprocessing
-    remove_silent_tasks(bpmn)
-    remove_unnecessary_gateways(bpmn)
+    # remove_silent_tasks(bpmn)
+    # remove_unnecessary_gateways(bpmn)
 
     return bpmn_general
 
