@@ -1,4 +1,9 @@
-"""Preprocess combined workflow operators to individual workflow operators."""
+"""Module for preprocessing workflow operators.
+
+Workflowoperators will be removed replaced with HelperNodes.
+AND-XOR and XOR-AND-Gateways will be splitted to allow the transformation to BPMN.
+When gateways have names (implicit action) a explicit transtition will be added.
+"""
 
 from transformer.models.pnml.base import Name
 from transformer.models.pnml.pnml import Arc, Net, Transition
