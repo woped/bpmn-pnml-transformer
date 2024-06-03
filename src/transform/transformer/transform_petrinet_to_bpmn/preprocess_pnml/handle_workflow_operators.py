@@ -23,6 +23,7 @@ def handle_combined_operator(net: Net, wo: WorkflowOperatorWrapper):
     incoming_arcs = wo.get_copy_unique_in_arcs()
     outgoing_arcs = wo.get_copy_unique_out_arcs()
 
+    # Remove existing elements
     for existing_arc in wo.all_arcs:
         net.remove_arc(existing_arc)
     for existing_node in wo.nodes:
@@ -52,23 +53,20 @@ def handle_combined_operator(net: Net, wo: WorkflowOperatorWrapper):
             if wo.t == WorkflowBranchingType.XorJoinSplit
             else ANDHelperPNML(id=wo.id, name=Name(title=wo.name))
         )
-        #  If gateway with implicit task (name not None)
-        # TODO
-        if wo.name and False:
+        #  If gateway with implicit task (name not None) split same gateway
+        if wo.name:
             secondGatewayPart = (
                 XORHelperPNML(id="OUTXOR" + wo.id, name=Name(title=wo.name))
                 if wo.t == WorkflowBranchingType.XorJoinSplit
                 else ANDHelperPNML(id="OUTAND" + wo.id, name=Name(title=wo.name))
             )
-            firstGatewayPart.id = (
-                "IN" + "XOR"
-                if wo.t == WorkflowBranchingType.XorJoinSplit
-                else "AND" + firstGatewayPart.id
-            )
+            gw_type = "XOR" if wo.t == WorkflowBranchingType.XorJoinSplit else "AND"
+            firstGatewayPart.id = f"IN{gw_type}{wo.id}"
 
     if not secondGatewayPart:
         secondGatewayPart = firstGatewayPart
 
+    # Add new elements and connect to existing arcs
     net.add_element(firstGatewayPart)
     net.add_element(secondGatewayPart)
 
@@ -78,19 +76,34 @@ def handle_combined_operator(net: Net, wo: WorkflowOperatorWrapper):
     for new_arc in outgoing_arcs:
         net.add_arc_from_id(secondGatewayPart.id, new_arc.target, new_arc.id)
 
-    if firstGatewayPart is not secondGatewayPart:
-        net.add_arc_from_id(firstGatewayPart.id, secondGatewayPart.id)
+    # Operator without name doesnt has an implicit task
+    if not wo.name:
+        # Add internal arc between split elements
+        if firstGatewayPart is not secondGatewayPart:
+            net.add_arc_from_id(firstGatewayPart.id, secondGatewayPart.id)
+        return
+
+    # Add and connect explicit task
+    explicit_task = Transition.create(
+        id=generate_explicit_transition_id(wo.id),
+        name=wo.name,
+    )
+    net.add_element(explicit_task)
+    net.add_arc(firstGatewayPart, explicit_task)
+    net.add_arc(explicit_task, secondGatewayPart)
 
 
 def handle_single_operator(net: Net, wo: WorkflowOperatorWrapper):
     incoming_arcs = wo.get_copy_unique_in_arcs()
     outgoing_arcs = wo.get_copy_unique_out_arcs()
 
+    # Remove existing elements
     for existing_arc in wo.all_arcs:
         net.remove_arc(existing_arc)
     for existing_node in wo.nodes:
         net.remove_element(existing_node)
 
+    # Add new elements and connect to existing arcs
     new_gateway = (
         XORHelperPNML(id=wo.id, name=Name(title=wo.name))
         if wo.t in [WorkflowBranchingType.XorJoin, WorkflowBranchingType.XorSplit]
@@ -158,44 +171,3 @@ def handle_workflow_operators(net: Net):
             WorkflowBranchingType.AndJoinSplit,
         ]:
             handle_combined_operator(net, o)
-
-    # for o in wf_operators:
-    #     p = net.add_element(Place.create(id="LINK_WF_OPERATOR" + o.id))
-    #     # split combined operator into 2 individual
-    #     if o.t == WorkflowBranchingType.AndJoinXorSplit:
-    #         add_wf_and_join(
-    #             net=net,
-    #             id="AND" + o.id,
-    #             name=o.name,
-    #             out_place=p,
-    #             in_places=list(o.incoming_nodes),
-    #         )
-    #         add_wf_xor_split(
-    #             net=net,
-    #             id="XOR" + o.id,
-    #             name=o.name,
-    #             in_place=p,
-    #             out_places=list(o.outgoing_nodes),
-    #         )
-    #     elif o.t == WorkflowBranchingType.XorJoinAndSplit:
-    #         add_wf_xor_join(
-    #             net=net,
-    #             id="XOR" + o.id,
-    #             name=o.name,
-    #             out_place=p,
-    #             in_places=list(o.incoming_nodes),
-    #         )
-    #         add_wf_and_split(
-    #             net=net,
-    #             id="AND" + o.id,
-    #             name=o.name,
-    #             in_place=p,
-    #             out_places=list(o.outgoing_nodes),
-    #         )
-    #     else:
-    #         raise Exception("invalid")
-    #     # remove all original arcs and nodes from net
-    #     for arc in o.all_arcs:
-    #         net.remove_arc(arc)
-    #     for node in o.nodes:
-    #         net.remove_element(node)

@@ -117,7 +117,7 @@ def gateway_parallel_join_split_implicit():
         gw_split, 1, WorkflowBranchingType.AndSplit, "split"
     )
     and_join_split = create_operator_transition(
-        gw_both, 1, WorkflowBranchingType.AndJoinSplit
+        gw_both, 1, WorkflowBranchingType.AndJoinSplit, "both"
     )
     and_join = create_operator_transition(
         gw_join, 1, WorkflowBranchingType.AndJoin, "join"
@@ -157,7 +157,8 @@ def gateway_parallel_join_split_implicit():
     )
 
     bpmn_gw_split = AndGateway(id=gw_split, name="split")
-    bpmn_gw_both = AndGateway(id=gw_both)
+    bpmn_gw_both_in = AndGateway(id="INAND" + gw_both, name="both")
+    bpmn_gw_both_out = AndGateway(id="OUTAND" + gw_both, name="both")
     bpmn_gw_join = AndGateway(id=gw_join, name="join")
 
     bpmn = create_bpmn(
@@ -168,14 +169,19 @@ def gateway_parallel_join_split_implicit():
                 Task(id="EXPLICIT" + bpmn_gw_split.id, name=bpmn_gw_split.name),
                 bpmn_gw_split,
                 Task(id=task_1, name=task_1),
-                bpmn_gw_both,
+                bpmn_gw_both_in,
+                Task(
+                    id="EXPLICIT" + gw_both,
+                    name=and_join_split.get_name(),
+                ),
+                bpmn_gw_both_out,
                 Task(id=task_2, name=task_2),
                 bpmn_gw_join,
                 Task(id="EXPLICIT" + bpmn_gw_join.id, name=bpmn_gw_join.name),
                 EndEvent(id=ee_id),
             ],
-            [bpmn_gw_split, Task(id=task_11, name=task_11), bpmn_gw_both],
-            [bpmn_gw_both, Task(id=task_22, name=task_22), bpmn_gw_join],
+            [bpmn_gw_split, Task(id=task_11, name=task_11), bpmn_gw_both_in],
+            [bpmn_gw_both_out, Task(id=task_22, name=task_22), bpmn_gw_join],
         ],
     )
 
