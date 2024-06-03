@@ -84,7 +84,7 @@ def split_and_gw_with_name(net: Net):
     and_gateways = [
         t
         for t in net.transitions
-        if net.get_in_degree(t) > 1 or net.get_out_degree(t) > 1 and t.get_name()
+        if (net.get_in_degree(t) > 1 or net.get_out_degree(t) > 1) and t.get_name()
     ]
     for and_gateway in and_gateways:
         in_degree = net.get_in_degree(and_gateway)

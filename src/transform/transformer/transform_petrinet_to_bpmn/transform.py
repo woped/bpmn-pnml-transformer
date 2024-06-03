@@ -17,6 +17,7 @@ from transformer.models.pnml.transform_helper import (
     GatewayHelperPNML,
 )
 from transformer.transform_petrinet_to_bpmn.preprocess_pnml import (
+    dangling_transition,
     preprocess_workflow_operators,
     split_and_gw_with_name,
 )
@@ -100,10 +101,10 @@ def transform_petrinet_to_bpmn(net: Net):
             net.get_in_degree(transition),
             net.get_out_degree(transition),
         )
-        if in_degree == 0 or out_degree == 0:
-            bpmn.add_node(StartEvent(id=place.id, name=transition.get_name()))
+        if in_degree == 0:
+            bpmn.add_node(StartEvent(id=transition.id, name=transition.get_name()))
         elif out_degree == 0:
-            bpmn.add_node(EndEvent(id=place.id, name=transition.get_name()))
+            bpmn.add_node(EndEvent(id=transition.id, name=transition.get_name()))
         elif in_degree == 1 and out_degree == 1:
             bpmn.add_node(Task(id=transition.id, name=transition.get_name()))
         else:
@@ -149,6 +150,7 @@ def pnml_to_bpmn(pnml: Pnml):
     apply_preprocessing(
         net,
         [
+            dangling_transition.add_places_at_dangling_transitions,
             preprocess_workflow_operators.handle_workflow_operators,
             split_and_gw_with_name.split_and_gw_with_name,
         ],

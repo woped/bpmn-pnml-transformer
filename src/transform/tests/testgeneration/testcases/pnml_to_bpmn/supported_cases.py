@@ -60,6 +60,40 @@ def normal_transition():
     return bpmn, net, case
 
 
+def transition_source_sink():
+    """Test diagrams for handling transitions source/sink."""
+    case = "transition_source_sink"
+    source = "elem_1"
+    sink = "elem_2"
+    link_task = "elem_3"
+
+    net = create_petri_net(
+        case,
+        [
+            [
+                Transition.create(id=source, name=source),
+                Place(id=create_silent_node_name(source, link_task)),
+                Transition.create(id=link_task, name=link_task),
+                Place(id=create_silent_node_name(link_task, sink)),
+                Transition.create(id=sink, name=sink),
+            ]
+        ],
+    )
+    bpmn = create_bpmn(
+        case,
+        [
+            [
+                StartEvent(id="SOURCE" + source),
+                Task(id=source, name=source),
+                Task(id=link_task, name=link_task),
+                Task(id=sink, name=sink),
+                EndEvent(id="SINK" + sink),
+            ]
+        ],
+    )
+    return bpmn, net, case
+
+
 def and_transition():
     """Return an and BPMN and the according Petri net."""
     case = "and_transition"
@@ -252,6 +286,89 @@ def and_join_split_transition_implicit():
     return bpmn, net, case
 
 
+def and_join_split_transition():
+    """Return an and BPMN and the according Petri net."""
+    case = "and_join_split_transition"
+    se_id = "elem_1"
+    ee_id = "elem_2"
+    task_1_1_id = "elem_3"
+    task_1_2_id = "elem_4"
+    task_2_1_id = "elem_5"
+    task_2_2_id = "elem_6"
+    gw_split = "elem_7"
+    gw_join = "elem_8"
+    gw_join_split = "elem_9"
+
+    pn_gw_split = Transition.create(id=gw_split)
+    pn_gw_join = Transition.create(id=gw_join)
+    pn_gw_join_split = Transition.create(id=gw_join_split)
+
+    net = create_petri_net(
+        case,
+        [
+            [
+                Place(id=se_id),
+                pn_gw_split,
+                Place(id=create_silent_node_name(gw_split, task_1_1_id)),
+                Transition.create(id=task_1_1_id, name=task_1_1_id),
+                Place(id=create_silent_node_name(task_1_1_id, gw_join_split)),
+                pn_gw_join_split,
+            ],
+            [
+                pn_gw_split,
+                Place(id=create_silent_node_name(gw_split, task_1_2_id)),
+                Transition.create(id=task_1_2_id, name=task_1_2_id),
+                Place(id=create_silent_node_name(task_1_2_id, gw_join_split)),
+                pn_gw_join_split,
+            ],
+            [
+                pn_gw_join_split,
+                Place(id=create_silent_node_name(gw_join_split, task_2_1_id)),
+                Transition.create(id=task_2_1_id, name=task_2_1_id),
+                Place(id=create_silent_node_name(task_2_1_id, gw_join)),
+                pn_gw_join,
+                Place(id=ee_id),
+            ],
+            [
+                pn_gw_join_split,
+                Place(id=create_silent_node_name(gw_join_split, task_2_2_id)),
+                Transition.create(id=task_2_2_id, name=task_2_2_id),
+                Place(id=create_silent_node_name(task_2_2_id, gw_join)),
+                pn_gw_join,
+            ],
+        ],
+    )
+
+    bpmn_gw_split = AndGateway(id=gw_split)
+    bpmn_gw_join = AndGateway(id=gw_join)
+    bpmn_gw_join_split = AndGateway(id=gw_join_split)
+    bpmn = create_bpmn(
+        case,
+        [
+            [
+                StartEvent(id=se_id),
+                bpmn_gw_split,
+                Task(id=task_1_1_id, name=task_1_1_id),
+                bpmn_gw_join_split,
+            ],
+            [bpmn_gw_split, Task(id=task_1_2_id, name=task_1_2_id), bpmn_gw_join_split],
+            [
+                bpmn_gw_join_split,
+                Task(id=task_2_1_id, name=task_2_1_id),
+                bpmn_gw_join,
+                EndEvent(id=ee_id),
+            ],
+            [
+                bpmn_gw_join_split,
+                Task(id=task_2_2_id, name=task_2_2_id),
+                bpmn_gw_join,
+            ],
+        ],
+    )
+
+    return bpmn, net, case
+
+
 def xor_place():
     """Return an xor BPMN and the according Petri net."""
     case = "xor_place"
@@ -298,9 +415,11 @@ def xor_place():
 
 
 all_cases: list[tuple[BPMN, Pnml, str]] = [
+    transition_source_sink(),
     start_end(),
     normal_transition(),
     and_transition(),
+    and_join_split_transition(),
     and_transition_implicit(),
     and_join_split_transition_implicit(),
     xor_place(),
