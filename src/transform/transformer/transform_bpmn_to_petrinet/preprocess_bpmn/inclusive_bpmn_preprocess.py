@@ -1,4 +1,5 @@
-"""Gateway bridges and operations."""
+"""Transform OR-Gates into a combination of AND- and XOR-Gates."""
+
 from typing import cast
 
 from transformer.models.bpmn.base import GenericBPMNNode
@@ -21,7 +22,7 @@ def traverse_matching_gw(
     visited_arcs: set[str],
     flow_id: str,
 ):
-    """Traverse matching/adding of inclusive gateways."""
+    """Find the OR-Join of a OR-Split."""
     if flow_id in visited_arcs:
         # already visited arc -> circle detected
         return None
@@ -51,6 +52,7 @@ def traverse_matching_gw(
 
 class InclusiveGatewayBridge:
     """Class for inclusive gateways."""
+
     def __init__(
         self,
         split: OrGateway,
@@ -67,6 +69,7 @@ class InclusiveGatewayBridge:
 
 class ParallelGatewayBridge:
     """Class for parallel gateways."""
+
     def __init__(
         self,
         split: AndGateway,
@@ -136,7 +139,7 @@ def clone_flow(
 
 
 def add_xors_and_activities(bpmn: Process, and_gw: ParallelGatewayBridge):
-    """Add xor and silent activity to process AND???."""
+    """Add AND- and XOR-Gateways to the BPMN."""
     xor_split = XorGateway(id=and_gw.split.id + and_gw.flow_out_split.targetRef)
     xor_join = XorGateway(id=str(and_gw.flow_in_join.sourceRef) + and_gw.join.id)
     silent_activity = Task(id=xor_split.id + xor_join.id)
@@ -180,7 +183,7 @@ def add_xors_and_activities(bpmn: Process, and_gw: ParallelGatewayBridge):
 
 
 def replace_inclusive_to_parallel(bpmn: Process, gw: OrGateway):
-    """Replace or by and gateway, return gateway and flowmap."""
+    """Replace OR-Gateways and the flows with AND-Gateways."""
     flow_map: dict[str, Flow] = {}
     pw_gw = AndGateway(id="OR" + gw.id)
     bpmn.add_node(pw_gw)
@@ -203,7 +206,7 @@ def replace_inclusive_to_parallel(bpmn: Process, gw: OrGateway):
 
 
 def inclusive_gws_to_parallel_gws(bpmn: Process, gws: list[InclusiveGatewayBridge]):
-    """Transform or to and gateway."""
+    """Replace OR- with AND-Gateways and save the the bridge."""
     gw_map: dict[OrGateway, AndGateway] = {}
     new_bridges: list[ParallelGatewayBridge] = []
     arc_map: dict[str, Flow] = {}
@@ -228,7 +231,7 @@ def inclusive_gws_to_parallel_gws(bpmn: Process, gws: list[InclusiveGatewayBridg
 
 
 def replace_inclusive_gateways(in_bpmn: Process):
-    """Replace or gateways."""
+    """Replace OR gateways with a combination of AND- and XOR-Gateways."""
     nodes = in_bpmn._flatten_node_typ_map()
     inclusive_gateways: list[OrGateway] = [
         node for node in nodes if isinstance(node, OrGateway)

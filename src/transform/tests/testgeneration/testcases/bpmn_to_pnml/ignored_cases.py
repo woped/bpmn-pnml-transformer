@@ -1,4 +1,5 @@
 """Helper module for testing ignored BPMN to PNML cases."""
+
 import shutil
 
 from testgeneration.bpmn.utility import create_bpmn, insert_bpmn_xml
@@ -46,7 +47,7 @@ def generate():
         "category",
         "textAnnotation",
     ]:
-        r = insert_bpmn_xml(bpmn, f"bpmn:{case_name}", temp_case_name)
+        r = insert_bpmn_xml(bpmn, f"{case_name}", temp_case_name)
         items.append((r, pn))
     shutil.rmtree(create_file_path("", temp_case_name).rsplit("/", 1)[0])
     return items

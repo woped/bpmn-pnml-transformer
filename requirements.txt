@@ -21,11 +21,10 @@ requests==2.32.2
 ruff==0.4.5
 setuptools==70.0.0
 urllib3==2.2.1
-watchdog==4.0.0
+watchdog==4.0.1
 Werkzeug==3.0.3
 wheel==0.43.0
 # 
 lxml==5.2.2
-pm4py==2.7.11.10
 pydantic==2.7.1
 pydantic_xml==2.11.0

@@ -1,10 +1,9 @@
 """BPMN objects and handling."""
-import os
+
 from pathlib import Path
 from typing import cast
 from xml.etree.ElementTree import Element
 
-import pm4py
 from lxml import etree, objectify
 from pydantic import PrivateAttr
 from pydantic_xml import attr, element
@@ -102,12 +101,11 @@ class Task(GenericBPMNNode, tag="task"):
 class Process(GenericBPMNNode):
     """Process extension of GenericBPMNNode."""
 
-    isExecutable: bool = attr(default=False)
+    isExecutable: bool | None = attr(default=None)
 
-    flows: set[Flow] = element(default_factory=set)
+    start_events: set[StartEvent] = element(default_factory=set)
 
     tasks: set[Task] = element(default_factory=set)
-    start_events: set[StartEvent] = element(default_factory=set)
     end_events: set[EndEvent] = element(default_factory=set)
 
     xor_gws: set[XorGateway] = element(default_factory=set)
@@ -115,6 +113,8 @@ class Process(GenericBPMNNode):
     and_gws: set[AndGateway] = element(default_factory=set)
 
     subprocesses: set["Process"] = element(default_factory=set, tag="subProcess")
+
+    flows: set[Flow] = element(default_factory=set)
 
     not_supported: list[ThrowEvent | CatchEvent] = element(default_factory=list)
 
@@ -378,7 +378,7 @@ class BPMN(BPMNNamespace, tag="definitions"):
     @staticmethod
     def generate_empty_bpmn(id="new_bpmn"):
         """Return an empty bpmn with a process."""
-        return BPMN(process=Process(id=id))
+        return BPMN(process=Process(id=id, isExecutable=True))
 
     def to_string(self) -> str:
         """Transform this instance into a string and creates placeholder graphics."""
@@ -400,7 +400,7 @@ class BPMN(BPMNNamespace, tag="definitions"):
                 BPMNEdge(
                     id=f"{flow.id}_di",
                     bpmnElement=flow.id,
-                    waypoints=[DIWaypoint(x=0, y=0), DIWaypoint(x=0, y=0)],
+                    waypoints=[DIWaypoint(), DIWaypoint()],
                 )
             )
 
@@ -408,27 +408,13 @@ class BPMN(BPMNNamespace, tag="definitions"):
             s = BPMNShape(
                 id=f"{node.id}_di",
                 bpmnElement=node.id,
-                bounds=DCBounds(x=0, y=0, width=20, height=20),
+                bounds=DCBounds(width=100, height=80),
             )
-            if node.name:
-                s.label = BPMNLabel(bounds=DCBounds(x=0, y=0, width=20, height=20))
+            if isinstance(node, Process):
+                s.isExpanded = True
+            if node.name and not isinstance(node, Process | Task):
+                s.label = BPMNLabel(bounds=DCBounds(width=50, height=20))
             p.eles.append(s)
 
         d.plane = p
         self.diagram = d
-
-    def to_pm4py_vis(self, file_path: str):
-        """Generate visualisation with pm4py."""
-        TEMP_FILE = "temp.bpmn"
-        self.write_to_file(TEMP_FILE)
-        bpmn_pm4py = pm4py.read_bpmn(TEMP_FILE)
-        pm4py.save_vis_bpmn(bpmn_pm4py, file_path)
-        os.remove(TEMP_FILE)
-
-    def bpmn_helper_to_pm4py_bpmn(self, file_path: str):
-        """Write instance to pm4py file."""
-        TEMP_FILE = "temp.bpmn"
-        self.write_to_file(TEMP_FILE)
-        bpmn_pm4py = pm4py.read_bpmn(TEMP_FILE)
-        pm4py.write_bpmn(bpmn_pm4py, file_path)
-        os.remove(TEMP_FILE)

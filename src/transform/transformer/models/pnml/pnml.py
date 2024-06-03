@@ -1,10 +1,8 @@
-"""PNML objects and operations."""
-import os
+"""PNML models."""
+
 from pathlib import Path
 from typing import cast
 
-import pm4py
-from pm4py.objects.petri_net.obj import Marking
 from pydantic import PrivateAttr
 from pydantic_xml import attr, element
 
@@ -53,7 +51,7 @@ class Arc(BaseModel, tag="arc"):
 
     def __hash__(self):
         """Retuns a hashed of the arc instance."""
-        return hash((type(self),) + (self.id,))
+        return hash((type(self),) + (self.id,) + (self.source,) + (self.target,))
 
 
 class Page(GenericNetNode, tag="page"):
@@ -63,7 +61,11 @@ class Page(GenericNetNode, tag="page"):
 
 
 class Net(BaseModel, tag="net"):
-    """Net extension of BaseModel (+ID, type_field, places, transitions, arcs...)."""
+    """Net extension of BaseModel (+ID, type_field, places, transitions, arcs...).
+
+    This class also contains internal helperstructures to improve the performance of
+    operations. It also contains helper methods to modify the Net.
+    """
 
     type_field: str | None = attr(default=None, alias="type")
     id: str | None = attr(default=None)
@@ -79,16 +81,20 @@ class Net(BaseModel, tag="net"):
     _type_map: dict[type[GenericNetNode], set[GenericNetNode]] = PrivateAttr(
         default_factory=dict
     )
-    _temp_arcs: dict[str, Arc] = PrivateAttr(default_factory=dict)
+    _temp_arcs: dict[int, Arc] = PrivateAttr(default_factory=dict)
     _temp_node_id_to_incoming: dict[str, set[Arc]] = PrivateAttr(default_factory=dict)
     _temp_node_id_to_outgoing: dict[str, set[Arc]] = PrivateAttr(default_factory=dict)
 
     def get_incoming(self, id: str):
-        """Return incoming node id of instance."""
+        """Return the incoming arcs of a node by id."""
+        if id not in self._temp_node_id_to_incoming:
+            return {}
         return self._temp_node_id_to_incoming[id]
 
     def get_outgoing(self, id: str):
-        """Return outgoing node id of instance."""
+        """Return the outgoing arcs of a node by id."""
+        if id not in self._temp_node_id_to_outgoing:
+            return {}
         return self._temp_node_id_to_outgoing[id]
 
     def __init__(self, **data):
@@ -97,7 +103,7 @@ class Net(BaseModel, tag="net"):
         self._init_reference_structures()
 
     def _init_reference_structures(self):
-        """Construct all in net referenced structures."""
+        """Populate the helper structures."""
         self._type_map = cast(
             dict[type[GenericNetNode], set[GenericNetNode]],
             {
@@ -113,16 +119,16 @@ class Net(BaseModel, tag="net"):
             self._temp_elements[transition.id] = transition
 
         for arc in self.arcs:
-            self._temp_arcs[arc.id] = arc
+            self._temp_arcs[hash(arc)] = arc
             self._update_arc_incoming_outgoing(arc)
 
     def _flatten_node_typ_map(self):
-        """Return a flattened node type map."""
+        """Return all nodes as a single list."""
         r: list[GenericNetNode] = []
         return [r.extend(x) for x in self._type_map.values()]
 
     def _update_arc_incoming_outgoing(self, arc: Arc):
-        """Updates arc of the instance."""
+        """Updates helper node to arc mapping with the constructed arc."""
         if arc.target not in self._temp_node_id_to_incoming:
             self._temp_node_id_to_incoming[arc.target] = set([arc])
         else:
@@ -134,25 +140,25 @@ class Net(BaseModel, tag="net"):
             self._temp_node_id_to_outgoing[arc.source].add(arc)
 
     def get_in_degree(self, node: GenericNetNode):
-        """Return degree of incoming nodes."""
+        """Return degree of incoming arcs."""
         if node.id not in self._temp_node_id_to_incoming:
             return 0
         return len(self._temp_node_id_to_incoming[node.id])
 
     def get_out_degree(self, node: GenericNetNode):
-        """Return degree of outgoing nodes."""
+        """Return degree of outgoing arcs."""
         if node.id not in self._temp_node_id_to_outgoing:
             return 0
         return len(self._temp_node_id_to_outgoing[node.id])
 
     def add_arc_with_handle_same_type_from_id(self, source_id: str, target_id: str):
-        """Add arc based on source and target id of same element types."""
+        """Add arc connecting source and target id."""
         source = self._temp_elements[source_id]
         target = self._temp_elements[target_id]
         self.add_arc_with_handle_same_type(source, target)
 
     def add_arc_with_handle_same_type(self, source: NetElement, target: NetElement):
-        """Add arc for same element types."""
+        """Add arc and add node should source and target be of same type."""
         if isinstance(source, Place) and isinstance(target, Place):
             t = self.add_element(
                 Transition(id=create_silent_node_name(source.id, target.id))
@@ -179,15 +185,14 @@ class Net(BaseModel, tag="net"):
         self.add_element(target)
 
         a = Arc(id=id, source=source.id, target=target.id)
-        self._temp_arcs[id] = a
+        self._temp_arcs[hash(a)] = a
         self._update_arc_incoming_outgoing(a)
 
         self.arcs.add(a)
 
     def remove_arc(self, arc: Arc):
         """Remove arc based on instance."""
-        arc_id = arc.id
-        self._temp_arcs.pop(arc_id)
+        self._temp_arcs.pop(hash(arc))
         if arc.target:
             self._temp_node_id_to_incoming[arc.target].remove(arc)
         if arc.source:
@@ -196,7 +201,7 @@ class Net(BaseModel, tag="net"):
         self.arcs.remove(arc)
 
     def add_page(self, new_page: Page):
-        """Return/add new page to net."""
+        """Add a new page or add if not existing (check by id)."""
         storage_set = self.pages
         for p in self.pages:
             if p.id == new_page.id:
@@ -206,7 +211,7 @@ class Net(BaseModel, tag="net"):
         return new_page
 
     def add_element(self, new_node: NetElement):
-        """Return/add new node to net."""
+        """Add a node to net or return if already exising (check by id)."""
         storage_set = self._type_map[type(new_node)]
         if storage_set is None:
             raise Exception("No Petrinet node")
@@ -222,7 +227,7 @@ class Net(BaseModel, tag="net"):
     def get_element(self, id: str):
         """Return element by id."""
         if id not in self._temp_elements:
-            raise Exception("Cant get nonexisting Node")
+            raise Exception(f"Cant get nonexisting Node with id {id}")
         return self._temp_elements[id]
 
     def get_page(self, id: str):
@@ -233,7 +238,7 @@ class Net(BaseModel, tag="net"):
         return pages[id]
 
     def get_node_or_none(self, id: str):
-        """Return node by id."""
+        """Return node by id or None as default."""
         if id not in self._temp_elements:
             return None
         return self._temp_elements[id]
@@ -265,20 +270,12 @@ class Pnml(BaseModel, tag="pnml"):
     net: Net
 
     def to_string(self) -> str:
-        """Return string of net instance."""
+        """Return string of net instance as serialized XML."""
         return cast(str, self.to_xml(encoding="unicode", pretty_print=False))
 
     def write_to_file(self, path: str):
         """Save net to file."""
         Path(path).write_text(self.to_string())
-
-    def to_pm4py_vis(self, file_path: str):
-        """Safe pm4py visiualised petri net."""
-        TEMP_FILE = "temp.pnml"
-        self.write_to_file(TEMP_FILE)
-        net = pm4py.read_pnml(TEMP_FILE)[0]
-        pm4py.save_vis_petri_net(net, Marking(), Marking(), file_path)
-        os.remove(TEMP_FILE)
 
     @staticmethod
     def from_xml_str(xml_content: str):
