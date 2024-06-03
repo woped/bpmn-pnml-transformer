@@ -1,23 +1,18 @@
 """Preprocess combined workflow operators to individual workflow operators."""
 
 from transformer.models.pnml.base import Name
-from transformer.models.pnml.pnml import Net, Place
+from transformer.models.pnml.pnml import Net, Transition
 from transformer.models.pnml.transform_helper import (
     ANDHelperPNML,
     GatewayHelperPNML,
     XORHelperPNML,
 )
 from transformer.models.pnml.workflow import WorkflowBranchingType
-from transformer.transform_bpmn_to_petrinet.transform_workflow_helper import (
-    add_wf_and_join,
-    add_wf_and_split,
-    add_wf_xor_join,
-    add_wf_xor_split,
-)
 from transformer.transform_petrinet_to_bpmn.workflow_helper import (
     WorkflowOperatorWrapper,
     find_workflow_operators,
 )
+from transformer.utility.pnml import generate_explicit_transition_id
 
 
 def extract_task():
@@ -115,12 +110,34 @@ def handle_single_operator(net: Net, wo: WorkflowOperatorWrapper):
     # Operator without name doesnt has an implicit task
     if not wo.name:
         return
+
     # Join needs task after operator
     if wo.t in [WorkflowBranchingType.AndJoin, WorkflowBranchingType.XorJoin]:
-        pass
+        outgoing_arc = list(net.get_outgoing(new_gateway.id))[0]
+        explicit_task = Transition.create(
+            id=generate_explicit_transition_id(new_gateway.id),
+            name=new_gateway.get_name(),
+        )
+        net.add_element(explicit_task)
+        net.add_arc(new_gateway, explicit_task)
+        net.add_arc_from_id(explicit_task.id, outgoing_arc.target)
+
+        net.remove_arc(outgoing_arc)
     # Split needs task before operator
     else:
-        pass
+        incoming_arc = list(net.get_incoming(new_gateway.id))[0]
+        explicit_task = Transition.create(
+            id=generate_explicit_transition_id(new_gateway.id),
+            name=new_gateway.get_name(),
+        )
+        net.add_element(explicit_task)
+        net.add_arc(explicit_task, new_gateway)
+        net.add_arc_from_id(
+            incoming_arc.source,
+            explicit_task.id,
+        )
+
+        net.remove_arc(incoming_arc)
 
 
 def handle_workflow_operators(net: Net):

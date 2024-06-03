@@ -35,15 +35,11 @@ def gateway_parallel_join_split():
     gw_join = "elem_5"
     gw_both = "elem_7"
 
-    and_split = create_operator_transition(
-        gw_split, 1, WorkflowBranchingType.AndSplit, gw_split
-    )
+    and_split = create_operator_transition(gw_split, 1, WorkflowBranchingType.AndSplit)
     and_join_split = create_operator_transition(
-        gw_both, 1, WorkflowBranchingType.AndJoinSplit, gw_both
+        gw_both, 1, WorkflowBranchingType.AndJoinSplit
     )
-    and_join = create_operator_transition(
-        gw_join, 1, WorkflowBranchingType.AndJoin, gw_join
-    )
+    and_join = create_operator_transition(gw_join, 1, WorkflowBranchingType.AndJoin)
 
     net = create_petri_net(
         case,
@@ -78,9 +74,9 @@ def gateway_parallel_join_split():
         ],
     )
 
-    bpmn_gw_split = AndGateway(id=gw_split, name=gw_split)
-    bpmn_gw_both = AndGateway(id=gw_both, name=gw_both)
-    bpmn_gw_join = AndGateway(id=gw_join, name=gw_join)
+    bpmn_gw_split = AndGateway(id=gw_split)
+    bpmn_gw_both = AndGateway(id=gw_both)
+    bpmn_gw_join = AndGateway(id=gw_join)
 
     bpmn = create_bpmn(
         case,
