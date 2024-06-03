@@ -225,24 +225,22 @@ def gateway_side_by_side_xor_and():
 
     # Xor Part
     xor_split_1 = create_operator_transition(
-        gw_split_start, 1, WorkflowBranchingType.XorSplit, gw_split_start
+        gw_split_start, 1, WorkflowBranchingType.XorSplit
     )
     xor_split_2 = create_operator_transition(
-        gw_split_start, 2, WorkflowBranchingType.XorSplit, gw_split_start
+        gw_split_start, 2, WorkflowBranchingType.XorSplit
     )
     xor_join_1 = create_operator_transition(
-        gw_join_start, 1, WorkflowBranchingType.XorJoin, gw_join_start
+        gw_join_start, 1, WorkflowBranchingType.XorJoin
     )
     xor_join_2 = create_operator_transition(
-        gw_join_start, 2, WorkflowBranchingType.XorJoin, gw_join_start
+        gw_join_start, 2, WorkflowBranchingType.XorJoin
     )
     # And Part
     and_split = create_operator_transition(
-        gw_split_end, 1, WorkflowBranchingType.AndSplit, gw_split_end
+        gw_split_end, 1, WorkflowBranchingType.AndSplit
     )
-    and_join = create_operator_transition(
-        gw_join_end, 1, WorkflowBranchingType.AndJoin, gw_join_end
-    )
+    and_join = create_operator_transition(gw_join_end, 1, WorkflowBranchingType.AndJoin)
 
     gateway_merge_place = Place.create(id=gw_join_start + gw_split_end)
 
@@ -285,10 +283,10 @@ def gateway_side_by_side_xor_and():
         ],
     )
 
-    bpmn_gw_split_start = XorGateway(id=gw_split_start, name=gw_split_start)
-    bpmn_gw_join_start = XorGateway(id=gw_join_start, name=gw_join_start)
-    bpmn_gw_split_end = AndGateway(id=gw_split_end, name=gw_split_end)
-    bpmn_gw_join_end = AndGateway(id=gw_join_end, name=gw_join_end)
+    bpmn_gw_split_start = XorGateway(id=gw_split_start)
+    bpmn_gw_join_start = XorGateway(id=gw_join_start)
+    bpmn_gw_split_end = AndGateway(id=gw_split_end)
+    bpmn_gw_join_end = AndGateway(id=gw_join_end)
 
     bpmn = create_bpmn(
         case,
@@ -329,23 +327,23 @@ def gateway_side_by_side_and_xor():
 
     # And Part
     and_split = create_operator_transition(
-        gw_split_start, 1, WorkflowBranchingType.AndSplit, gw_split_start
+        gw_split_start, 1, WorkflowBranchingType.AndSplit
     )
     and_join = create_operator_transition(
-        gw_join_start, 1, WorkflowBranchingType.AndJoin, gw_join_start
+        gw_join_start, 1, WorkflowBranchingType.AndJoin
     )
     # Xor Part
     xor_split_1 = create_operator_transition(
-        gw_split_end, 1, WorkflowBranchingType.XorSplit, gw_split_end
+        gw_split_end, 1, WorkflowBranchingType.XorSplit
     )
     xor_split_2 = create_operator_transition(
-        gw_split_end, 2, WorkflowBranchingType.XorSplit, gw_split_end
+        gw_split_end, 2, WorkflowBranchingType.XorSplit
     )
     xor_join_1 = create_operator_transition(
-        gw_join_end, 1, WorkflowBranchingType.XorJoin, gw_join_end
+        gw_join_end, 1, WorkflowBranchingType.XorJoin
     )
     xor_join_2 = create_operator_transition(
-        gw_join_end, 2, WorkflowBranchingType.XorJoin, gw_join_end
+        gw_join_end, 2, WorkflowBranchingType.XorJoin
     )
 
     gateway_merge_place = Place.create(id=gw_join_start + gw_split_end)
@@ -389,10 +387,10 @@ def gateway_side_by_side_and_xor():
         ],
     )
 
-    bpmn_gw_split_start = AndGateway(id=gw_split_start, name=gw_split_start)
-    bpmn_gw_join_start = AndGateway(id=gw_join_start, name=gw_join_start)
-    bpmn_gw_split_end = XorGateway(id=gw_split_end, name=gw_split_end)
-    bpmn_gw_join_end = XorGateway(id=gw_join_end, name=gw_join_end)
+    bpmn_gw_split_start = AndGateway(id=gw_split_start)
+    bpmn_gw_join_start = AndGateway(id=gw_join_start)
+    bpmn_gw_split_end = XorGateway(id=gw_split_end)
+    bpmn_gw_join_end = XorGateway(id=gw_join_end)
 
     bpmn = create_bpmn(
         case,
@@ -432,26 +430,24 @@ def xor_and_split():
 
     # Xor Part
     xor_split_1 = create_operator_transition(
-        gw_split_start, 1, WorkflowBranchingType.XorSplit, gw_split_start
+        gw_split_start, 1, WorkflowBranchingType.XorSplit
     )
     xor_split_2 = create_operator_transition(
-        gw_split_start, 2, WorkflowBranchingType.XorSplit, gw_split_start
+        gw_split_start, 2, WorkflowBranchingType.XorSplit
     )
 
     linking_place = create_operator_place(gw_both, WorkflowBranchingType.XorJoinAndSplit)
     xor_join_and_split_in_1 = create_operator_transition(
-        gw_both, 1, WorkflowBranchingType.XorJoinAndSplit, gw_both
+        gw_both, 1, WorkflowBranchingType.XorJoinAndSplit
     )
     xor_join_and_split_in_2 = create_operator_transition(
-        gw_both, 2, WorkflowBranchingType.XorJoinAndSplit, gw_both
+        gw_both, 2, WorkflowBranchingType.XorJoinAndSplit
     )
     xor_join_and_split_out = create_operator_transition(
-        gw_both, 3, WorkflowBranchingType.XorJoinAndSplit, gw_both
+        gw_both, 3, WorkflowBranchingType.XorJoinAndSplit
     )
     # And Part
-    and_join = create_operator_transition(
-        gw_join_end, 1, WorkflowBranchingType.AndJoin, gw_join_end
-    )
+    and_join = create_operator_transition(gw_join_end, 1, WorkflowBranchingType.AndJoin)
 
     start = Place.create(id=se_id)
     end = Place.create(id=ee_id)
@@ -500,10 +496,10 @@ def xor_and_split():
         ],
     )
 
-    bpmn_gw_split_start = XorGateway(id=gw_split_start, name=gw_split_start)
-    bpmn_gw_join_start = XorGateway(id="XOR" + gw_both, name=gw_both)
-    bpmn_gw_split_end = AndGateway(id="AND" + gw_both, name=gw_both)
-    bpmn_gw_join_end = AndGateway(id=gw_join_end, name=gw_join_end)
+    bpmn_gw_split_start = XorGateway(id=gw_split_start)
+    bpmn_gw_join_start = XorGateway(id="XOR" + gw_both)
+    bpmn_gw_split_end = AndGateway(id="AND" + gw_both)
+    bpmn_gw_join_end = AndGateway(id=gw_join_end)
 
     bpmn = create_bpmn(
         case,
@@ -544,25 +540,25 @@ def and_xor_split():
 
     # Xor Part
     xor_join_1 = create_operator_transition(
-        gw_xor_join_start, 1, WorkflowBranchingType.XorSplit, gw_xor_join_start
+        gw_xor_join_start, 1, WorkflowBranchingType.XorSplit
     )
     xor_join_2 = create_operator_transition(
-        gw_xor_join_start, 2, WorkflowBranchingType.XorSplit, gw_xor_join_start
+        gw_xor_join_start, 2, WorkflowBranchingType.XorSplit
     )
     # Inner Part
     linking_place = create_operator_place(gw_both, WorkflowBranchingType.AndJoinXorSplit)
     and_join_xor_split_in = create_operator_transition(
-        gw_both, 1, WorkflowBranchingType.AndJoinXorSplit, gw_both
+        gw_both, 1, WorkflowBranchingType.AndJoinXorSplit
     )
     and_join_xor_split_out_1 = create_operator_transition(
-        gw_both, 2, WorkflowBranchingType.AndJoinXorSplit, gw_both
+        gw_both, 2, WorkflowBranchingType.AndJoinXorSplit
     )
     and_join_xor_split_out_2 = create_operator_transition(
-        gw_both, 3, WorkflowBranchingType.AndJoinXorSplit, gw_both
+        gw_both, 3, WorkflowBranchingType.AndJoinXorSplit
     )
     # And Part
     and_split = create_operator_transition(
-        gw_and_split_start, 1, WorkflowBranchingType.AndJoin, gw_and_split_start
+        gw_and_split_start, 1, WorkflowBranchingType.AndJoin
     )
 
     start = Place.create(id=se_id)
@@ -610,10 +606,10 @@ def and_xor_split():
         ],
     )
 
-    bpmn_gw_split_start = AndGateway(id=gw_and_split_start, name=gw_and_split_start)
-    bpmn_gw_join_start = AndGateway(id="AND" + gw_both, name=gw_both)
-    bpmn_gw_split_end = XorGateway(id="XOR" + gw_both, name=gw_both)
-    bpmn_gw_join_end = XorGateway(id=gw_xor_join_start, name=gw_xor_join_start)
+    bpmn_gw_split_start = AndGateway(id=gw_and_split_start)
+    bpmn_gw_join_start = AndGateway(id="AND" + gw_both)
+    bpmn_gw_split_end = XorGateway(id="XOR" + gw_both)
+    bpmn_gw_join_end = XorGateway(id=gw_xor_join_start)
 
     bpmn = create_bpmn(
         case,
