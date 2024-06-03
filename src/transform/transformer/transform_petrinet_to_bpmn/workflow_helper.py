@@ -3,11 +3,11 @@ from collections.abc import Callable
 
 from pydantic import BaseModel, Field
 
-from transform.transformer.models.bpmn.base import GenericBPMNNode
-from transform.transformer.models.bpmn.bpmn import BPMN, AndGateway, Process, XorGateway
-from transform.transformer.models.pnml.base import NetElement
-from transform.transformer.models.pnml.pnml import Arc, Net, Page, Transition
-from transform.transformer.models.pnml.workflow import WorkflowBranchingType
+from transformer.models.bpmn.base import GenericBPMNNode
+from transformer.models.bpmn.bpmn import BPMN, AndGateway, Process, XorGateway
+from transformer.models.pnml.base import NetElement
+from transformer.models.pnml.pnml import Arc, Net, Page, Transition
+from transformer.models.pnml.workflow import WorkflowBranchingType
 
 
 class WorkflowOperatorWrapper(BaseModel):

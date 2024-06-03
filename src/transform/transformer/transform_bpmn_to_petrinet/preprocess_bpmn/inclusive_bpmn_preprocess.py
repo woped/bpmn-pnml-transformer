@@ -1,8 +1,8 @@
 """Gateway bridges and operations."""
 from typing import cast
 
-from transform.transformer.models.bpmn.base import GenericBPMNNode
-from transform.transformer.models.bpmn.bpmn import (
+from transformer.models.bpmn.base import GenericBPMNNode
+from transformer.models.bpmn.bpmn import (
     AndGateway,
     Flow,
     OrGateway,
@@ -10,7 +10,7 @@ from transform.transformer.models.bpmn.bpmn import (
     Task,
     XorGateway,
 )
-from transform.transformer.utility.utility import create_arc_name
+from transformer.utility.utility import create_arc_name
 
 
 def traverse_matching_gw(

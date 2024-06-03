@@ -5,15 +5,15 @@ Xor-And) in Petri nets into individual workflow operators, as these combined ope
 cannot be handled by BPMN elements.
 """
 
-from transform.transformer.models.pnml.pnml import Net, Place
-from transform.transformer.models.pnml.workflow import WorkflowBranchingType
-from transform.transformer.transform_bpmn_to_petrinet.transform_workflow_helper import (
+from transformer.models.pnml.pnml import Net, Place
+from transformer.models.pnml.workflow import WorkflowBranchingType
+from transformer.transform_bpmn_to_petrinet.transform_workflow_helper import (
     add_wf_and_join,
     add_wf_and_split,
     add_wf_xor_join,
     add_wf_xor_split,
 )
-from transform.transformer.transform_petrinet_to_bpmn.workflow_helper import (
+from transformer.transform_petrinet_to_bpmn.workflow_helper import (
     find_workflow_operators,
 )
 

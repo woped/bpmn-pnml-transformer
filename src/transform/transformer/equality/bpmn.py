@@ -1,9 +1,9 @@
 """Methods to compare BPMNs by comparing all nodes with selected attributes."""
 from typing import cast
 
-from transform.transformer.equality.utils import create_type_dict, to_comp_string
-from transform.transformer.models.bpmn.base import GenericBPMNNode
-from transform.transformer.models.bpmn.bpmn import (
+from transformer.equality.utils import create_type_dict, to_comp_string
+from transformer.models.bpmn.base import GenericBPMNNode
+from transformer.models.bpmn.bpmn import (
     BPMN,
     Flow,
     Process,

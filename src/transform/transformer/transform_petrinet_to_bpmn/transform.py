@@ -1,8 +1,8 @@
 """Initiate the preprocessing and transformation of pnml to bpmn."""
 from collections.abc import Callable
 
-from transform.transformer.models.bpmn.base import Gateway
-from transform.transformer.models.bpmn.bpmn import (
+from transformer.models.bpmn.base import Gateway
+from transformer.models.bpmn.bpmn import (
     BPMN,
     AndGateway,
     EndEvent,
@@ -11,8 +11,8 @@ from transform.transformer.models.bpmn.bpmn import (
     Task,
     XorGateway,
 )
-from transform.transformer.models.pnml.pnml import Net, Place, Pnml, Transition
-from transform.transformer.transform_petrinet_to_bpmn.workflow_helper import (
+from transformer.models.pnml.pnml import Net, Place, Pnml, Transition
+from transformer.transform_petrinet_to_bpmn.workflow_helper import (
     find_workflow_operators,
     find_workflow_subprocesses,
     handle_workflow_operators,

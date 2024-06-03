@@ -6,7 +6,7 @@ from testgeneration.pnml.helper_workflow import (
 )
 from testgeneration.pnml.utility import create_petri_net
 
-from transform.transformer.models.bpmn.bpmn import (
+from transformer.models.bpmn.bpmn import (
     BPMN,
     AndGateway,
     EndEvent,
@@ -14,9 +14,9 @@ from transform.transformer.models.bpmn.bpmn import (
     Task,
     XorGateway,
 )
-from transform.transformer.models.pnml.pnml import Page, Place, Pnml, Transition
-from transform.transformer.models.pnml.workflow import WorkflowBranchingType
-from transform.transformer.utility.utility import create_silent_node_name
+from transformer.models.pnml.pnml import Page, Place, Pnml, Transition
+from transformer.models.pnml.workflow import WorkflowBranchingType
+from transformer.utility.utility import create_silent_node_name
 
 
 def reduce_unnecessary_gw():

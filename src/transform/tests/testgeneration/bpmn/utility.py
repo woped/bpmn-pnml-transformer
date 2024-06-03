@@ -3,9 +3,9 @@ import io
 from typing import Any
 from xml.dom import minidom
 
-from transform.transformer.models.bpmn.base import GenericBPMNNode
-from transform.transformer.models.bpmn.bpmn import BPMN, Flow
-from transform.transformer.utility.utility import create_arc_name
+from transformer.models.bpmn.base import GenericBPMNNode
+from transformer.models.bpmn.bpmn import BPMN, Flow
+from transformer.utility.utility import create_arc_name
 
 
 def create_bpmn(test_case_name: str, flows: list[list[GenericBPMNNode]]):

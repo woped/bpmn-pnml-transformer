@@ -2,8 +2,8 @@
 
 from pydantic_xml import attr, element
 
-from transform.transformer.models.pnml.workflow import Operator, WorkflowBranchingType
-from transform.transformer.utility.utility import WOPED, BaseModel
+from transformer.models.pnml.workflow import Operator, WorkflowBranchingType
+from transformer.utility.utility import WOPED, BaseModel
 
 
 class GenericNetIDNode(BaseModel):

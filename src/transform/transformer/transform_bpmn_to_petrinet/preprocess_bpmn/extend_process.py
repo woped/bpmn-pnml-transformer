@@ -5,8 +5,8 @@ parent process in BPMN models.
 """
 
 
-from transform.transformer.models.bpmn.bpmn import Process
-from transform.transformer.utility.bpmn import find_end_events, find_start_events
+from transformer.models.bpmn.bpmn import Process
+from transformer.utility.bpmn import find_end_events, find_start_events
 
 
 def extend_subprocess(subprocesses: set[Process], parent_process: Process):

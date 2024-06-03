@@ -4,10 +4,10 @@ Includes tests to check whether all PNML and BPMN subelemts are identified corre
 """
 import unittest
 
-from transform.transformer.equality.bpmn import get_all_processes_by_id
-from transform.transformer.equality.petrinet import get_all_nets_by_id
-from transform.transformer.models.bpmn.bpmn import BPMN
-from transform.transformer.models.pnml.pnml import Pnml
+from transformer.equality.bpmn import get_all_processes_by_id
+from transformer.equality.petrinet import get_all_nets_by_id
+from transformer.models.bpmn.bpmn import BPMN
+from transformer.models.pnml.pnml import Pnml
 
 
 class TestSubelements(unittest.TestCase):

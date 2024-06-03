@@ -1,8 +1,8 @@
 """Process gateways for bpmn workflows."""
 from typing import cast
 
-from transform.transformer.models.bpmn.base import Gateway, GenericBPMNNode
-from transform.transformer.models.bpmn.bpmn import Flow, Process
+from transformer.models.bpmn.base import Gateway, GenericBPMNNode
+from transformer.models.bpmn.bpmn import Flow, Process
 
 
 def remove_unnecessary_gateways(bpmn: Process, gateways: set[Gateway]):

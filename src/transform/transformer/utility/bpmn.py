@@ -4,7 +4,7 @@ This module provides utility functions to identify and return all start and end 
 in a given BPMN process.
 """
 
-from transform.transformer.models.bpmn.bpmn import Process
+from transformer.models.bpmn.bpmn import Process
 
 
 def find_start_events(process: Process):

@@ -26,17 +26,17 @@ from testgeneration.testcases.pnml_to_bpmn.supported_cases_workflow import (
 )
 from testgeneration.utility import clear
 
-from transform.transformer.equality.bpmn import compare_bpmn
-from transform.transformer.equality.petrinet import compare_pnml
-from transform.transformer.exceptions import NotSupportedBPMNElement
-from transform.transformer.models.bpmn.bpmn import BPMN
-from transform.transformer.models.pnml.pnml import Pnml
-from transform.transformer.transform_bpmn_to_petrinet.transform import (
+from transformer.equality.bpmn import compare_bpmn
+from transformer.equality.petrinet import compare_pnml
+from transformer.exceptions import NotSupportedBPMNElement
+from transformer.models.bpmn.bpmn import BPMN
+from transformer.models.pnml.pnml import Pnml
+from transformer.transform_bpmn_to_petrinet.transform import (
     bpmn_to_st_net,
     bpmn_to_st_net_from_xml,
     bpmn_to_workflow_net,
 )
-from transform.transformer.transform_petrinet_to_bpmn.transform import pnml_to_bpmn
+from transformer.transform_petrinet_to_bpmn.transform import pnml_to_bpmn
 
 LOG_PATH = "test_log"
 
