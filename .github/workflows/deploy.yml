@@ -38,6 +38,7 @@ jobs:
 
   deploy:
     runs-on: ubuntu-latest
+    needs: build_and_push_docker
 
     strategy:
       matrix:
