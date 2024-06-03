@@ -1,7 +1,7 @@
 """PNML models."""
 
 from pathlib import Path
-from typing import cast
+from typing import Optional, cast
 
 from pydantic import PrivateAttr
 from pydantic_xml import attr, element
@@ -13,6 +13,11 @@ from transformer.models.pnml.base import (
     Name,
     NetElement,
     Toolspecific,
+)
+from transformer.models.pnml.transform_helper import (
+    ANDHelperPNML,
+    HelperPNMLElement,
+    XORHelperPNML,
 )
 from transformer.utility.utility import (
     BaseModel,
@@ -110,6 +115,9 @@ class Net(BaseModel, tag="net"):
                 Place: self.places,
                 Transition: self.transitions,
                 Page: self.pages,
+                # Temporary helper elements (not actual petri net element)
+                XORHelperPNML: set([]),
+                ANDHelperPNML: set([]),
             },
         )
         for place in self.places:
@@ -124,8 +132,10 @@ class Net(BaseModel, tag="net"):
 
     def _flatten_node_typ_map(self):
         """Return all nodes as a single list."""
-        r: list[GenericNetNode] = []
-        return [r.extend(x) for x in self._type_map.values()]
+        all_nodes: list[GenericNetNode] = []
+        for type_sets in self._type_map.values():
+            all_nodes.extend(type_sets)
+        return all_nodes
 
     def _update_arc_incoming_outgoing(self, arc: Arc):
         """Updates helper node to arc mapping with the constructed arc."""
@@ -172,11 +182,21 @@ class Net(BaseModel, tag="net"):
         else:
             self.add_arc(source, target)
 
+    def add_arc_from_id(self, source_id: str, target_id: str, id: str | None = None):
+        """Add arc connecting source and target id."""
+        source = self._temp_elements[source_id]
+        target = self._temp_elements[target_id]
+        self.add_arc(source, target, id)
+
     def add_arc(self, source: NetElement, target: NetElement, id: str | None = None):
         """Add arc based on source and target instance."""
         if id is None:
             id = create_arc_name(source.id, target.id)
-        if type(source) is type(target):
+        if (
+            not isinstance(source, HelperPNMLElement)
+            and not isinstance(target, HelperPNMLElement)
+            and type(source) is type(target)
+        ):
             raise Exception("Cant connect identical petrinet elements")
         if id in self._temp_arcs:
             raise Exception(f"arc {id} already exists from {source.id} to {target.id}!")

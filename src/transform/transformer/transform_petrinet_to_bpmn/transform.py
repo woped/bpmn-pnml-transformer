@@ -12,19 +12,21 @@ from transformer.models.bpmn.bpmn import (
     Task,
     XorGateway,
 )
-from transformer.models.pnml.pnml import Net, Place, Pnml, Transition
+from transformer.models.pnml.pnml import Net, Pnml
+from transformer.models.pnml.transform_helper import (
+    GatewayHelperPNML,
+)
 from transformer.transform_petrinet_to_bpmn.preprocess_pnml import (
-    split_different_operator as sdo,
+    handle_workflow_operators as sdo,
 )
 from transformer.transform_petrinet_to_bpmn.workflow_helper import (
-    find_workflow_operators,
     find_workflow_subprocesses,
     handle_workflow_operators,
     handle_workflow_subprocesses,
 )
 from transformer.utility.utility import create_arc_name
 
-split_different_operators = sdo.split_different_operators
+split_different_operators = sdo.handle_workflow_operators
 
 
 def remove_silent_tasks(bpmn: Process):
@@ -77,15 +79,11 @@ def transform_petrinet_to_bpmn(net: Net):
     to_handle_subprocesses = find_workflow_subprocesses(net)
     transitions.difference_update(to_handle_subprocesses)
 
-    to_handle_operators = find_workflow_operators(net)
-    for operator_wrapper in to_handle_operators:
-        for operator_node in operator_wrapper.nodes:
-            if isinstance(operator_node, Place):
-                places.remove(operator_node)
-            elif isinstance(operator_node, Transition):
-                transitions.remove(operator_node)
-            else:
-                raise Exception()
+    to_handle_temp_gateways = [
+        elem
+        for elem in net._flatten_node_typ_map()
+        if isinstance(elem, GatewayHelperPNML)
+    ]
 
     # handle normal places
     for place in places:
@@ -113,10 +111,11 @@ def transform_petrinet_to_bpmn(net: Net):
             bpmn.add_node(AndGateway(id=transition.id, name=transition.get_name()))
 
     # handle workflow specific elements
+    handle_workflow_operators(net, bpmn, to_handle_temp_gateways)
+
     handle_workflow_subprocesses(
         net, bpmn, to_handle_subprocesses, transform_petrinet_to_bpmn
     )
-    handle_workflow_operators(net, bpmn, to_handle_operators)
 
     # handle remaining arcs
     for arc in net.arcs:
