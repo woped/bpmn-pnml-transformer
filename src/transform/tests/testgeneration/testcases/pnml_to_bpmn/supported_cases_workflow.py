@@ -1,10 +1,12 @@
 """Generate supported test cases for Workflow transformations."""
+
 from testgeneration.bpmn.utility import create_bpmn
 from testgeneration.pnml.helper_workflow import (
     create_operator_place,
     create_operator_transition,
 )
 from testgeneration.pnml.utility import create_petri_net
+
 from transformer.models.bpmn.bpmn import (
     BPMN,
     AndGateway,
@@ -115,35 +117,27 @@ def gateway_exclusive_join_split():
     gw_join = "elem_5"
     gw_both = "elem_7"
 
-    xor_split_1 = create_operator_transition(
-        gw_split, 1, WorkflowBranchingType.XorSplit, gw_split
-    )
-    xor_split_2 = create_operator_transition(
-        gw_split, 2, WorkflowBranchingType.XorSplit, gw_split
-    )
+    xor_split_1 = create_operator_transition(gw_split, 1, WorkflowBranchingType.XorSplit)
+    xor_split_2 = create_operator_transition(gw_split, 2, WorkflowBranchingType.XorSplit)
 
     xor_join_split_place = create_operator_place(
         gw_both, WorkflowBranchingType.XorJoinSplit
     )
     xor_join_split_in_1 = create_operator_transition(
-        gw_both, 1, WorkflowBranchingType.XorJoinSplit, gw_both
+        gw_both, 1, WorkflowBranchingType.XorJoinSplit
     )
     xor_join_split_in_2 = create_operator_transition(
-        gw_both, 2, WorkflowBranchingType.XorJoinSplit, gw_both
+        gw_both, 2, WorkflowBranchingType.XorJoinSplit
     )
     xor_join_split_out_1 = create_operator_transition(
-        gw_both, 3, WorkflowBranchingType.XorJoinSplit, gw_both
+        gw_both, 3, WorkflowBranchingType.XorJoinSplit
     )
     xor_join_split_out_2 = create_operator_transition(
-        gw_both, 4, WorkflowBranchingType.XorJoinSplit, gw_both
+        gw_both, 4, WorkflowBranchingType.XorJoinSplit
     )
 
-    xor_join_1 = create_operator_transition(
-        gw_join, 1, WorkflowBranchingType.XorJoin, gw_join
-    )
-    xor_join_2 = create_operator_transition(
-        gw_join, 2, WorkflowBranchingType.XorJoin, gw_join
-    )
+    xor_join_1 = create_operator_transition(gw_join, 1, WorkflowBranchingType.XorJoin)
+    xor_join_2 = create_operator_transition(gw_join, 2, WorkflowBranchingType.XorJoin)
 
     start = Place.create(id=se_id)
     end = Place.create(id=ee_id)
@@ -155,9 +149,7 @@ def gateway_exclusive_join_split():
                 xor_split_1,
                 Place.create(id=create_silent_node_name(xor_split_1.id, task_1)),
                 Transition.create(id=task_1, name=task_1),
-                Place.create(
-                    id=create_silent_node_name(task_1, xor_join_split_in_1.id)
-                ),
+                Place.create(id=create_silent_node_name(task_1, xor_join_split_in_1.id)),
                 xor_join_split_in_1,
                 xor_join_split_place,
                 xor_join_split_out_1,
@@ -191,9 +183,9 @@ def gateway_exclusive_join_split():
         ],
     )
 
-    bpmn_gw_split = XorGateway(id=gw_split, name=gw_split)
-    bpmn_gw_both = XorGateway(id=gw_both, name=gw_both)
-    bpmn_gw_join = XorGateway(id=gw_join, name=gw_join)
+    bpmn_gw_split = XorGateway(id=gw_split)
+    bpmn_gw_both = XorGateway(id=gw_both)
+    bpmn_gw_join = XorGateway(id=gw_join)
 
     bpmn = create_bpmn(
         case,
@@ -446,9 +438,7 @@ def xor_and_split():
         gw_split_start, 2, WorkflowBranchingType.XorSplit, gw_split_start
     )
 
-    linking_place = create_operator_place(
-        gw_both, WorkflowBranchingType.XorJoinAndSplit
-    )
+    linking_place = create_operator_place(gw_both, WorkflowBranchingType.XorJoinAndSplit)
     xor_join_and_split_in_1 = create_operator_transition(
         gw_both, 1, WorkflowBranchingType.XorJoinAndSplit, gw_both
     )
@@ -560,9 +550,7 @@ def and_xor_split():
         gw_xor_join_start, 2, WorkflowBranchingType.XorSplit, gw_xor_join_start
     )
     # Inner Part
-    linking_place = create_operator_place(
-        gw_both, WorkflowBranchingType.AndJoinXorSplit
-    )
+    linking_place = create_operator_place(gw_both, WorkflowBranchingType.AndJoinXorSplit)
     and_join_xor_split_in = create_operator_transition(
         gw_both, 1, WorkflowBranchingType.AndJoinXorSplit, gw_both
     )
