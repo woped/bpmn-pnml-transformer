@@ -1,42 +1,12 @@
 """Split a AND transition with a name (implicit task)."""
 
-from transformer.models.pnml.base import NetElement
-from transformer.models.pnml.pnml import Arc, Net, Transition
+from transformer.models.pnml.pnml import Net, Transition
 from transformer.utility.pnml import generate_explicit_transition_id
 
 
-def get_incoming_and_remove_arcs(net: Net, transition: Transition):
-    incoming_arcs = [arc.model_copy() for arc in net.get_incoming(transition.id)]
-    for to_remove_arc in incoming_arcs:
-        net.remove_arc(to_remove_arc)
-    return incoming_arcs
-
-
-def get_outgoing_and_remove_arcs(net: Net, transition: Transition):
-    outgoing_arcs = [arc.model_copy() for arc in net.get_outgoing(transition.id)]
-    for to_remove_arc in outgoing_arcs:
-        net.remove_arc(to_remove_arc)
-    return outgoing_arcs
-
-
-def get_incoming_outgoing_and_remove_arcs(net: Net, transition: Transition):
-    return get_incoming_and_remove_arcs(net, transition), get_outgoing_and_remove_arcs(
-        net, transition
-    )
-
-
-def connect_to_element(net: Net, element: NetElement, incoming_arcs: list[Arc]):
-    for arc in incoming_arcs:
-        net.add_arc_from_id(arc.source, element.id)
-
-
-def connect_from_element(net: Net, element: NetElement, outgoing_arcs: list[Arc]):
-    for arc in outgoing_arcs:
-        net.add_arc_from_id(element.id, arc.target)
-
-
 def handle_split(net: Net, and_gateway: Transition):
-    incoming_arcs = get_incoming_and_remove_arcs(net, and_gateway)
+    """Split into a gateway and explicit task."""
+    incoming_arcs = net.get_incoming_and_remove_arcs(and_gateway)
 
     explicit_transition = Transition.create(
         generate_explicit_transition_id(and_gateway.id), and_gateway.get_name()
@@ -46,11 +16,12 @@ def handle_split(net: Net, and_gateway: Transition):
 
     net.add_arc_with_handle_same_type(explicit_transition, and_gateway)
 
-    connect_to_element(net, explicit_transition, incoming_arcs)
+    net.connect_to_element(explicit_transition, incoming_arcs)
 
 
 def handle_join(net: Net, and_gateway: Transition):
-    outgoing_arcs = get_outgoing_and_remove_arcs(net, and_gateway)
+    """Split into a gateway and explicit task."""
+    outgoing_arcs = net.get_outgoing_and_remove_arcs(and_gateway)
 
     explicit_transition = Transition.create(
         generate_explicit_transition_id(and_gateway.id), and_gateway.get_name()
@@ -60,11 +31,12 @@ def handle_join(net: Net, and_gateway: Transition):
 
     net.add_arc_with_handle_same_type(and_gateway, explicit_transition)
 
-    connect_from_element(net, explicit_transition, outgoing_arcs)
+    net.connect_from_element(explicit_transition, outgoing_arcs)
 
 
 def handle_join_split(net: Net, and_gateway: Transition):
-    outgoing_arcs = get_outgoing_and_remove_arcs(net, and_gateway)
+    """Split into two gateways and explicit task."""
+    outgoing_arcs = net.get_outgoing_and_remove_arcs(and_gateway)
 
     explicit_transition = Transition.create(
         generate_explicit_transition_id(and_gateway.id), and_gateway.get_name()
@@ -77,10 +49,11 @@ def handle_join_split(net: Net, and_gateway: Transition):
     net.add_arc_with_handle_same_type(and_gateway, explicit_transition)
     net.add_arc_with_handle_same_type(explicit_transition, and_end_gateway)
 
-    connect_from_element(net, and_end_gateway, outgoing_arcs)
+    net.connect_from_element(and_end_gateway, outgoing_arcs)
 
 
 def split_and_gw_with_name(net: Net):
+    """Split a AND transition with a name into the gateways and explicit task."""
     and_gateways = [
         t
         for t in net.transitions

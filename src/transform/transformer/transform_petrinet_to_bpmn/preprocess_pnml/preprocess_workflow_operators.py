@@ -16,6 +16,7 @@ from transformer.utility.pnml import generate_explicit_transition_id
 
 
 def handle_combined_operator(net: Net, wo: WorkflowOperatorWrapper):
+    """Handle operators consisting of combined opeartors (e.g. AND-AND, XOR-AND)."""
     incoming_arcs = wo.get_copy_unique_in_arcs()
     outgoing_arcs = wo.get_copy_unique_out_arcs()
 
@@ -94,6 +95,7 @@ def handle_combined_operator(net: Net, wo: WorkflowOperatorWrapper):
 
 
 def handle_single_operator(net: Net, wo: WorkflowOperatorWrapper):
+    """Handle operators consisting of a single split or join."""
     incoming_arcs = wo.get_copy_unique_in_arcs()
     outgoing_arcs = wo.get_copy_unique_out_arcs()
 

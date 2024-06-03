@@ -1,7 +1,7 @@
 """PNML models."""
 
 from pathlib import Path
-from typing import Optional, cast
+from typing import cast
 
 from pydantic import PrivateAttr
 from pydantic_xml import attr, element
@@ -278,6 +278,36 @@ class Net(BaseModel, tag="net"):
             arc.target = ""
         for arc in outgoing:
             arc.source = ""
+
+    def get_incoming_and_remove_arcs(self, transition: Transition):
+        """Get a copy of each incoming arc and remove original arcs."""
+        incoming_arcs = [arc.model_copy() for arc in self.get_incoming(transition.id)]
+        for to_remove_arc in incoming_arcs:
+            self.remove_arc(to_remove_arc)
+        return incoming_arcs
+
+    def get_outgoing_and_remove_arcs(self, transition: Transition):
+        """Get a copy of each outgoing arc and remove original arcs."""
+        outgoing_arcs = [arc.model_copy() for arc in self.get_outgoing(transition.id)]
+        for to_remove_arc in outgoing_arcs:
+            self.remove_arc(to_remove_arc)
+        return outgoing_arcs
+
+    def get_incoming_outgoing_and_remove_arcs(self, transition: Transition):
+        """Get a copy of all connecting arc and remove original arcs."""
+        return self.get_incoming_and_remove_arcs(
+            transition
+        ), self.get_outgoing_and_remove_arcs(transition)
+
+    def connect_to_element(self, element: NetElement, incoming_arcs: list[Arc]):
+        """Connect each source of the arcs to a specified element."""
+        for arc in incoming_arcs:
+            self.add_arc_from_id(arc.source, element.id)
+
+    def connect_from_element(self, element: NetElement, outgoing_arcs: list[Arc]):
+        """Connect each target of the arcs from a specified element."""
+        for arc in outgoing_arcs:
+            self.add_arc_from_id(element.id, arc.target)
 
 
 # Page is using Net reference before Net is initalized

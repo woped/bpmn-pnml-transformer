@@ -34,6 +34,7 @@ class WorkflowOperatorWrapper(BaseModel):
     all_arcs: set[Arc] = Field(default_factory=set)
 
     def get_copy_unique_in_arcs(self):
+        """Get all incoming arcs without duplicate input sources."""
         already_added_sources = set()
         arcs: list[Arc] = []
         for arc in self.incoming_arcs:
@@ -44,6 +45,7 @@ class WorkflowOperatorWrapper(BaseModel):
         return arcs
 
     def get_copy_unique_out_arcs(self):
+        """Get all outgoing arcs without duplicate input targets."""
         already_added_targets = set()
         arcs: list[Arc] = []
         for arc in self.outgoing_arcs:
