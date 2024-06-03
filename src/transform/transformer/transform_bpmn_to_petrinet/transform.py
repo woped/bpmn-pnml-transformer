@@ -32,15 +32,6 @@ from transformer.transform_bpmn_to_petrinet.transform_workflow_helper import (
 )
 from transformer.utility.utility import create_silent_node_name
 
-<<<<<<< HEAD
-from transformer.transform_bpmn_to_petrinet.preprocess_bpmn import (
-    inclusive_bpmn_preprocess as ibp,
-    insert_adjacent_subprocesses as ias
-)
-
-
-=======
->>>>>>> origin/main
 replace_inclusive_gateways = ibp.replace_inclusive_gateways
 insert_temp_between_adjacent_mapped_transitions = (
     ias.insert_temp_between_adjacent_mapped_transition
