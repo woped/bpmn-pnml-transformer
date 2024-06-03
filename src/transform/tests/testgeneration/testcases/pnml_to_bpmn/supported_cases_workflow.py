@@ -156,17 +156,17 @@ def gateway_parallel_join_split_implicit():
         ],
     )
 
-    bpmn_gw_split = AndGateway(id=gw_split, name="split")
-    bpmn_gw_both_in = AndGateway(id="INAND" + gw_both, name="both")
-    bpmn_gw_both_out = AndGateway(id="OUTAND" + gw_both, name="both")
-    bpmn_gw_join = AndGateway(id=gw_join, name="join")
+    bpmn_gw_split = AndGateway(id=gw_split)
+    bpmn_gw_both_in = AndGateway(id="INAND" + gw_both)
+    bpmn_gw_both_out = AndGateway(id="OUTAND" + gw_both)
+    bpmn_gw_join = AndGateway(id=gw_join)
 
     bpmn = create_bpmn(
         case,
         [
             [
                 StartEvent(id=se_id),
-                Task(id="EXPLICIT" + bpmn_gw_split.id, name=bpmn_gw_split.name),
+                Task(id="EXPLICIT" + bpmn_gw_split.id, name=and_split.get_name()),
                 bpmn_gw_split,
                 Task(id=task_1, name=task_1),
                 bpmn_gw_both_in,
@@ -177,7 +177,7 @@ def gateway_parallel_join_split_implicit():
                 bpmn_gw_both_out,
                 Task(id=task_2, name=task_2),
                 bpmn_gw_join,
-                Task(id="EXPLICIT" + bpmn_gw_join.id, name=bpmn_gw_join.name),
+                Task(id="EXPLICIT" + bpmn_gw_join.id, name=and_join.get_name()),
                 EndEvent(id=ee_id),
             ],
             [bpmn_gw_split, Task(id=task_11, name=task_11), bpmn_gw_both_in],

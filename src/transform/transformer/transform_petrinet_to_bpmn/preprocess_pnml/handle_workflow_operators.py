@@ -15,10 +15,6 @@ from transformer.transform_petrinet_to_bpmn.workflow_helper import (
 from transformer.utility.pnml import generate_explicit_transition_id
 
 
-def extract_task():
-    pass
-
-
 def handle_combined_operator(net: Net, wo: WorkflowOperatorWrapper):
     incoming_arcs = wo.get_copy_unique_in_arcs()
     outgoing_arcs = wo.get_copy_unique_out_arcs()
@@ -83,6 +79,10 @@ def handle_combined_operator(net: Net, wo: WorkflowOperatorWrapper):
             net.add_arc_from_id(firstGatewayPart.id, secondGatewayPart.id)
         return
 
+    # Names not necessary for gateways if explicit task with name exists
+    firstGatewayPart.name = None
+    secondGatewayPart.name = None
+
     # Add and connect explicit task
     explicit_task = Transition.create(
         id=generate_explicit_transition_id(wo.id),
@@ -124,12 +124,15 @@ def handle_single_operator(net: Net, wo: WorkflowOperatorWrapper):
     if not wo.name:
         return
 
+    # Name not necessary for gateway if explicit task with name exists
+    new_gateway.name = None
+
     # Join needs task after operator
     if wo.t in [WorkflowBranchingType.AndJoin, WorkflowBranchingType.XorJoin]:
         outgoing_arc = list(net.get_outgoing(new_gateway.id))[0]
         explicit_task = Transition.create(
             id=generate_explicit_transition_id(new_gateway.id),
-            name=new_gateway.get_name(),
+            name=wo.name,
         )
         net.add_element(explicit_task)
         net.add_arc(new_gateway, explicit_task)
@@ -141,7 +144,7 @@ def handle_single_operator(net: Net, wo: WorkflowOperatorWrapper):
         incoming_arc = list(net.get_incoming(new_gateway.id))[0]
         explicit_task = Transition.create(
             id=generate_explicit_transition_id(new_gateway.id),
-            name=new_gateway.get_name(),
+            name=wo.name,
         )
         net.add_element(explicit_task)
         net.add_arc(explicit_task, new_gateway)
