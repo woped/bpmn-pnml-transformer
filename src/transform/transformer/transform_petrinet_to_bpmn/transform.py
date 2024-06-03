@@ -17,7 +17,8 @@ from transformer.models.pnml.transform_helper import (
     GatewayHelperPNML,
 )
 from transformer.transform_petrinet_to_bpmn.preprocess_pnml import (
-    handle_workflow_operators as sdo,
+    preprocess_workflow_operators,
+    split_and_gw_with_name,
 )
 from transformer.transform_petrinet_to_bpmn.workflow_helper import (
     find_workflow_subprocesses,
@@ -25,8 +26,6 @@ from transformer.transform_petrinet_to_bpmn.workflow_helper import (
     handle_workflow_subprocesses,
 )
 from transformer.utility.utility import create_arc_name
-
-split_different_operators = sdo.handle_workflow_operators
 
 
 def remove_silent_tasks(bpmn: Process):
@@ -147,6 +146,12 @@ def pnml_to_bpmn(pnml: Pnml):
     """Process and transform a petri net to bpmn."""
     net = pnml.net
 
-    apply_preprocessing(net, [split_different_operators])
+    apply_preprocessing(
+        net,
+        [
+            preprocess_workflow_operators.handle_workflow_operators,
+            split_and_gw_with_name.split_and_gw_with_name,
+        ],
+    )
 
     return transform_petrinet_to_bpmn(net)

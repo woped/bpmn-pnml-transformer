@@ -4,7 +4,6 @@ from collections.abc import Callable
 
 from pydantic import BaseModel, Field
 
-from transformer.models.bpmn.base import GenericBPMNNode
 from transformer.models.bpmn.bpmn import BPMN, AndGateway, Process, XorGateway
 from transformer.models.pnml.base import NetElement
 from transformer.models.pnml.pnml import Arc, Net, Page, Transition
