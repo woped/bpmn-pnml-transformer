@@ -1,4 +1,5 @@
-"""Transforms workflow operators into pnml conform notation."""
+"""Module for creating operator places and transitions in a workflow using PNML."""
+
 from transformer.models.pnml.pnml import (
     Place,
     Transition,

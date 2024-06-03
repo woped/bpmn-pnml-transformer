@@ -23,7 +23,7 @@ from transformer.transform_bpmn_to_petrinet.preprocess_bpmn import (
 from transformer.transform_bpmn_to_petrinet.preprocess_bpmn.extend_process import (
     extend_subprocess,
 )
-from transformer.transform_bpmn_to_petrinet.preprocess_bpmn.gateway_for_workflow import (
+from transformer.transform_bpmn_to_petrinet.preprocess_bpmn.gateway_for_workflow import ( # noqa: E501
     preprocess_gateways,
 )
 from transformer.transform_bpmn_to_petrinet.transform_workflow_helper import (

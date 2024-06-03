@@ -1,4 +1,10 @@
-"""Preprocess combined workflow operators to individual workflow operators."""
+"""Module for splitting combined workflow operators in Petri nets.
+
+This module provides functionality to split combined workflow operators (And-Xor, 
+Xor-And) in Petri nets into individual workflow operators, as these combined operators 
+cannot be handled by BPMN elements.
+"""
+
 from transformer.models.pnml.pnml import Net, Place
 from transformer.models.pnml.workflow import WorkflowBranchingType
 from transformer.transform_bpmn_to_petrinet.transform_workflow_helper import (

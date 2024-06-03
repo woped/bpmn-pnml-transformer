@@ -1,4 +1,10 @@
-"""Function for fully extending a subprocess into elements of a parent process."""
+"""Module for fully extending subprocesses.
+
+Provides functionality to fully extend a set of subprocesses into a single
+parent process in BPMN models.
+"""
+
+
 from transformer.models.bpmn.bpmn import Process
 from transformer.utility.bpmn import find_end_events, find_start_events
 

@@ -5,6 +5,7 @@ from testgeneration.pnml.helper_workflow import (
     create_operator_transition,
 )
 from testgeneration.pnml.utility import create_petri_net
+
 from transformer.models.bpmn.bpmn import (
     BPMN,
     AndGateway,
