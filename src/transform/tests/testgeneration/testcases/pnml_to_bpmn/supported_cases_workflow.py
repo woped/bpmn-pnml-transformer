@@ -293,6 +293,124 @@ def gateway_exclusive_join_split():
     return bpmn, net, case
 
 
+def gateway_exclusive_join_split_implicit():
+    """Return a BPMN and workflow net with XOR gates."""
+    case = "exclusive_workflow_elements_implicit"
+    se_id = "elem_1"
+    ee_id = "elem_2"
+
+    task_1 = "elem_3"
+    task_11 = "elem_6"
+    task_2 = "elem_30"
+    task_22 = "elem_60"
+
+    gw_split = "elem_4"
+    gw_join = "elem_5"
+    gw_both = "elem_7"
+
+    xor_split_1 = create_operator_transition(
+        gw_split, 1, WorkflowBranchingType.XorSplit, "split"
+    )
+    xor_split_2 = create_operator_transition(
+        gw_split, 2, WorkflowBranchingType.XorSplit, "split"
+    )
+
+    xor_join_split_place = create_operator_place(
+        gw_both, WorkflowBranchingType.XorJoinSplit
+    )
+    xor_join_split_in_1 = create_operator_transition(
+        gw_both, 1, WorkflowBranchingType.XorJoinSplit, "both"
+    )
+    xor_join_split_in_2 = create_operator_transition(
+        gw_both, 2, WorkflowBranchingType.XorJoinSplit, "both"
+    )
+    xor_join_split_out_1 = create_operator_transition(
+        gw_both, 3, WorkflowBranchingType.XorJoinSplit, "both"
+    )
+    xor_join_split_out_2 = create_operator_transition(
+        gw_both, 4, WorkflowBranchingType.XorJoinSplit, "both"
+    )
+
+    xor_join_1 = create_operator_transition(
+        gw_join, 1, WorkflowBranchingType.XorJoin, "join"
+    )
+    xor_join_2 = create_operator_transition(
+        gw_join, 2, WorkflowBranchingType.XorJoin, "join"
+    )
+
+    start = Place.create(id=se_id)
+    end = Place.create(id=ee_id)
+    net = create_petri_net(
+        case,
+        [
+            [
+                start,
+                xor_split_1,
+                Place.create(id=create_silent_node_name(xor_split_1.id, task_1)),
+                Transition.create(id=task_1, name=task_1),
+                Place.create(id=create_silent_node_name(task_1, xor_join_split_in_1.id)),
+                xor_join_split_in_1,
+                xor_join_split_place,
+                xor_join_split_out_1,
+                Place.create(
+                    id=create_silent_node_name(xor_join_split_out_1.id, task_2)
+                ),
+                Transition.create(id=task_2, name=task_2),
+                Place.create(id=create_silent_node_name(task_2, xor_join_1.id)),
+                xor_join_1,
+                end,
+            ],
+            [
+                start,
+                xor_split_2,
+                Place.create(id=create_silent_node_name(xor_split_2.id, task_11)),
+                Transition.create(id=task_11, name=task_11),
+                Place.create(
+                    id=create_silent_node_name(task_11, xor_join_split_in_2.id)
+                ),
+                xor_join_split_in_2,
+                xor_join_split_place,
+                xor_join_split_out_2,
+                Place.create(
+                    id=create_silent_node_name(xor_join_split_out_2.id, task_22)
+                ),
+                Transition.create(id=task_22, name=task_22),
+                Place.create(id=create_silent_node_name(task_22, xor_join_2.id)),
+                xor_join_2,
+                end,
+            ],
+        ],
+    )
+
+    bpmn_gw_split = XorGateway(id=gw_split)
+    bpmn_gw_both_in = XorGateway(id="INXOR" + gw_both)
+    bpmn_gw_both_out = XorGateway(id="OUTXOR" + gw_both)
+    bpmn_gw_join = XorGateway(id=gw_join)
+
+    bpmn = create_bpmn(
+        case,
+        [
+            [
+                StartEvent(id=se_id),
+                Task(id="EXPLICIT" + bpmn_gw_split.id, name=xor_split_1.get_name()),
+                bpmn_gw_split,
+                Task(id=task_1, name=task_1),
+                bpmn_gw_both_in,
+                Task(id="EXPLICIT" + gw_both, name=xor_join_split_in_1.get_name()),
+                bpmn_gw_both_out,
+                Task(id=task_2, name=task_2),
+                bpmn_gw_join,
+                Task(id="EXPLICIT" + bpmn_gw_join.id, name=xor_join_1.get_name()),
+                EndEvent(id=ee_id),
+            ],
+            [bpmn_gw_split, Task(id=task_11, name=task_11), bpmn_gw_both_in],
+            [bpmn_gw_both_out, Task(id=task_22, name=task_22), bpmn_gw_join],
+        ],
+    )
+
+    return bpmn, net, case
+
+
 def gateway_side_by_side_xor_and():
     """Return a BPMN and workflow net with XOR+AND gates."""
     case = "gateway_side_by_side_xor_and"
@@ -608,6 +726,117 @@ def xor_and_split():
     return bpmn, net, case
 
 
+def xor_and_split_implicit():
+    """Return a BPMN and workflow net with mixed gates."""
+    case = "gateway_xor_and_split_implicit"
+    se_id = "elem_1"
+    ee_id = "elem_2"
+
+    task_1 = "elem_3"
+    task_11 = "elem_6"
+    task_2 = "elem_30"
+    task_22 = "elem_60"
+
+    gw_split_start = "elem_4"
+    gw_join_end = "elem_5"
+
+    gw_both = "elem_both"
+
+    # Xor Part
+    xor_split_1 = create_operator_transition(
+        gw_split_start, 1, WorkflowBranchingType.XorSplit
+    )
+    xor_split_2 = create_operator_transition(
+        gw_split_start, 2, WorkflowBranchingType.XorSplit
+    )
+
+    linking_place = create_operator_place(gw_both, WorkflowBranchingType.XorJoinAndSplit)
+    xor_join_and_split_in_1 = create_operator_transition(
+        gw_both, 1, WorkflowBranchingType.XorJoinAndSplit, "both"
+    )
+    xor_join_and_split_in_2 = create_operator_transition(
+        gw_both, 2, WorkflowBranchingType.XorJoinAndSplit, "both"
+    )
+    xor_join_and_split_out = create_operator_transition(
+        gw_both, 3, WorkflowBranchingType.XorJoinAndSplit, "both"
+    )
+    # And Part
+    and_join = create_operator_transition(gw_join_end, 1, WorkflowBranchingType.AndJoin)
+
+    start = Place.create(id=se_id)
+    end = Place.create(id=ee_id)
+    net = create_petri_net(
+        case,
+        [
+            [
+                start,
+                xor_split_1,
+                Place.create(id=create_silent_node_name(xor_split_1.id, task_1)),
+                Transition.create(id=task_1, name=task_1),
+                Place.create(
+                    id=create_silent_node_name(task_1, xor_join_and_split_in_1.id)
+                ),
+                xor_join_and_split_in_1,
+                linking_place,
+                xor_join_and_split_out,
+                Place.create(
+                    id=create_silent_node_name(xor_join_and_split_out.id, task_2)
+                ),
+                Transition.create(id=task_2, name=task_2),
+                Place.create(id=create_silent_node_name(task_2, and_join.id)),
+                and_join,
+                end,
+            ],
+            [
+                start,
+                xor_split_2,
+                Place.create(id=create_silent_node_name(xor_split_2.id, task_11)),
+                Transition.create(id=task_11, name=task_11),
+                Place.create(
+                    id=create_silent_node_name(task_11, xor_join_and_split_in_2.id)
+                ),
+                xor_join_and_split_in_2,
+                linking_place,
+            ],
+            [
+                xor_join_and_split_out,
+                Place.create(
+                    id=create_silent_node_name(xor_join_and_split_out.id, task_22)
+                ),
+                Transition.create(id=task_22, name=task_22),
+                Place.create(id=create_silent_node_name(task_22, and_join.id)),
+                and_join,
+            ],
+        ],
+    )
+
+    bpmn_gw_split_start = XorGateway(id=gw_split_start)
+    bpmn_gw_join_start = XorGateway(id="XOR" + gw_both)
+    bpmn_gw_split_end = AndGateway(id="AND" + gw_both)
+    bpmn_gw_join_end = AndGateway(id=gw_join_end)
+
+    bpmn = create_bpmn(
+        case,
+        [
+            [
+                StartEvent(id=se_id),
+                bpmn_gw_split_start,
+                Task(id=task_1, name=task_1),
+                bpmn_gw_join_start,
+                Task(id="EXPLICIT" + gw_both, name=xor_join_and_split_in_1.get_name()),
+                bpmn_gw_split_end,
+                Task(id=task_2, name=task_2),
+                bpmn_gw_join_end,
+                EndEvent(id=ee_id),
+            ],
+            [bpmn_gw_split_start, Task(id=task_11, name=task_11), bpmn_gw_join_start],
+            [bpmn_gw_split_end, Task(id=task_22, name=task_22), bpmn_gw_join_end],
+        ],
+    )
+
+    return bpmn, net, case
+
+
 def and_xor_split():
     """Return a BPMN and workflow net with mixed gates."""
     case = "gateway_and_xor_split"
@@ -718,6 +947,117 @@ def and_xor_split():
     return bpmn, net, case
 
 
+def and_xor_split_implicit():
+    """Return a BPMN and workflow net with mixed gates."""
+    case = "gateway_and_xor_split_implicit"
+    se_id = "elem_1"
+    ee_id = "elem_2"
+
+    task_1 = "elem_3"
+    task_11 = "elem_6"
+    task_2 = "elem_30"
+    task_22 = "elem_60"
+
+    gw_xor_join_start = "elem_4"
+    gw_and_split_start = "elem_5"
+
+    gw_both = "elem_both"
+
+    # Xor Part
+    xor_join_1 = create_operator_transition(
+        gw_xor_join_start, 1, WorkflowBranchingType.XorSplit
+    )
+    xor_join_2 = create_operator_transition(
+        gw_xor_join_start, 2, WorkflowBranchingType.XorSplit
+    )
+    # Inner Part
+    linking_place = create_operator_place(gw_both, WorkflowBranchingType.AndJoinXorSplit)
+    and_join_xor_split_in = create_operator_transition(
+        gw_both, 1, WorkflowBranchingType.AndJoinXorSplit, "both"
+    )
+    and_join_xor_split_out_1 = create_operator_transition(
+        gw_both, 2, WorkflowBranchingType.AndJoinXorSplit, "both"
+    )
+    and_join_xor_split_out_2 = create_operator_transition(
+        gw_both, 3, WorkflowBranchingType.AndJoinXorSplit, "both"
+    )
+    # And Part
+    and_split = create_operator_transition(
+        gw_and_split_start, 1, WorkflowBranchingType.AndJoin
+    )
+
+    start = Place.create(id=se_id)
+    end = Place.create(id=ee_id)
+    net = create_petri_net(
+        case,
+        [
+            [
+                start,
+                and_split,
+                Place.create(id=create_silent_node_name(and_split.id, task_1)),
+                Transition.create(id=task_1, name=task_1),
+                Place.create(
+                    id=create_silent_node_name(task_1, and_join_xor_split_in.id)
+                ),
+                and_join_xor_split_in,
+                linking_place,
+                and_join_xor_split_out_1,
+                Place.create(
+                    id=create_silent_node_name(and_join_xor_split_out_1.id, task_2)
+                ),
+                Transition.create(id=task_2, name=task_2),
+                Place.create(id=create_silent_node_name(task_2, xor_join_1.id)),
+                xor_join_1,
+                end,
+            ],
+            [
+                and_split,
+                Place.create(id=create_silent_node_name(and_split.id, task_11)),
+                Transition.create(id=task_11, name=task_11),
+                Place.create(id=create_silent_node_name(task_11, xor_join_2.id)),
+                and_join_xor_split_in,
+            ],
+            [
+                linking_place,
+                and_join_xor_split_out_2,
+                Place.create(
+                    id=create_silent_node_name(and_join_xor_split_out_2.id, task_22)
+                ),
+                Transition.create(id=task_22, name=task_22),
+                Place.create(id=create_silent_node_name(task_22, xor_join_1.id)),
+                xor_join_2,
+                end,
+            ],
+        ],
+    )
+
+    bpmn_gw_split_start = AndGateway(id=gw_and_split_start)
+    bpmn_gw_join_start = AndGateway(id="AND" + gw_both)
+    bpmn_gw_split_end = XorGateway(id="XOR" + gw_both)
+    bpmn_gw_join_end = XorGateway(id=gw_xor_join_start)
+
+    bpmn = create_bpmn(
+        case,
+        [
+            [
+                StartEvent(id=se_id),
+                bpmn_gw_split_start,
+                Task(id=task_1, name=task_1),
+                bpmn_gw_join_start,
+                Task(id="EXPLICIT" + gw_both, name=and_join_xor_split_in.get_name()),
+                bpmn_gw_split_end,
+                Task(id=task_2, name=task_2),
+                bpmn_gw_join_end,
+                EndEvent(id=ee_id),
+            ],
+            [bpmn_gw_split_start, Task(id=task_11, name=task_11), bpmn_gw_join_start],
+            [bpmn_gw_split_end, Task(id=task_22, name=task_22), bpmn_gw_join_end],
+        ],
+    )
+
+    return bpmn, net, case
+
+
 def subprocess():
     """Return a BPMN and workflow net with a subprocess."""
     case = "subprocess"
@@ -773,6 +1113,9 @@ def subprocess():
 
 
 supported_cases_workflow_pnml: list[tuple[BPMN, Pnml, str]] = [
+    and_xor_split_implicit(),
+    xor_and_split_implicit(),
+    gateway_exclusive_join_split_implicit(),
     gateway_parallel_join_split_implicit(),
     gateway_parallel_join_split(),
     gateway_exclusive_join_split(),
