@@ -1,7 +1,7 @@
 """Preprocess combined workflow operators to individual workflow operators."""
 
 from transformer.models.pnml.base import Name
-from transformer.models.pnml.pnml import Net, Transition
+from transformer.models.pnml.pnml import Arc, Net, Transition
 from transformer.models.pnml.transform_helper import (
     ANDHelperPNML,
     GatewayHelperPNML,
@@ -67,11 +67,8 @@ def handle_combined_operator(net: Net, wo: WorkflowOperatorWrapper):
     net.add_element(firstGatewayPart)
     net.add_element(secondGatewayPart)
 
-    for new_arc in incoming_arcs:
-        net.add_arc_from_id(new_arc.source, firstGatewayPart.id, new_arc.id)
-
-    for new_arc in outgoing_arcs:
-        net.add_arc_from_id(secondGatewayPart.id, new_arc.target, new_arc.id)
+    net.connect_to_element(firstGatewayPart, incoming_arcs)
+    net.connect_from_element(secondGatewayPart, outgoing_arcs)
 
     # Operator without name doesnt has an implicit task
     if not wo.name:
@@ -113,14 +110,8 @@ def handle_single_operator(net: Net, wo: WorkflowOperatorWrapper):
     )
 
     net.add_element(new_gateway)
-    for new_arc in incoming_arcs:
-        net.add_arc_from_id(
-            source_id=new_arc.source, target_id=new_gateway.id, id=new_arc.id
-        )
-    for new_arc in outgoing_arcs:
-        net.add_arc_from_id(
-            source_id=new_gateway.id, target_id=new_arc.target, id=new_arc.id
-        )
+    net.connect_to_element(new_gateway, incoming_arcs)
+    net.connect_from_element(new_gateway, outgoing_arcs)
 
     # Operator without name doesnt has an implicit task
     if not wo.name:
@@ -131,31 +122,46 @@ def handle_single_operator(net: Net, wo: WorkflowOperatorWrapper):
 
     # Join needs task after operator
     if wo.t in [WorkflowBranchingType.AndJoin, WorkflowBranchingType.XorJoin]:
-        outgoing_arc = list(net.get_outgoing(new_gateway.id))[0]
+        outgoing_arc: Arc | None = None
+        outgoing_arcs = list(net.get_outgoing(new_gateway.id))
+        if len(outgoing_arcs) > 0:
+            outgoing_arc = outgoing_arcs[0]
+
         explicit_task = Transition.create(
             id=generate_explicit_transition_id(new_gateway.id),
             name=wo.name,
         )
         net.add_element(explicit_task)
         net.add_arc(new_gateway, explicit_task)
-        net.add_arc_from_id(explicit_task.id, outgoing_arc.target)
 
-        net.remove_arc(outgoing_arc)
+        # Operator could have no following element
+        if outgoing_arc:
+            net.add_arc_from_id(explicit_task.id, outgoing_arc.target)
+
+            net.remove_arc(outgoing_arc)
+
     # Split needs task before operator
     else:
-        incoming_arc = list(net.get_incoming(new_gateway.id))[0]
+        incoming_arc: Arc | None = None
+        incoming_arcs = list(net.get_incoming(new_gateway.id))
+        if len(incoming_arcs) > 0:
+            incoming_arc = incoming_arcs[0]
+
         explicit_task = Transition.create(
             id=generate_explicit_transition_id(new_gateway.id),
             name=wo.name,
         )
         net.add_element(explicit_task)
         net.add_arc(explicit_task, new_gateway)
-        net.add_arc_from_id(
-            incoming_arc.source,
-            explicit_task.id,
-        )
 
-        net.remove_arc(incoming_arc)
+        # Operator could have no previous element
+        if incoming_arc:
+            net.add_arc_from_id(
+                incoming_arc.source,
+                explicit_task.id,
+            )
+
+            net.remove_arc(incoming_arc)
 
 
 def handle_workflow_operators(net: Net):
