@@ -13,9 +13,12 @@ from transformer.transform_petrinet_to_bpmn.transform import pnml_to_bpmn
 from google.cloud import firestore
 from flask import abort
 
-os.environ["FIRESTORE_EMULATOR_HOST"] = "localhost:8244"
+from google.cloud import logging
+
+os.environ["FIRESTORE_EMULATOR_HOST"] = "localhost:9090"
 
 db = firestore.Client()
+logging_client = logging.Client()
 
 def check_tokens():
     if db is None:
