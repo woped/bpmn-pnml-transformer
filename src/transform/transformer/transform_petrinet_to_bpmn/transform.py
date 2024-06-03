@@ -24,11 +24,6 @@ from transformer.transform_petrinet_to_bpmn.workflow_helper import (
 )
 from transformer.utility.utility import create_arc_name
 
-from transformer.transform_bpmn_to_petrinet.preprocess_bpmn import (
-    inclusive_bpmn_preprocess as ibp,
-    insert_adjacent_subprocesses as ias
-)
-
 split_different_operators = sdo.split_different_operators
 
 
