@@ -1,7 +1,7 @@
 """API to transform a given model into a selected direction."""
 import flask
 import functions_framework
-import os
+import firebase_admin
 from flask import jsonify
 from transformer.models.bpmn.bpmn import BPMN
 from transformer.models.pnml.pnml import Pnml
@@ -12,13 +12,11 @@ from transformer.transform_bpmn_to_petrinet.transform import (
 from transformer.transform_petrinet_to_bpmn.transform import pnml_to_bpmn
 from google.cloud import firestore
 from flask import abort
+from firebase_admin import credentials, firestore 
 
-from google.cloud import logging
-
-os.environ["FIRESTORE_EMULATOR_HOST"] = "localhost:9090"
-
+cred = credentials.Certificate("secrets/woped-422510-ff5224739dab.json")
+app = firebase_admin.initialize_app(cred)
 db = firestore.Client()
-logging_client = logging.Client()
 
 def check_tokens():
     if db is None:
@@ -26,10 +24,8 @@ def check_tokens():
     doc_ref = db.collection("api-tokens").document("token-document")
     doc = doc_ref.get()
 
-
     if doc.exists:
         tokens = doc.to_dict().get("tokens",0)
-
         if tokens <= 0:
             raise Exception("No tokens available")
         

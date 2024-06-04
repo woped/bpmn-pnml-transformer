@@ -11,3 +11,6 @@ __pycache__/
 
 # VS Code
 .vscode/
+
+# Service Account Secrets
+secrets/
