@@ -86,7 +86,7 @@ class Toolspecific(BaseModel, tag="toolspecific"):
     def is_workflow_message(self):
         """Returns whether instance is a workflow message trigger."""
         return (
-            self._is_woped
+            self._is_woped()
             and self.transitionResource
             and self.transitionResource.roleName is TriggerType.Message
         )
@@ -94,22 +94,22 @@ class Toolspecific(BaseModel, tag="toolspecific"):
     def is_workflow_time(self):
         """Returns whether instance is a workflow time trigger."""
         return (
-            self._is_woped
+            self._is_woped()
             and self.transitionResource
             and self.transitionResource.roleName is TriggerType.Time
         )
 
-    def is_event_trigger(self):
-        """Returns whether instance is a trigger."""
-        return self.is_workflow_message() and self.is_workflow_time()
-
     def is_workflow_resource(self):
         """Returns whether instance is a workflow resource trigger."""
         return (
-            self._is_woped
+            self._is_woped()
             and self.transitionResource
             and self.transitionResource.roleName is TriggerType.Resource
         )
+
+    def is_workflow_event_trigger(self):
+        """Returns whether instance is a trigger."""
+        return self.is_workflow_message() and self.is_workflow_time()
 
 
 class GenericNetNode(GenericNetIDNode):
@@ -129,6 +129,13 @@ class NetElement(GenericNetNode):
             return None
         return self.name.title
 
+    def set_copy_of_exisiting_toolspecific(self, tool: Toolspecific | None):
+        """Set a copy of a existing Toolspecific instance."""
+        if not tool:
+            return self
+        self.toolspecific = tool.model_copy()
+        return self
+
     def __hash__(self):
         """Return instance hashed by type and id."""
         return hash((type(self),) + (self.id,))
@@ -138,6 +145,30 @@ class NetElement(GenericNetNode):
         if not self.toolspecific:
             return False
         return self.toolspecific.is_workflow_operator()
+
+    def is_workflow_resource(self):
+        """Return whether instance is workflow resource."""
+        if not self.toolspecific:
+            return False
+        return self.toolspecific.is_workflow_resource()
+
+    def is_workflow_message(self):
+        """Return whether instance is workflow message."""
+        if not self.toolspecific:
+            return False
+        return self.toolspecific.is_workflow_message()
+
+    def is_workflow_time(self):
+        """Return whether instance is workflow time."""
+        if not self.toolspecific:
+            return False
+        return self.toolspecific.is_workflow_time()
+
+    def is_workflow_event_trigger(self):
+        """Return whether instance is workflow trigger."""
+        if not self.toolspecific:
+            return False
+        return self.toolspecific.is_workflow_event_trigger()
 
     def is_workflow_subprocess(self):
         """Returns whether instance is workflow subprocess."""

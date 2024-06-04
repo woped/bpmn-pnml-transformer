@@ -31,6 +31,7 @@ def handle_combined_operator(net: Net, wo: WorkflowOperatorWrapper):
     for existing_node in wo.nodes:
         net.remove_element(existing_node)
 
+    toolspecific = wo.get_toolspecific()
     firstGatewayPart: GatewayHelperPNML | None = None
     secondGatewayPart: GatewayHelperPNML | None = None
     # Split mixed gateways into 2 individual gateways
@@ -48,13 +49,22 @@ def handle_combined_operator(net: Net, wo: WorkflowOperatorWrapper):
             if wo.t == WorkflowBranchingType.XorJoinAndSplit
             else XORHelperPNML(id="XOR" + wo.id, name=Name(title=wo.name))
         )
-    # Replace or split same gateway depending on if is implicit task
+
+        # Handle toolspecific annotations
+        secondGatewayPart.set_copy_of_exisiting_toolspecific(toolspecific)
+        # Only when tool is resource all gateway parts will also be annotated
+        if toolspecific.is_workflow_resource():
+            firstGatewayPart.set_copy_of_exisiting_toolspecific(toolspecific)
+
+    # Replace or split same gateway depending if it is an implicit task
     else:
         firstGatewayPart = (
             XORHelperPNML(id=wo.id, name=Name(title=wo.name))
             if wo.t == WorkflowBranchingType.XorJoinSplit
             else ANDHelperPNML(id=wo.id, name=Name(title=wo.name))
         )
+        firstGatewayPart.set_copy_of_exisiting_toolspecific(toolspecific)
+
         #  If gateway with implicit task (name not None) split same gateway
         if wo.name:
             secondGatewayPart = (
@@ -62,6 +72,11 @@ def handle_combined_operator(net: Net, wo: WorkflowOperatorWrapper):
                 if wo.t == WorkflowBranchingType.XorJoinSplit
                 else ANDHelperPNML(id="OUTAND" + wo.id, name=Name(title=wo.name))
             )
+            secondGatewayPart.set_copy_of_exisiting_toolspecific(toolspecific)
+            if toolspecific.is_workflow_event_trigger():
+                firstGatewayPart.toolspecific = None
+
+            # Change ID of first gateway because of split
             gw_type = "XOR" if wo.t == WorkflowBranchingType.XorJoinSplit else "AND"
             firstGatewayPart.id = f"IN{gw_type}{wo.id}"
 
@@ -91,6 +106,14 @@ def handle_combined_operator(net: Net, wo: WorkflowOperatorWrapper):
         id=generate_explicit_transition_id(wo.id),
         name=wo.name,
     )
+
+    # Handle toolspecific annotations
+    explicit_task.set_copy_of_exisiting_toolspecific(toolspecific)
+    # Eventtrigger already handled by explicit task
+    if toolspecific.is_workflow_event_trigger():
+        firstGatewayPart.toolspecific = None
+        secondGatewayPart.toolspecific = None
+
     net.add_element(explicit_task)
     net.add_arc(firstGatewayPart, explicit_task)
     net.add_arc(explicit_task, secondGatewayPart)
@@ -107,12 +130,14 @@ def handle_single_operator(net: Net, wo: WorkflowOperatorWrapper):
     for existing_node in wo.nodes:
         net.remove_element(existing_node)
 
+    toolspecific = wo.get_toolspecific()
     # Add new elements and connect to existing arcs
     new_gateway = (
         XORHelperPNML(id=wo.id, name=Name(title=wo.name))
         if wo.t in [WorkflowBranchingType.XorJoin, WorkflowBranchingType.XorSplit]
         else ANDHelperPNML(id=wo.id, name=Name(title=wo.name))
     )
+    new_gateway.set_copy_of_exisiting_toolspecific(toolspecific)
 
     net.add_element(new_gateway)
     net.connect_to_element(new_gateway, incoming_arcs)
@@ -136,6 +161,13 @@ def handle_single_operator(net: Net, wo: WorkflowOperatorWrapper):
             id=generate_explicit_transition_id(new_gateway.id),
             name=wo.name,
         )
+
+        # Handle toolspecific annotations
+        explicit_task.set_copy_of_exisiting_toolspecific(toolspecific)
+        # Eventtrigger already handled by explicit task
+        if toolspecific.is_workflow_event_trigger():
+            new_gateway.toolspecific = None
+
         net.add_element(explicit_task)
         net.add_arc(new_gateway, explicit_task)
 
@@ -156,6 +188,13 @@ def handle_single_operator(net: Net, wo: WorkflowOperatorWrapper):
             id=generate_explicit_transition_id(new_gateway.id),
             name=wo.name,
         )
+
+        # Handle toolspecific annotations
+        explicit_task.set_copy_of_exisiting_toolspecific(toolspecific)
+        # Eventtrigger already handled by explicit task
+        if toolspecific.is_workflow_event_trigger():
+            new_gateway.toolspecific = None
+
         net.add_element(explicit_task)
         net.add_arc(explicit_task, new_gateway)
 

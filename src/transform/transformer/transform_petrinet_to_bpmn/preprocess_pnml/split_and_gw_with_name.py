@@ -4,13 +4,28 @@ from transformer.models.pnml.pnml import Net, Transition
 from transformer.utility.pnml import generate_explicit_transition_id
 
 
+def handle_gateway_creation(and_gateway: Transition):
+    """Handle the creation of the explicit task of the gateway.
+
+    This function also looks at possible Toolspecific annotations.
+    """
+    explicit_transition = Transition.create(
+        generate_explicit_transition_id(and_gateway.id), and_gateway.get_name()
+    ).set_copy_of_exisiting_toolspecific(and_gateway.toolspecific)
+
+    # Should the gateway be a message/time remove the toolspecific data
+    # If it has as ressource trigger keep it to also add it to the BPMN Lanes
+    if and_gateway.is_workflow_event_trigger():
+        and_gateway.toolspecific = None
+
+    return explicit_transition
+
+
 def handle_split(net: Net, and_gateway: Transition):
     """Split into a gateway and explicit task."""
     incoming_arcs = net.get_incoming_and_remove_arcs(and_gateway)
 
-    explicit_transition = Transition.create(
-        generate_explicit_transition_id(and_gateway.id), and_gateway.get_name()
-    )
+    explicit_transition = handle_gateway_creation(and_gateway)
 
     net.add_element(explicit_transition)
 
@@ -23,9 +38,7 @@ def handle_join(net: Net, and_gateway: Transition):
     """Split into a gateway and explicit task."""
     outgoing_arcs = net.get_outgoing_and_remove_arcs(and_gateway)
 
-    explicit_transition = Transition.create(
-        generate_explicit_transition_id(and_gateway.id), and_gateway.get_name()
-    )
+    explicit_transition = handle_gateway_creation(and_gateway)
 
     net.add_element(explicit_transition)
 
@@ -38,10 +51,14 @@ def handle_join_split(net: Net, and_gateway: Transition):
     """Split into two gateways and explicit task."""
     outgoing_arcs = net.get_outgoing_and_remove_arcs(and_gateway)
 
-    explicit_transition = Transition.create(
-        generate_explicit_transition_id(and_gateway.id), and_gateway.get_name()
-    )
+    explicit_transition = handle_gateway_creation(and_gateway)
     and_end_gateway = Transition.create("OUTAND" + and_gateway.id)
+
+    # Also sets the resource for the end gateway
+    if explicit_transition.is_workflow_resource():
+        and_end_gateway.set_copy_of_exisiting_toolspecific(
+            explicit_transition.toolspecific
+        )
 
     net.add_element(explicit_transition)
     net.add_element(and_end_gateway)
