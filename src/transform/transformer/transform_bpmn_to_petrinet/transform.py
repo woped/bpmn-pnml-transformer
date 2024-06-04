@@ -14,14 +14,14 @@ from transformer.models.bpmn.bpmn import (
     StartEvent,
     XorGateway,
 )
-from transformer.models.pnml.pnml import Place, Pnml, Transition
+from transformer.models.pnml.pnml import Net, Place, Pnml, Transition
 from transformer.transform_bpmn_to_petrinet.preprocess_bpmn import (
     adjacent_inserter as ias,
 )
 from transformer.transform_bpmn_to_petrinet.preprocess_bpmn import (
     or_gateways as ibp,
 )
-from transformer.transform_bpmn_to_petrinet.preprocess_bpmn.all_gateways import (  # noqa: E501
+from transformer.transform_bpmn_to_petrinet.preprocess_bpmn.all_gateways import (
     preprocess_gateways,
 )
 from transformer.transform_bpmn_to_petrinet.preprocess_bpmn.extend_process import (
@@ -32,12 +32,63 @@ from transformer.transform_bpmn_to_petrinet.transform_workflow_helper import (
     handle_subprocesses,
     handle_triggers,
 )
+from transformer.utility.pnml import find_triggers
 from transformer.utility.utility import create_silent_node_name
 
 replace_inclusive_gateways = ibp.replace_inclusive_gateways
 insert_temp_between_adjacent_mapped_transitions = (
     ias.insert_temp_between_adjacent_mapped_transition
 )
+
+
+def merge_single_triggers(net: Net):
+    """If trigger transition is before a non-trigger merge both elements.
+
+    Place -> Trigger Transition -> Place -> Non-trigger transition
+    to
+    Place -> Merged transition
+    """
+    triggers = find_triggers(net)
+    for trigger in triggers:
+        # not clear how to merge a trigger if it is a split/join itself
+        if net.get_out_degree(trigger) > 1 or net.get_in_degree(trigger) > 1:
+            continue
+
+        # no following element to merge with
+        if net.get_out_degree(trigger) == 0:
+            continue
+
+        connecting_place = net.get_element(list(net.get_outgoing(trigger.id))[0].id)
+
+        # not clear how to merge the following element of a split/join place
+        if (
+            net.get_out_degree(connecting_place) > 1
+            or net.get_in_degree(connecting_place) > 1
+        ):
+            continue
+
+        # no following element to merge with
+        if net.get_out_degree(connecting_place) == 0:
+            continue
+
+        target = net.get_element(list(net.get_outgoing(trigger.id))[0].id)
+
+        # Cant override existing trigger
+        if target.is_workflow_trigger():
+            continue
+
+        # not clear how to merge the target if it is a join itself
+        if net.get_in_degree(target) > 1:
+            continue
+        incoming_trigger_arcs = net.get_incoming_and_remove_arcs(trigger)
+        net.remove_element(trigger)
+
+        if trigger.is_workflow_message():
+            target.mark_as_workflow_message()
+        elif trigger.is_workflow_time():
+            target.mark_as_workflow_time()
+
+        net.connect_to_element(target, incoming_trigger_arcs)
 
 
 def transform_bpmn_to_petrinet(bpmn: Process, is_workflow_net: bool = False):
@@ -112,6 +163,10 @@ def transform_bpmn_to_petrinet(bpmn: Process, is_workflow_net: bool = False):
             net.add_arc(p, target)
         else:
             net.add_arc(source, target)
+
+    # Post processing
+    merge_single_triggers(net)
+
     return pnml
 
 

@@ -11,6 +11,7 @@ from transformer.models.pnml.transform_helper import (
     TimeHelperPNML,
 )
 from transformer.utility.pnml import (
+    find_triggers,
     generate_explicit_trigger_id,
 )
 
@@ -71,15 +72,6 @@ def handle_join_split(net: Net, trigger: NetElement):
     net.add_arc_with_handle_same_type(explicit_trigger, and_end_gateway)
 
     net.connect_from_element(and_end_gateway, outgoing_arcs)
-
-
-def find_triggers(net: Net):
-    """Find all event triggers."""
-    net_elements: list[NetElement] = [*net.transitions, *net.places]
-    triggers: list[NetElement] = [
-        trigger for trigger in net_elements if trigger.is_workflow_event_trigger()
-    ]
-    return triggers
 
 
 def split_event_triggers(net: Net):

@@ -123,11 +123,19 @@ class NetElement(GenericNetNode):
     graphics: Graphics | None = None
     toolspecific: Toolspecific | None = None
 
+    def __hash__(self):
+        """Return instance hashed by type and id."""
+        return hash((type(self),) + (self.id,))
+
     def get_name(self):
         """Returns name of instance."""
         if not self.name:
             return None
         return self.name.title
+
+    def set_name(self, new_name: str):
+        """Sets the name from a string."""
+        self.name = Name(title=new_name)
 
     def set_copy_of_exisiting_toolspecific(self, tool: Toolspecific | None):
         """Set a copy of a existing Toolspecific instance."""
@@ -135,10 +143,6 @@ class NetElement(GenericNetNode):
             return self
         self.toolspecific = tool.model_copy()
         return self
-
-    def __hash__(self):
-        """Return instance hashed by type and id."""
-        return hash((type(self),) + (self.id,))
 
     def is_workflow_operator(self):
         """Return whether instance is workflow operator."""
@@ -165,10 +169,14 @@ class NetElement(GenericNetNode):
         return self.toolspecific.is_workflow_time()
 
     def is_workflow_event_trigger(self):
-        """Return whether instance is workflow trigger."""
+        """Return whether instance is workflow event trigger."""
         if not self.toolspecific:
             return False
         return self.toolspecific.is_workflow_event_trigger()
+
+    def is_workflow_trigger(self):
+        """Return whether instance is a workflow trigger."""
+        return self.is_workflow_event_trigger() or self.is_workflow_resource()
 
     def is_workflow_subprocess(self):
         """Returns whether instance is workflow subprocess."""
