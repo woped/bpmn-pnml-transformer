@@ -11,6 +11,7 @@ from transformer.models.bpmn.bpmn import (
     BPMN,
     AndGateway,
     EndEvent,
+    IntermediateCatchEvent,
     StartEvent,
     Task,
     XorGateway,
@@ -18,6 +19,128 @@ from transformer.models.bpmn.bpmn import (
 from transformer.models.pnml.pnml import Page, Place, Pnml, Transition
 from transformer.models.pnml.workflow import WorkflowBranchingType
 from transformer.utility.utility import create_silent_node_name
+
+
+def sequential_time_event():
+    """Return a BPMN and the expected petri net with  IntermediateCatchEvent(Time)."""
+    case = "sequential_time_event"
+    se_id = "elem_1"
+    task_id = "task"
+    ee_id = "elem_2"
+
+    net = create_petri_net(
+        case,
+        [
+            [
+                Place.create(id=se_id),
+                Transition.create(id=task_id, name=task_id).mark_as_workflow_time(),
+                Place.create(id=ee_id),
+            ]
+        ],
+    )
+    bpmn = create_bpmn(
+        case,
+        [
+            [
+                StartEvent(id=se_id),
+                IntermediateCatchEvent.create_time_event("TRIGGER" + task_id),
+                Task(id=task_id, name=task_id),
+                EndEvent(id=ee_id),
+            ]
+        ],
+    )
+    return bpmn, net, case
+
+
+def sequential_message_event():
+    """Return a BPMN and the expected petri net with  IntermediateCatchEvent(Message)."""
+    case = "sequential_message_event"
+    se_id = "elem_1"
+    task_id = "task"
+    ee_id = "elem_2"
+
+    net = create_petri_net(
+        case,
+        [
+            [
+                Place.create(id=se_id),
+                Transition.create(id=task_id, name=task_id).mark_as_workflow_message(),
+                Place.create(id=ee_id),
+            ]
+        ],
+    )
+    bpmn = create_bpmn(
+        case,
+        [
+            [
+                StartEvent(id=se_id),
+                IntermediateCatchEvent.create_message_event("TRIGGER" + task_id),
+                Task(id=task_id, name=task_id),
+                EndEvent(id=ee_id),
+            ]
+        ],
+    )
+    return bpmn, net, case
+
+
+def sequential_time_event_silent():
+    """Return a BPMN and the expected petri net with  IntermediateCatchEvent(Time)."""
+    case = "sequential_time_event_silent"
+    se_id = "elem_1"
+    task_id = "task"
+    ee_id = "elem_2"
+
+    net = create_petri_net(
+        case,
+        [
+            [
+                Place.create(id=se_id),
+                Transition.create(id=task_id).mark_as_workflow_time(),
+                Place.create(id=ee_id),
+            ]
+        ],
+    )
+    bpmn = create_bpmn(
+        case,
+        [
+            [
+                StartEvent(id=se_id),
+                IntermediateCatchEvent.create_time_event("TRIGGER" + task_id),
+                EndEvent(id=ee_id),
+            ]
+        ],
+    )
+    return bpmn, net, case
+
+
+def sequential_message_event_silent():
+    """Return a BPMN and the expected petri net with  IntermediateCatchEvent(Message)."""
+    case = "sequential_message_event_silent"
+    se_id = "elem_1"
+    task_id = "task"
+    ee_id = "elem_2"
+
+    net = create_petri_net(
+        case,
+        [
+            [
+                Place.create(id=se_id),
+                Transition.create(id=task_id).mark_as_workflow_message(),
+                Place.create(id=ee_id),
+            ]
+        ],
+    )
+    bpmn = create_bpmn(
+        case,
+        [
+            [
+                StartEvent(id=se_id),
+                IntermediateCatchEvent.create_message_event("TRIGGER" + task_id),
+                EndEvent(id=ee_id),
+            ]
+        ],
+    )
+    return bpmn, net, case
 
 
 def gateway_parallel_join_split():
@@ -1113,6 +1236,10 @@ def subprocess():
 
 
 supported_cases_workflow_pnml: list[tuple[BPMN, Pnml, str]] = [
+    sequential_time_event_silent(),
+    sequential_message_event_silent(),
+    sequential_time_event(),
+    sequential_message_event(),
     and_xor_split_implicit(),
     xor_and_split_implicit(),
     gateway_exclusive_join_split_implicit(),

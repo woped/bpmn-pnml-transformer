@@ -17,6 +17,8 @@ from transformer.models.pnml.base import (
 from transformer.models.pnml.transform_helper import (
     ANDHelperPNML,
     HelperPNMLElement,
+    MessageHelperPNML,
+    TimeHelperPNML,
     XORHelperPNML,
 )
 from transformer.utility.utility import (
@@ -118,6 +120,8 @@ class Net(BaseModel, tag="net"):
                 # Temporary helper elements (not actual petri net element)
                 XORHelperPNML: set([]),
                 ANDHelperPNML: set([]),
+                TimeHelperPNML: set([]),
+                MessageHelperPNML: set([]),
             },
         )
         for place in self.places:
