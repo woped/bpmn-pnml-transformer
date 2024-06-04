@@ -6,6 +6,7 @@ from transformer.models.pnml.workflow import (
     Operator,
     TransitionResource,
     Trigger,
+    TriggerType,
     WorkflowBranchingType,
 )
 from transformer.utility.utility import WOPED, BaseModel
@@ -71,13 +72,44 @@ class Toolspecific(BaseModel, tag="toolspecific"):
     # subprocess
     subprocess: bool | None = element(tag="subprocess", default=None)
 
+    def _is_woped(self):
+        return self.tool == WOPED
+
     def is_workflow_operator(self):
         """Returns whether instance is a workflow operator."""
-        return self.tool == WOPED and self.operator
+        return self._is_woped() and self.operator
 
     def is_workflow_subprocess(self):
         """Returns whether instance is a workflow subprocess."""
-        return self.tool == WOPED and self.subprocess
+        return self._is_woped() and self.subprocess
+
+    def is_workflow_message(self):
+        """Returns whether instance is a workflow message trigger."""
+        return (
+            self._is_woped
+            and self.transitionResource
+            and self.transitionResource.roleName is TriggerType.Message
+        )
+
+    def is_workflow_time(self):
+        """Returns whether instance is a workflow time trigger."""
+        return (
+            self._is_woped
+            and self.transitionResource
+            and self.transitionResource.roleName is TriggerType.Time
+        )
+
+    def is_event_trigger(self):
+        """Returns whether instance is a trigger."""
+        return self.is_workflow_message() and self.is_workflow_time()
+
+    def is_workflow_resource(self):
+        """Returns whether instance is a workflow resource trigger."""
+        return (
+            self._is_woped
+            and self.transitionResource
+            and self.transitionResource.roleName is TriggerType.Resource
+        )
 
 
 class GenericNetNode(GenericNetIDNode):
@@ -115,17 +147,39 @@ class NetElement(GenericNetNode):
 
     def mark_as_workflow_operator(self, type: WorkflowBranchingType, id: str):
         """Mark this instance as workflow operator."""
-        t = self
-        if not t.toolspecific:
-            t.toolspecific = Toolspecific()
-        t.toolspecific.operator = Operator(id=id, type=type)
+        if not self.toolspecific:
+            self.toolspecific = Toolspecific()
+        self.toolspecific.operator = Operator(id=id, type=type)
+        return self
 
     def mark_as_workflow_subprocess(self):
         """Mark this instance as a subprocess."""
-        t = self
-        if not t.toolspecific:
-            t.toolspecific = Toolspecific()
-        t.toolspecific.subprocess = True
+        if not self.toolspecific:
+            self.toolspecific = Toolspecific()
+        self.toolspecific.subprocess = True
+        return self
+
+    def mark_as_workflow_resource(self, role_name: str):
+        """Mark this instance as a resource."""
+        if not self.toolspecific:
+            self.toolspecific = Toolspecific()
+
+        self.toolspecific.trigger = Trigger(id="", type=TriggerType.Resource)
+        self.toolspecific.transitionResource = TransitionResource(roleName=role_name)
+        return self
+
+    def mark_as_workflow_message(self):
+        """Mark this instance as a message."""
+        if not self.toolspecific:
+            self.toolspecific = Toolspecific()
+        self.toolspecific.trigger = Trigger(id="", type=TriggerType.Message)
+        return self
+
+    def mark_as_workflow_time(self):
+        """Mark this instance as a time."""
+        if not self.toolspecific:
+            self.toolspecific = Toolspecific()
+        self.toolspecific.trigger = Trigger(id="", type=TriggerType.Time)
         return self
 
 
