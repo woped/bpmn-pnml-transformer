@@ -24,9 +24,8 @@ urllib3==2.2.1
 watchdog==4.0.1
 Werkzeug==3.0.3
 wheel==0.43.0
+firebase_admin==6.5.0
 # 
 lxml==5.2.2
 pydantic==2.7.1
 pydantic_xml==2.11.0
-
-firebase_admin==6.5.0
