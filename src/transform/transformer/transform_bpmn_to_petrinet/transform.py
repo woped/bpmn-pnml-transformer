@@ -80,8 +80,10 @@ def merge_single_triggers(net: Net):
         # not clear how to merge the target if it is a join itself
         if net.get_in_degree(target) > 1:
             continue
+
         incoming_trigger_arcs = net.get_incoming_and_remove_arcs(trigger)
         net.remove_element(trigger)
+        net.remove_element(connecting_place)
 
         if trigger.is_workflow_message():
             target.mark_as_workflow_message()
