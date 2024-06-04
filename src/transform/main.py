@@ -12,14 +12,13 @@ from transformer.transform_bpmn_to_petrinet.transform import (
     bpmn_to_workflow_net,
 )
 from transformer.transform_petrinet_to_bpmn.transform import pnml_to_bpmn
-from google.cloud import firestore
-from flask import abort
 from firebase_admin import credentials, firestore 
 
 cred = credentials.Certificate("secrets/woped-422510-ff5224739dab.json")
 app = firebase_admin.initialize_app(cred)
 db = firestore.Client()
 
+"""Function to check if there are tokens available in the Firestore database"""
 def check_tokens():
     if db is None:
         raise Exception("No database available")
