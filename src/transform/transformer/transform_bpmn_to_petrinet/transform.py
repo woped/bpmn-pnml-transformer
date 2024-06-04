@@ -73,8 +73,8 @@ def merge_single_triggers(net: Net):
 
         target = net.get_element(list(net.get_outgoing(connecting_place.id))[0].target)
 
-        # Cant override existing trigger
-        if target.is_workflow_trigger():
+        # Cant override existing workflow element
+        if target.is_workflow_element():
             continue
 
         # not clear how to merge the target if it is a join itself

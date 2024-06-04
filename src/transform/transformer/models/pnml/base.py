@@ -72,35 +72,32 @@ class Toolspecific(BaseModel, tag="toolspecific"):
     # subprocess
     subprocess: bool | None = element(tag="subprocess", default=None)
 
-    def _is_woped(self):
+    def is_woped(self):
+        """Return whether the toolspecific node is from WOPED."""
         return self.tool == WOPED
 
     def is_workflow_operator(self):
         """Returns whether instance is a workflow operator."""
-        return self._is_woped() and self.operator
+        return self.is_woped() and self.operator
 
     def is_workflow_subprocess(self):
         """Returns whether instance is a workflow subprocess."""
-        return self._is_woped() and self.subprocess
+        return self.is_woped() and self.subprocess
 
     def is_workflow_message(self):
         """Returns whether instance is a workflow message trigger."""
         return (
-            self._is_woped()
-            and self.trigger
-            and self.trigger.type is TriggerType.Message
+            self.is_woped() and self.trigger and self.trigger.type is TriggerType.Message
         )
 
     def is_workflow_time(self):
         """Returns whether instance is a workflow time trigger."""
-        return (
-            self._is_woped() and self.trigger and self.trigger.type is TriggerType.Time
-        )
+        return self.is_woped() and self.trigger and self.trigger.type is TriggerType.Time
 
     def is_workflow_resource(self):
         """Returns whether instance is a workflow resource trigger."""
         return (
-            self._is_woped()
+            self.is_woped()
             and self.transitionResource
             and self.trigger
             and self.trigger.type is TriggerType.Resource
@@ -142,6 +139,10 @@ class NetElement(GenericNetNode):
             return self
         self.toolspecific = tool.model_copy()
         return self
+
+    def is_workflow_element(self):
+        """Return whether instance is workflow element."""
+        return self.toolspecific and self.toolspecific.is_woped()
 
     def is_workflow_operator(self):
         """Return whether instance is workflow operator."""
