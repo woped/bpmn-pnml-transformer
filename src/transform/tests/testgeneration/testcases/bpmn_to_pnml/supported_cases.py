@@ -7,6 +7,7 @@ from transformer.models.bpmn.bpmn import (
     BPMN,
     AndGateway,
     EndEvent,
+    IntermediateCatchEvent,
     OrGateway,
     StartEvent,
     Task,
@@ -29,6 +30,35 @@ def start_end():
             [
                 Place(id=se_id),
                 Transition(id=create_silent_node_name(se_id, ee_id)),
+                Place(id=ee_id),
+            ]
+        ],
+    )
+    return bpmn, net, case
+
+
+def intermediate_catch_event():
+    """Returns a  bpmn and the according petri net for a IntermediateCatchEvent."""
+    case = "intermediate_catch_event"
+    se_id = "start"
+    event = "event"
+    ee_id = "end"
+    bpmn = create_bpmn(
+        case,
+        [
+            [
+                StartEvent(id=se_id),
+                IntermediateCatchEvent(id=event, name=event),
+                EndEvent(id=ee_id),
+            ]
+        ],
+    )
+    net = create_petri_net(
+        case,
+        [
+            [
+                Place(id=se_id),
+                Transition.create(id=event, name=event),
                 Place(id=ee_id),
             ]
         ],
@@ -278,6 +308,7 @@ def subprocess():
 
 all_cases: list[tuple[BPMN, Pnml, str]] = [
     start_end(),
+    intermediate_catch_event(),
     task(),
     user_task(),
     system_task(),

@@ -119,7 +119,7 @@ def transform_bpmn_to_petrinet(bpmn: Process, is_workflow_net: bool = False):
 
     # handle normals nodes
     for node in nodes:
-        if isinstance(node, GenericTask | AndGateway):
+        if isinstance(node, GenericTask | AndGateway | IntermediateCatchEvent):
             net.add_element(
                 Transition.create(
                     id=node.id,
