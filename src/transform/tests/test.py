@@ -2,6 +2,7 @@
 
 Includes tests for supported, unsupported, and ignored cases to handle transformations.
 """
+
 import shutil
 import unittest
 from pathlib import Path
@@ -55,6 +56,7 @@ def save_failed_bpmn_to_pnml_transformation(
         bpmn: The original BPMN model.
         case: A string identifier for the test case.
     """
+
     def create_path(file_name: str = ""):
         p = f"{LOG_PATH}/{case}/{file_name}"
         return p
@@ -64,10 +66,6 @@ def save_failed_bpmn_to_pnml_transformation(
     pn_expected.write_to_file(create_path("expected.pnml"))
     pn_transformed.write_to_file(create_path("transformed.pnml"))
     bpmn.write_to_file(create_path("source.bpmn"))
-
-    bpmn.to_pm4py_vis(create_path("bpmn.png"))
-    pn_expected.to_pm4py_vis(create_path("expected.png"))
-    pn_transformed.to_pm4py_vis(create_path("transformed.png"))
 
 
 def save_failed_pnml_to_bpmn_transformation(
@@ -84,6 +82,7 @@ def save_failed_pnml_to_bpmn_transformation(
         net: The original PNML model.
         case: A string identifier for the test case.
     """
+
     def create_path(file_name: str = ""):
         return f"{LOG_PATH}/{case}/{file_name}"
 
@@ -93,10 +92,6 @@ def save_failed_pnml_to_bpmn_transformation(
     bpmn_transformed.write_to_file(create_path("transformed.bpmn"))
     net.write_to_file(create_path("source.pnml"))
 
-    bpmn_expected.to_pm4py_vis(create_path("expected.png"))
-    bpmn_transformed.to_pm4py_vis(create_path("transformed.png"))
-    net.to_pm4py_vis(create_path("source.png"))
-
 
 class TestPetriNetToBPMN(unittest.TestCase):
     """Tests for verifying Petri net to BPMN model transformations.
@@ -104,6 +99,7 @@ class TestPetriNetToBPMN(unittest.TestCase):
     This class tests the transformation of Petri nets to BPMN models using
     predefined test cases.
     """
+
     def test_supported_elements(self):
         """Tests the transformation of supported Petri net elements into BPMN.
 
@@ -127,6 +123,7 @@ class TestWorkflowNetToBPMN(unittest.TestCase):
     This class tests the transformation of Workflows to BPMN models using
     predefined test cases.
     """
+
     def test_supported_workflow_elements(self):
         """Tests the transformation of supported Workflow elements into BPMN.
 
@@ -150,6 +147,7 @@ class TestBPMNToPetriNet(unittest.TestCase):
     This class tests the transformation of BPMN to Petri net using
     predefined test cases.
     """
+
     def test_supported_elements(self):
         """Tests the handling of supported BPMN elements.
 
@@ -195,6 +193,7 @@ class TestBPMNToWorkflowNet(unittest.TestCase):
     This class tests the transformation of BPMN to Workflow using
     predefined test cases.
     """
+
     def test_supported_elements(self):
         """Tests the handling of supported BPMN elements.
 

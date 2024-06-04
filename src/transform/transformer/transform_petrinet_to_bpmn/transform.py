@@ -1,4 +1,5 @@
 """Initiate the preprocessing and transformation of pnml to bpmn."""
+
 from collections.abc import Callable
 
 from transformer.models.bpmn.base import Gateway
@@ -11,18 +12,21 @@ from transformer.models.bpmn.bpmn import (
     Task,
     XorGateway,
 )
-from transformer.models.pnml.pnml import Net, Place, Pnml, Transition
+from transformer.models.pnml.pnml import Net, Pnml
+from transformer.models.pnml.transform_helper import (
+    GatewayHelperPNML,
+)
+from transformer.transform_petrinet_to_bpmn.preprocess_pnml import (
+    dangling_transition,
+    preprocess_workflow_operators,
+    split_and_gw_with_name,
+)
 from transformer.transform_petrinet_to_bpmn.workflow_helper import (
-    find_workflow_operators,
     find_workflow_subprocesses,
     handle_workflow_operators,
     handle_workflow_subprocesses,
 )
-
-from transformer.transform_petrinet_to_bpmn.preprocess_pnml import (
-    split_different_operator as sdo
-)
-split_different_operators = sdo.split_different_operators
+from transformer.utility.utility import create_arc_name
 
 
 def remove_silent_tasks(bpmn: Process):
@@ -35,15 +39,32 @@ def remove_silent_tasks(bpmn: Process):
 
 
 def remove_unnecessary_gateways(bpmn: Process):
-    """Remove unnecessary gateways (In and out degree <= 1)."""
-    gw_nodes = {
-        node for node in bpmn._flatten_node_typ_map() if issubclass(type(node), Gateway)
-    }
-    for gw_node in gw_nodes:
-        if gw_node.get_in_degree() > 1 or gw_node.get_out_degree() > 1:
-            continue
-        source_id, target_id = bpmn.remove_node_with_connecting_flows(gw_node)
-        bpmn.add_flow(bpmn.get_node(source_id), bpmn.get_node(target_id))
+    """Remove unnecessary gateways (In and out degree == 1)."""
+    is_rerun_reduce = True
+    while is_rerun_reduce:
+        is_rerun_reduce = False
+
+        gw_nodes = [
+            node
+            for node in bpmn._flatten_node_typ_map()
+            if issubclass(type(node), Gateway)
+        ]
+        for gw_node in gw_nodes:
+            if gw_node.get_in_degree() > 1 or gw_node.get_out_degree() > 1:
+                continue
+            if gw_node.get_in_degree() == 0 or gw_node.get_out_degree() == 0:
+                continue
+
+            source_id, target_id = bpmn.remove_node_with_connecting_flows(gw_node)
+            new_flow_id = create_arc_name(source_id, target_id)
+            if new_flow_id in bpmn._temp_flows:
+                continue
+
+            bpmn.add_flow(
+                bpmn.get_node(source_id), bpmn.get_node(target_id), id=new_flow_id
+            )
+
+            is_rerun_reduce = True
 
 
 def transform_petrinet_to_bpmn(net: Net):
@@ -58,25 +79,21 @@ def transform_petrinet_to_bpmn(net: Net):
     to_handle_subprocesses = find_workflow_subprocesses(net)
     transitions.difference_update(to_handle_subprocesses)
 
-    to_handle_operators = find_workflow_operators(net)
-    for operator_wrapper in to_handle_operators:
-        for operator_node in operator_wrapper.nodes:
-            if isinstance(operator_node, Place):
-                places.remove(operator_node)
-            elif isinstance(operator_node, Transition):
-                transitions.remove(operator_node)
-            else:
-                raise Exception()
+    to_handle_temp_gateways = [
+        elem
+        for elem in net._flatten_node_typ_map()
+        if isinstance(elem, GatewayHelperPNML)
+    ]
 
     # handle normal places
     for place in places:
         in_degree, out_degree = net.get_in_degree(place), net.get_out_degree(place)
         if in_degree == 0:
-            bpmn.add_node(StartEvent(id=place.id))
+            bpmn.add_node(StartEvent(id=place.id, name=place.get_name()))
         elif out_degree == 0:
-            bpmn.add_node(EndEvent(id=place.id))
+            bpmn.add_node(EndEvent(id=place.id, name=place.get_name()))
         else:
-            bpmn.add_node(XorGateway(id=place.id))
+            bpmn.add_node(XorGateway(id=place.id, name=place.get_name()))
 
     # handle normal transitions
     for transition in transitions:
@@ -84,18 +101,21 @@ def transform_petrinet_to_bpmn(net: Net):
             net.get_in_degree(transition),
             net.get_out_degree(transition),
         )
-        if in_degree == 0 or out_degree == 0:
-            raise Exception("what to do with transition source/sink")
+        if in_degree == 0:
+            bpmn.add_node(StartEvent(id=transition.id, name=transition.get_name()))
+        elif out_degree == 0:
+            bpmn.add_node(EndEvent(id=transition.id, name=transition.get_name()))
         elif in_degree == 1 and out_degree == 1:
             bpmn.add_node(Task(id=transition.id, name=transition.get_name()))
         else:
             bpmn.add_node(AndGateway(id=transition.id, name=transition.get_name()))
 
     # handle workflow specific elements
+    handle_workflow_operators(net, bpmn, to_handle_temp_gateways)
+
     handle_workflow_subprocesses(
         net, bpmn, to_handle_subprocesses, transform_petrinet_to_bpmn
     )
-    handle_workflow_operators(net, bpmn, to_handle_operators)
 
     # handle remaining arcs
     for arc in net.arcs:
@@ -115,7 +135,7 @@ def transform_petrinet_to_bpmn(net: Net):
 
 
 def apply_preprocessing(net: Net, funcs: list[Callable[[Net], None]]):
-    """Preprocess the whole petri net."""
+    """Recursively apply each preprocessing to the net and each page."""
     for p in net.pages:
         apply_preprocessing(p.net, funcs)
 
@@ -127,6 +147,13 @@ def pnml_to_bpmn(pnml: Pnml):
     """Process and transform a petri net to bpmn."""
     net = pnml.net
 
-    apply_preprocessing(net, [split_different_operators])
+    apply_preprocessing(
+        net,
+        [
+            dangling_transition.add_places_at_dangling_transitions,
+            preprocess_workflow_operators.handle_workflow_operators,
+            split_and_gw_with_name.split_and_gw_with_name,
+        ],
+    )
 
     return transform_petrinet_to_bpmn(net)

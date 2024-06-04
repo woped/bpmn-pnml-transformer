@@ -1,4 +1,9 @@
-"""Detect all start and ends of a process."""
+"""Module for finding start and end events in BPMN processes.
+
+This module provides utility functions to identify and return all start and end events 
+in a given BPMN process.
+"""
+
 from transformer.models.bpmn.bpmn import Process
 
 

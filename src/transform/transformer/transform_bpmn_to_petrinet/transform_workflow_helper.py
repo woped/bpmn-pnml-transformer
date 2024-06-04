@@ -1,8 +1,9 @@
-"""Helper methods for bpmn to pnml (Workflow operators and elements)."""
-from typing import cast
-from collections.abc import Callable
+"""Helper methods for bpmn to workflow net."""
 
-from transformer.models.bpmn.base import GenericBPMNNode
+from collections.abc import Callable
+from typing import cast
+
+from transformer.models.bpmn.base import Gateway, GenericBPMNNode
 from transformer.models.bpmn.bpmn import AndGateway, Process, XorGateway
 from transformer.models.pnml.base import NetElement
 from transformer.models.pnml.pnml import (
@@ -14,8 +15,10 @@ from transformer.models.pnml.pnml import (
 )
 from transformer.models.pnml.workflow import WorkflowBranchingType
 from transformer.utility.bpmn import find_end_events, find_start_events
-from transformer.utility.utility import create_arc_name, create_silent_node_name
-
+from transformer.utility.utility import (
+    create_arc_name,
+    create_silent_node_name
+)
 
 def create_workflow_operator_helper_transition(
     net: Net, id: str, name: str | None, i: int, t: WorkflowBranchingType
@@ -158,8 +161,14 @@ type_map = {
 }
 
 
-def handle_workflow_operators(net: Net, bpmn: Process, node: GenericBPMNNode) -> bool:
-    """Handle given operator for a bpmn process to petri net process."""
+def handle_gateways(net: Net, bpmn: Process, gateways: list[Gateway]):
+    """Handle gateway transformation to workflow operators."""
+    for gateway in gateways:
+        handle_gateway(net, bpmn, gateway)
+
+
+def handle_gateway(net: Net, bpmn: Process, node: GenericBPMNNode):
+    """Transform a gateway to workflow operator."""
     node_type = type(node)
     f_split, f_join, f_split_join = type_map[node_type]  # type: ignore
     in_degree, out_degree = node.get_in_degree(), node.get_out_degree()
@@ -192,57 +201,51 @@ def handle_workflow_operators(net: Net, bpmn: Process, node: GenericBPMNNode) ->
     # split and join
     else:
         f_split_join(net, net_sources, net_targets, node.id, node.name)
-    return True
 
 
-def handle_workflow_elements(
-    bpmn: Process,
+def handle_subprocesses(
     net: Net,
-    workflow_nodes: set[GenericBPMNNode],
+    bpmn: Process,
+    subprocesses: list[Process],
     caller_func: Callable[[Process, bool], Pnml],
 ):
-    """Handle given workflow element for a bpmn process to petri net process."""
-    for node in workflow_nodes:
-        if isinstance(node, Process):
-            if node.get_in_degree() != 1 and node.get_out_degree != 1:
-                raise Exception(
-                    "Subprocess must have exactly one in and outgoing flow!"
-                )
+    """Transform a BPMN subprocess to workflow subprocess."""
+    for subprocess in subprocesses:
+        if subprocess.get_in_degree() != 1 and subprocess.get_out_degree != 1:
+            raise Exception("Subprocess must have exactly one in and outgoing flow!")
 
-            subprocess_transition = net.add_element(
-                Transition.create(node.id, node.name).mark_as_workflow_subprocess()
+        subprocess_transition = net.add_element(
+            Transition.create(
+                subprocess.id, subprocess.name
+            ).mark_as_workflow_subprocess()
+        )
+
+        # WOPED subprocess start and endplaces must have the same id as the incoming/
+        # outgoing node of the subprocess
+        outer_in_id, outer_out_id = (
+            list(bpmn.get_incoming(subprocess.id))[0].sourceRef,
+            list(bpmn.get_outgoing(subprocess.id))[0].targetRef,
+        )
+        outer_in, outer_out = (
+            net.get_element(outer_in_id),
+            net.get_element(outer_out_id),
+        )
+        # if incoming/outgoing is from type transition a place will inserted after
+        # the handling of the workflow elements
+        # -> actual id of subprocess start/endevents must have id of new place
+        if isinstance(outer_in, Transition):
+            outer_in_id = create_silent_node_name(outer_in.id, subprocess_transition.id)
+        if isinstance(outer_out, Transition):
+            outer_out_id = create_silent_node_name(
+                subprocess_transition.id, outer_out.id
             )
 
-            # WOPED subprocess start and endplaces must have the same id as the incoming/
-            #outgoing node of the subprocess
-            outer_in_id, outer_out_id = (
-                list(bpmn.get_incoming(node.id))[0].sourceRef,
-                list(bpmn.get_outgoing(node.id))[0].targetRef,
-            )
-            outer_in, outer_out = (
-                net.get_element(outer_in_id),
-                net.get_element(outer_out_id),
-            )
-            # if incoming/outgoing is from type transition a place will inserted after
-            #the handling of the workflow elements
-            # -> actual id of subprocess start/endevents must have id of new place
-            if isinstance(outer_in, Transition):
-                outer_in_id = create_silent_node_name(
-                    outer_in.id, subprocess_transition.id
-                )
-            if isinstance(outer_out, Transition):
-                outer_out_id = create_silent_node_name(
-                    subprocess_transition.id, outer_out.id
-                )
+        sub_se, sub_ee = find_start_events(subprocess)[0], find_end_events(subprocess)[0]
+        subprocess.change_node_id(sub_se, outer_in_id)
+        subprocess.change_node_id(sub_ee, outer_out_id)
 
-            sub_se, sub_ee = find_start_events(node)[0], find_end_events(node)[0]
-            node.change_node_id(sub_se, outer_in_id)
-            node.change_node_id(sub_ee, outer_out_id)
+        # transform inner subprocess
+        inner_net = caller_func(subprocess, True).net
+        inner_net.id = None
 
-            # transform inner subprocess
-            inner_net = caller_func(node, True).net
-            inner_net.id = None
-
-            net.add_page(Page(id=node.id, net=inner_net))
-        else:
-            handle_workflow_operators(net, bpmn, node)
+        net.add_page(Page(id=subprocess.id, net=inner_net))

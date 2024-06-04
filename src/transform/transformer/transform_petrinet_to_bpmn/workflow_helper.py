@@ -1,17 +1,23 @@
 """Handle workflow subprocesses and operators of petri net and handle them in bpmn."""
+
 from collections.abc import Callable
 
 from pydantic import BaseModel, Field
 
-from transformer.models.bpmn.base import GenericBPMNNode
 from transformer.models.bpmn.bpmn import BPMN, AndGateway, Process, XorGateway
 from transformer.models.pnml.base import NetElement
 from transformer.models.pnml.pnml import Arc, Net, Page, Transition
+from transformer.models.pnml.transform_helper import (
+    ANDHelperPNML,
+    GatewayHelperPNML,
+    XORHelperPNML,
+)
 from transformer.models.pnml.workflow import WorkflowBranchingType
 
 
 class WorkflowOperatorWrapper(BaseModel):
     """WorkflowOperatorWrapper extension of BaseModel (+ID, name, type, nodes...)."""
+
     id: str
     name: str | None = None
     t: WorkflowBranchingType
@@ -26,6 +32,28 @@ class WorkflowOperatorWrapper(BaseModel):
     outgoing_arcs: set[Arc] = Field(default_factory=set)
     # arcs connected to operator nodes
     all_arcs: set[Arc] = Field(default_factory=set)
+
+    def get_copy_unique_in_arcs(self):
+        """Get all incoming arcs without duplicate input sources."""
+        already_added_sources = set()
+        arcs: list[Arc] = []
+        for arc in self.incoming_arcs:
+            if arc.source in already_added_sources:
+                continue
+            already_added_sources.add(arc.source)
+            arcs.append(arc.model_copy())
+        return arcs
+
+    def get_copy_unique_out_arcs(self):
+        """Get all outgoing arcs without duplicate input targets."""
+        already_added_targets = set()
+        arcs: list[Arc] = []
+        for arc in self.outgoing_arcs:
+            if arc.target in already_added_targets:
+                continue
+            already_added_targets.add(arc.target)
+            arcs.append(arc.model_copy())
+        return arcs
 
 
 def find_workflow_subprocesses(net: Net):
@@ -106,37 +134,16 @@ def handle_workflow_subprocesses(
         inner_bpmn = caller_func(page_net).process
         inner_bpmn.id = sb_id
         inner_bpmn.name = subprocess_transition.get_name()
+        inner_bpmn.isExecutable = None
         bpmn.add_node(inner_bpmn)
 
 
 def handle_workflow_operators(
-    net: Net, bpmn: Process, to_handle_operators: list[WorkflowOperatorWrapper]
+    net: Net, bpmn: Process, to_handle_temp_gateways: list[GatewayHelperPNML]
 ):
     """Add all found workflow operators of a net as nodes to a bpmn."""
-    for workflow_operator in to_handle_operators:
-        new_gateway: GenericBPMNNode
-        if workflow_operator.t in {
-            WorkflowBranchingType.AndJoin,
-            WorkflowBranchingType.AndSplit,
-            WorkflowBranchingType.AndJoinSplit,
-        }:
-            new_gateway = bpmn.add_node(
-                AndGateway(id=workflow_operator.id, name=workflow_operator.name)
-            )
-
-        elif workflow_operator.t in {
-            WorkflowBranchingType.XorJoin,
-            WorkflowBranchingType.XorSplit,
-            WorkflowBranchingType.XorJoinSplit,
-        }:
-            new_gateway = bpmn.add_node(
-                XorGateway(id=workflow_operator.id, name=workflow_operator.name)
-            )
-        # Add incoming,outgoing flows
-        for in_place in workflow_operator.incoming_nodes:
-            bpmn.add_flow(bpmn.get_node(in_place.id), new_gateway)
-        for out_place in workflow_operator.outgoing_nodes:
-            bpmn.add_flow(new_gateway, bpmn.get_node(out_place.id))
-        # remove original arcs
-        for arc in workflow_operator.all_arcs:
-            net.remove_arc(arc)
+    for temp_gateway in to_handle_temp_gateways:
+        if isinstance(temp_gateway, XORHelperPNML):
+            bpmn.add_node(XorGateway(id=temp_gateway.id, name=temp_gateway.get_name()))
+        elif isinstance(temp_gateway, ANDHelperPNML):
+            bpmn.add_node(AndGateway(id=temp_gateway.id, name=temp_gateway.get_name()))

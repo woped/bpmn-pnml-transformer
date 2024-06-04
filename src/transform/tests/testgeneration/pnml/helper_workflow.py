@@ -1,4 +1,5 @@
-"""Transforms workflow operators into pnml conform notation."""
+"""Module for creating operator places and transitions in a workflow using PNML."""
+
 from transformer.models.pnml.pnml import (
     Place,
     Transition,
@@ -13,7 +14,9 @@ def create_operator_place(id: str, t: WorkflowBranchingType):
     return place
 
 
-def create_operator_transition(id: str, i: int, t: WorkflowBranchingType, name: str):
+def create_operator_transition(
+    id: str, i: int, t: WorkflowBranchingType, name: str | None = None
+):
     """Returns an operator transition for a workflow operator."""
     new_id = f"{id}_op_{i}"
     transition = Transition.create(id=new_id, name=name)
