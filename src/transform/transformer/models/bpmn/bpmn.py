@@ -55,32 +55,50 @@ not_supported_elements = {
 class XorGateway(Gateway, tag="exclusiveGateway"):
     """XOR extension of gateways."""
 
-    pass
-
 
 class AndGateway(Gateway, tag="parallelGateway"):
     """AND extension of gateways."""
 
-    pass
-
 
 class OrGateway(Gateway, tag="inclusiveGateway"):
     """OR extension of gateways."""
-
-    pass
 
 
 # Events
 class StartEvent(GenericBPMNNode, tag="startEvent"):
     """StartEvent extension of GenericBPMNNode."""
 
-    pass
-
 
 class EndEvent(GenericBPMNNode, tag="endEvent"):
     """EndEvent extension of GenericBPMNNode."""
 
-    pass
+
+class MessageEvent(GenericIdNode, tag="messageEventDefinition"):
+    """MessageEvent extension of GenericIdNode."""
+
+
+class TimeEvent(GenericIdNode, tag="timerEventDefinition"):
+    """TimeEvent extension of GenericIdNode."""
+
+
+class IntermediateCatchEvent(GenericBPMNNode, tag="intermediateCatchEvent"):
+    """IntermediateCatchEvent extension of GenericBPMNNode."""
+
+    messageEvent: MessageEvent | None = None
+    timeEvent: TimeEvent | None = None
+
+
+# Swim Lanes
+class Lane(GenericBPMNNode, tag="lane"):
+    """Lane extension of GenericBPMNNode."""
+
+    flowNodeRefs: set[str] = element("flowNodeRef", default_factory=set)
+
+
+class LaneSet(GenericBPMNNode, tag="laneSet"):
+    """Lane Set extension of GenericBPMNNode."""
+
+    lanes: set[Lane] = element("lane", default_factory=set)
 
 
 #
