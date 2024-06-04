@@ -44,8 +44,26 @@ class Name(BaseModel, tag="name"):
     title: str | None = element(tag="text", default=None)
 
 
+class Role(BaseModel, tag="role"):
+    """Role as part of resources."""
+
+    name: str = attr(name="Name")
+
+
+class Resources(BaseModel, tag="resources"):
+    """Resources hold the global role definitions."""
+
+    roles: set[Role] = element(default_factory=set)
+
+
+class ToolspecificGlobal(BaseModel, tag="toolspecific"):
+    """WOPED Toolspecific extension for the global net."""
+
+    resources: Resources | None = None
+
+
 class Toolspecific(BaseModel, tag="toolspecific"):
-    """WOPED Toolspecific extension of BaseModel."""
+    """WOPED Toolspecific extension of BaseModel for a Netelement."""
 
     tool: str = attr(default=WOPED)
     version: str = attr(default="1.0")

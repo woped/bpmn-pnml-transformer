@@ -105,6 +105,20 @@ class IntermediateCatchEvent(GenericBPMNNode, tag="intermediateCatchEvent"):
 
 
 # Swim Lanes
+
+
+class Participant(GenericBPMNNode, tag="participant"):
+    """Information of global pool."""
+
+    processRef: str = attr()
+
+
+class Collaboration(GenericBPMNNode, tag="collaboration"):
+    """Hold the information of the global pool."""
+
+    participant: Participant | None = None
+
+
 class Lane(GenericBPMNNode, tag="lane"):
     """Lane extension of GenericBPMNNode."""
 
@@ -148,12 +162,14 @@ class Flow(GenericIdNode, tag="sequenceFlow"):
 class Process(GenericBPMNNode):
     """Process extension of GenericBPMNNode."""
 
+    collaboration: Collaboration | None = None
+    lane_sets: set[LaneSet] = element(default_factory=set)
+
     isExecutable: bool | None = attr(default=None)
 
     start_events: set[StartEvent] = element(default_factory=set)
     end_events: set[EndEvent] = element(default_factory=set)
     intermediatecatch_events: set[IntermediateCatchEvent] = element(default_factory=set)
-    lane_sets: set[LaneSet] = element(default_factory=set)
 
     tasks: set[Task] = element(default_factory=set)
     user_tasks: set[UserTask] = element(default_factory=set)

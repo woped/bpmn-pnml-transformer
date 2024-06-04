@@ -13,6 +13,7 @@ from transformer.models.pnml.base import (
     Name,
     NetElement,
     Toolspecific,
+    ToolspecificGlobal,
 )
 from transformer.models.pnml.transform_helper import (
     ANDHelperPNML,
@@ -73,6 +74,8 @@ class Net(BaseModel, tag="net"):
     This class also contains internal helperstructures to improve the performance of
     operations. It also contains helper methods to modify the Net.
     """
+
+    toolspecific_global: ToolspecificGlobal | None = None
 
     type_field: str | None = attr(default=None, alias="type")
     id: str | None = attr(default=None)
