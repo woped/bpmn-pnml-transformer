@@ -26,7 +26,11 @@ def generate_sink_id(id: str):
 
 def find_triggers(net: Net):
     """Find all event triggers."""
-    net_elements: list[NetElement] = [*net.transitions, *net.places]
+    all_types = net._flatten_node_typ_map()
+
+    net_elements: list[NetElement] = [
+        node for node in all_types if isinstance(node, NetElement)
+    ]
     triggers: list[NetElement] = [
         trigger for trigger in net_elements if trigger.is_workflow_event_trigger()
     ]
