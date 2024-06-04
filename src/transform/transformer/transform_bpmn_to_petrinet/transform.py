@@ -15,30 +15,26 @@ from transformer.models.bpmn.bpmn import (
     XorGateway,
 )
 from transformer.models.pnml.pnml import Net, Place, Pnml, Transition
-from transformer.transform_bpmn_to_petrinet.preprocess_bpmn import (
-    adjacent_inserter as ias,
+from transformer.transform_bpmn_to_petrinet.participants import (
+    create_participant_mapping,
+    set_global_toolspecifi,
 )
 from transformer.transform_bpmn_to_petrinet.preprocess_bpmn import (
-    or_gateways as ibp,
-)
-from transformer.transform_bpmn_to_petrinet.preprocess_bpmn.all_gateways import (
-    preprocess_gateways,
+    adjacent_inserter,
+    all_gateways,
+    or_gateways,
 )
 from transformer.transform_bpmn_to_petrinet.preprocess_bpmn.extend_process import (
     extend_subprocess,
 )
 from transformer.transform_bpmn_to_petrinet.transform_workflow_helper import (
     handle_gateways,
+    handle_resource_annotations,
     handle_subprocesses,
     handle_triggers,
 )
 from transformer.utility.pnml import find_triggers
 from transformer.utility.utility import create_silent_node_name
-
-replace_inclusive_gateways = ibp.replace_inclusive_gateways
-insert_temp_between_adjacent_mapped_transitions = (
-    ias.insert_temp_between_adjacent_mapped_transition
-)
 
 
 def merge_single_triggers(net: Net):
@@ -93,7 +89,11 @@ def merge_single_triggers(net: Net):
         net.connect_to_element(target, incoming_trigger_arcs)
 
 
-def transform_bpmn_to_petrinet(bpmn: Process, is_workflow_net: bool = False):
+def transform_bpmn_to_petrinet(
+    bpmn: Process,
+    is_workflow_net: bool = False,
+    organization: str = "DEFAULT ORGANIZATION",
+):
     """Transform a BPMN to ST or WOPED workflow Net."""
     pnml = Pnml.generate_empty_net(bpmn.id)
     net = pnml.net
@@ -146,6 +146,9 @@ def transform_bpmn_to_petrinet(bpmn: Process, is_workflow_net: bool = False):
         )
         handle_triggers(net, bpmn, to_handle_triggers)
         handle_gateways(net, bpmn, to_handle_gateways)
+        handle_resource_annotations(
+            net.transitions, bpmn.participant_mapping, organization
+        )
 
     # handle remaining flows
     for flow in bpmn.flows:
@@ -186,22 +189,31 @@ def bpmn_to_st_net(bpmn: BPMN):
     """Return a processed and transformed ST-net of process."""
     extend_subprocess(bpmn.process.subprocesses, bpmn.process)
 
-    apply_preprocessing(bpmn.process, [replace_inclusive_gateways])
+    apply_preprocessing(bpmn.process, [or_gateways.replace_inclusive_gateways])
 
     return transform_bpmn_to_petrinet(bpmn.process)
 
 
 def bpmn_to_workflow_net(bpmn: BPMN):
     """Return a processed and transformed workflow net of process."""
+    create_participant_mapping(bpmn.process)
+
     apply_preprocessing(
         bpmn.process,
         [
-            replace_inclusive_gateways,
-            preprocess_gateways,
-            insert_temp_between_adjacent_mapped_transitions,
+            or_gateways.replace_inclusive_gateways,
+            all_gateways.preprocess_gateways,
+            adjacent_inserter.insert_temp_between_adjacent_mapped_transition,
         ],
     )
-    return transform_bpmn_to_petrinet(bpmn.process, True)
+    organization_name = (
+        bpmn.collaboration.participant.name or "Default"
+        if bpmn.collaboration and bpmn.collaboration.participant
+        else "Default"
+    )
+    pnml = transform_bpmn_to_petrinet(bpmn.process, True, organization_name)
+    set_global_toolspecifi(pnml.net, bpmn.process.participant_mapping, organization_name)
+    return pnml
 
 
 def bpmn_to_st_net_from_xml(bpmn_xml: str):

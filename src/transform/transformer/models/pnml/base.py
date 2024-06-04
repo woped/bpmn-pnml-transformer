@@ -50,14 +50,24 @@ class Role(BaseModel, tag="role"):
     name: str = attr(name="Name")
 
 
+class OrganizationUnit(BaseModel, tag="organizationUnit"):
+    """Resources hold the global role definitions."""
+
+    name: str = attr(name="Name")
+
+
 class Resources(BaseModel, tag="resources"):
     """Resources hold the global role definitions."""
 
-    roles: set[Role] = element(default_factory=set)
+    roles: list[Role] = element(default_factory=list)
+    units: list[OrganizationUnit] = element(default_factory=list)
 
 
 class ToolspecificGlobal(BaseModel, tag="toolspecific"):
     """WOPED Toolspecific extension for the global net."""
+
+    tool: str = attr(default=WOPED)
+    version: str = attr(default="1.0")
 
     resources: Resources | None = None
 
@@ -69,9 +79,9 @@ class Toolspecific(BaseModel, tag="toolspecific"):
     version: str = attr(default="1.0")
 
     # normal transition
-    time: str | None = element(tag="time", default=None)
-    timeUnit: str | None = element(tag="timeUnit", default=None)
-    orientation: str | None = element(tag="orientation", default=None)
+    time: str | None = element(tag="time", default="0")
+    timeUnit: str | None = element(tag="timeUnit", default="1")
+    orientation: str | None = element(tag="orientation", default="1")
 
     # wf-operator
     operator: Operator | None = None
@@ -216,13 +226,15 @@ class NetElement(GenericNetNode):
         self.toolspecific.subprocess = True
         return self
 
-    def mark_as_workflow_resource(self, role_name: str):
+    def mark_as_workflow_resource(self, role_name: str, orga: str):
         """Mark this instance as a resource."""
         if not self.toolspecific:
             self.toolspecific = Toolspecific()
 
         self.toolspecific.trigger = Trigger(id="", type=TriggerType.Resource)
-        self.toolspecific.transitionResource = TransitionResource(roleName=role_name)
+        self.toolspecific.transitionResource = TransitionResource(
+            roleName=role_name, organizationalUnitName=orga
+        )
         return self
 
     def mark_as_workflow_message(self):

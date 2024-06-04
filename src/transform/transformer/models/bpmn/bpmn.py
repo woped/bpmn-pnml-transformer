@@ -104,7 +104,7 @@ class IntermediateCatchEvent(GenericBPMNNode, tag="intermediateCatchEvent"):
         return self.timeEvent is not None
 
 
-# Swim Lanes
+# Participant related classes
 
 
 class Participant(GenericBPMNNode, tag="participant"):
@@ -131,7 +131,7 @@ class LaneSet(GenericBPMNNode, tag="laneSet"):
     lanes: set[Lane] = element("lane", default_factory=set)
 
 
-#
+# Tasks
 class GenericTask(GenericBPMNNode):
     """Genric Task for different BPMN tasks."""
 
@@ -148,7 +148,7 @@ class ServiceTask(GenericTask, tag="serviceTask"):
     """Service Task extension of GenericBPMNNode."""
 
 
-#
+# Flow
 
 
 class Flow(GenericIdNode, tag="sequenceFlow"):
@@ -159,10 +159,12 @@ class Flow(GenericIdNode, tag="sequenceFlow"):
     targetRef: str = attr()
 
 
+#
+
+
 class Process(GenericBPMNNode):
     """Process extension of GenericBPMNNode."""
 
-    collaboration: Collaboration | None = None
     lane_sets: set[LaneSet] = element(default_factory=set)
 
     isExecutable: bool | None = attr(default=None)
@@ -195,6 +197,10 @@ class Process(GenericBPMNNode):
     _temp_nodes: dict[str, GenericBPMNNode] = PrivateAttr(default_factory=dict)
     _temp_flows: dict[str, Flow] = PrivateAttr(default_factory=dict)
 
+    # Holds the name of the ID of the usertask and participant (lane name)
+    # Also holds the IDs of the usertasks within subprocesses
+    participant_mapping: dict[str, str] = {}
+
     def __init__(self, **data):
         """Process instance constructor."""
         super().__init__(**data)
@@ -215,7 +221,6 @@ class Process(GenericBPMNNode):
                 AndGateway: self.and_gws,
                 Process: self.subprocesses,
                 IntermediateCatchEvent: self.intermediatecatch_events,
-                LaneSet: self.lane_sets,
                 GenericBPMNNode: set(),
             },
         )
@@ -420,6 +425,7 @@ class Process(GenericBPMNNode):
 class BPMN(BPMNNamespace, tag="definitions"):
     """Extension of BPMNNamespace with attributes process and diagram."""
 
+    collaboration: Collaboration | None = None
     process: Process = element(tag="process")
     diagram: BPMNDiagram | None = element(default=None)
 

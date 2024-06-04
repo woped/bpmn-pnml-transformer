@@ -39,7 +39,6 @@ def generate():
     pn = generate_temp_petri_net(temp_case_name)
     items: list[tuple[str, Pnml]] = []
     for case_name in [
-        "collaboration",
         "dataStoreReference",
         "dataObjectReference",
         "dataObject",

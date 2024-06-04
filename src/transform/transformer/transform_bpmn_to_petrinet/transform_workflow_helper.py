@@ -271,3 +271,17 @@ def handle_subprocesses(
         inner_net.id = None
 
         net.add_page(Page(id=subprocess.id, net=inner_net))
+
+
+def handle_resource_annotations(
+    transitions: set[Transition], participant_mapping: dict[str, str], orga: str
+):
+    """Handle the annotation of the transformed transitions from usertasks."""
+    if len(participant_mapping) == 0:
+        return
+
+    for transition in transitions:
+        if transition.id not in participant_mapping:
+            continue
+
+        transition.mark_as_workflow_resource(participant_mapping[transition.id], orga)
