@@ -58,7 +58,7 @@ def merge_single_triggers(net: Net):
         if net.get_out_degree(trigger) == 0:
             continue
 
-        connecting_place = net.get_element(list(net.get_outgoing(trigger.id))[0].id)
+        connecting_place = net.get_element(list(net.get_outgoing(trigger.id))[0].target)
 
         # not clear how to merge the following element of a split/join place
         if (
@@ -71,7 +71,7 @@ def merge_single_triggers(net: Net):
         if net.get_out_degree(connecting_place) == 0:
             continue
 
-        target = net.get_element(list(net.get_outgoing(trigger.id))[0].id)
+        target = net.get_element(list(net.get_outgoing(connecting_place.id))[0].target)
 
         # Cant override existing trigger
         if target.is_workflow_trigger():
@@ -82,8 +82,8 @@ def merge_single_triggers(net: Net):
             continue
 
         incoming_trigger_arcs = net.get_incoming_and_remove_arcs(trigger)
+        net.remove_element_with_connecting_arcs(connecting_place)
         net.remove_element(trigger)
-        net.remove_element(connecting_place)
 
         if trigger.is_workflow_message():
             target.mark_as_workflow_message()
@@ -167,7 +167,8 @@ def transform_bpmn_to_petrinet(bpmn: Process, is_workflow_net: bool = False):
             net.add_arc(source, target)
 
     # Post processing
-    merge_single_triggers(net)
+    if is_workflow_net:
+        merge_single_triggers(net)
 
     return pnml
 

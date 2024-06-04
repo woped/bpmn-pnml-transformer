@@ -86,14 +86,14 @@ class IntermediateCatchEvent(GenericBPMNNode, tag="intermediateCatchEvent"):
     timeEvent: TimeEvent | None = None
 
     @staticmethod
-    def create_message_event(id: str):
+    def create_message_event(id: str, name: str | None = None):
         """Create a message event."""
-        return IntermediateCatchEvent(id=id, messageEvent=MessageEvent(id=""))
+        return IntermediateCatchEvent(id=id, name=name, messageEvent=MessageEvent(id=""))
 
     @staticmethod
-    def create_time_event(id: str):
+    def create_time_event(id: str, name: str | None = None):
         """Create a time event."""
-        return IntermediateCatchEvent(id=id, timeEvent=TimeEvent(id=""))
+        return IntermediateCatchEvent(id=id, name=name, timeEvent=TimeEvent(id=""))
 
     def is_message(self):
         """If the catch event is of type message."""

@@ -87,16 +87,14 @@ class Toolspecific(BaseModel, tag="toolspecific"):
         """Returns whether instance is a workflow message trigger."""
         return (
             self._is_woped()
-            and self.transitionResource
-            and self.transitionResource.roleName is TriggerType.Message
+            and self.trigger
+            and self.trigger.type is TriggerType.Message
         )
 
     def is_workflow_time(self):
         """Returns whether instance is a workflow time trigger."""
         return (
-            self._is_woped()
-            and self.transitionResource
-            and self.transitionResource.roleName is TriggerType.Time
+            self._is_woped() and self.trigger and self.trigger.type is TriggerType.Time
         )
 
     def is_workflow_resource(self):
@@ -104,12 +102,13 @@ class Toolspecific(BaseModel, tag="toolspecific"):
         return (
             self._is_woped()
             and self.transitionResource
-            and self.transitionResource.roleName is TriggerType.Resource
+            and self.trigger
+            and self.trigger.type is TriggerType.Resource
         )
 
     def is_workflow_event_trigger(self):
         """Returns whether instance is a trigger."""
-        return self.is_workflow_message() and self.is_workflow_time()
+        return self.is_workflow_message() or self.is_workflow_time()
 
 
 class GenericNetNode(GenericNetIDNode):

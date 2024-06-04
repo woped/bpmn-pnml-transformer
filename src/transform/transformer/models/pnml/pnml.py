@@ -279,6 +279,16 @@ class Net(BaseModel, tag="net"):
         for arc in outgoing:
             arc.source = ""
 
+    def remove_element_with_connecting_arcs(self, to_remove_node: GenericNetNode):
+        """Remove element by instance and connecting arcs."""
+        for arc in [
+            *self.get_incoming(to_remove_node.id),
+            *self.get_outgoing(to_remove_node.id),
+        ]:
+            self.remove_arc(arc)
+
+        self.remove_element(to_remove_node)
+
     def get_incoming_and_remove_arcs(self, transition: NetElement):
         """Get a copy of each incoming arc and remove original arcs."""
         incoming_arcs = [arc.model_copy() for arc in self.get_incoming(transition.id)]

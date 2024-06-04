@@ -1,4 +1,5 @@
-"""Generates BPMN and according petri net for various workflow cases ."""
+"""Generates BPMN and expected petri net for various workflow cases ."""
+
 from testgeneration.bpmn.utility import create_bpmn
 from testgeneration.pnml.helper_workflow import (
     create_operator_place,
@@ -10,6 +11,7 @@ from transformer.models.bpmn.bpmn import (
     BPMN,
     AndGateway,
     EndEvent,
+    IntermediateCatchEvent,
     StartEvent,
     Task,
     XorGateway,
@@ -19,8 +21,70 @@ from transformer.models.pnml.workflow import WorkflowBranchingType
 from transformer.utility.utility import create_silent_node_name
 
 
+def sequential_time_event():
+    """Return a BPMN and the expected petri net with  IntermediateCatchEvent(Time)."""
+    case = "sequential_time_event"
+    se_id = "elem_1"
+    trigger_id = "trigger"
+    task_id = "task"
+    ee_id = "elem_2"
+    bpmn = create_bpmn(
+        case,
+        [
+            [
+                StartEvent(id=se_id),
+                IntermediateCatchEvent.create_time_event(trigger_id),
+                Task(id=task_id),
+                EndEvent(id=ee_id),
+            ]
+        ],
+    )
+    net = create_petri_net(
+        case,
+        [
+            [
+                Place.create(id=se_id),
+                Transition.create(id=task_id).mark_as_workflow_time(),
+                Place.create(id=ee_id),
+            ]
+        ],
+    )
+    return bpmn, net, case
+
+
+def sequential_message_event():
+    """Return a BPMN and the expected petri net with  IntermediateCatchEvent(Message)."""
+    case = "sequential_message_event"
+    se_id = "elem_1"
+    trigger_id = "trigger"
+    task_id = "task"
+    ee_id = "elem_2"
+    bpmn = create_bpmn(
+        case,
+        [
+            [
+                StartEvent(id=se_id),
+                IntermediateCatchEvent.create_message_event(trigger_id),
+                Task(id=task_id),
+                EndEvent(id=ee_id),
+            ]
+        ],
+    )
+    net = create_petri_net(
+        case,
+        [
+            [
+                Place.create(id=se_id),
+                Transition.create(id=task_id).mark_as_workflow_message(),
+                Place.create(id=ee_id),
+            ]
+        ],
+    )
+    return bpmn, net, case
+
+
 def reduce_unnecessary_gw():
-    """Return a simple BPMN and the according petri net with reduced gateways."""
+    """Return a BPMN and the expected petri net with reduced gateways."""
     case = "reduce_unnecessary_gw"
     se_id = "elem_1"
     gw_id = "gw"
@@ -41,7 +105,7 @@ def reduce_unnecessary_gw():
 
 
 def gateway_parallel_join_split():
-    """Return a simple BPMN and the according workflow net with AND gates."""
+    """Return a BPMN and the expected workflow net with AND gates."""
     case = "parallel_workflow_elements"
     se_id = "elem_1"
     ee_id = "elem_2"
@@ -121,7 +185,7 @@ def gateway_parallel_join_split():
 
 
 def gateway_exclusive_join_split():
-    """Return a simple BPMN and the according workflow net for an with XOR gates."""
+    """Return a BPMN and the expected workflow net for an with XOR gates."""
     case = "exclusive_workflow_elements"
     se_id = "elem_1"
     ee_id = "elem_2"
@@ -195,9 +259,7 @@ def gateway_exclusive_join_split():
                 xor_split_1,
                 Place.create(id=create_silent_node_name(xor_split_1.id, task_1)),
                 Transition.create(id=task_1, name=task_1),
-                Place.create(
-                    id=create_silent_node_name(task_1, xor_join_split_in_1.id)
-                ),
+                Place.create(id=create_silent_node_name(task_1, xor_join_split_in_1.id)),
                 xor_join_split_in_1,
                 xor_join_split_place,
                 xor_join_split_out_1,
@@ -234,7 +296,7 @@ def gateway_exclusive_join_split():
 
 
 def gateway_side_by_side_xor_and():
-    """Return a simple BPMN and the according workflow net with mixed gates."""
+    """Return a BPMN and the expected workflow net with mixed gates."""
     case = "gateway_side_by_side_xor_and"
     se_id = "elem_1"
     ee_id = "elem_2"
@@ -336,7 +398,7 @@ def gateway_side_by_side_xor_and():
 
 
 def gateway_side_by_side_and_xor():
-    """Return a simple BPMN and the according workflow net with XOR+AND gates."""
+    """Return a BPMN and the expected workflow net with XOR+AND gates."""
     case = "gateway_side_by_side_and_xor"
     se_id = "elem_1"
     ee_id = "elem_2"
@@ -438,7 +500,7 @@ def gateway_side_by_side_and_xor():
 
 
 def subprocess():
-    """Return a simple BPMN and the according workflow net with a subprocess."""
+    """Return a BPMN and the expected workflow net with a subprocess."""
     case = "subprocess"
     se_id = "elem_1"
     ee_id = "elem_2"
@@ -486,6 +548,8 @@ def subprocess():
 
 
 supported_cases_workflow_bpmn: list[tuple[BPMN, Pnml, str]] = [
+    sequential_message_event(),
+    sequential_time_event(),
     subprocess(),
     reduce_unnecessary_gw(),
     gateway_parallel_join_split(),
