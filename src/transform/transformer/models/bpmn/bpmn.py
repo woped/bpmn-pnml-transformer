@@ -27,6 +27,7 @@ from transformer.models.bpmn.bpmn_graphics import (
 from transformer.models.bpmn.not_supported_models import CatchEvent, ThrowEvent
 from transformer.utility.utility import create_arc_name, get_tag_name
 
+# TODO: change transformation for removed elements
 not_supported_elements = {
     # custom element
     "extensionelements",
@@ -34,8 +35,6 @@ not_supported_elements = {
     "complexgateway",
     "eventbasedgateway",
     # tasks
-    "usertask",
-    "servicetask",
     "sendtask",
     "receivetask",
     "manualtask",
@@ -46,7 +45,6 @@ not_supported_elements = {
     # https://www.omg.org/spec/BPMN/2.0/PDF P. 425
     "intermediatethrowevent",
     "normalintermediatethrowevent",
-    "intermediatecatchevent",
     "boundaryevent",
 }
 
@@ -113,7 +111,13 @@ class Flow(GenericIdNode, tag="sequenceFlow"):
 class Task(GenericBPMNNode, tag="task"):
     """Task extension of GenericBPMNNode."""
 
-    pass
+
+class UserTask(GenericBPMNNode, tag="userTask"):
+    """User Task extension of GenericBPMNNode."""
+
+
+class ServiceTask(GenericBPMNNode, tag="serviceTask"):
+    """Service Task extension of GenericBPMNNode."""
 
 
 class Process(GenericBPMNNode):
@@ -122,9 +126,13 @@ class Process(GenericBPMNNode):
     isExecutable: bool | None = attr(default=None)
 
     start_events: set[StartEvent] = element(default_factory=set)
+    end_events: set[EndEvent] = element(default_factory=set)
+    intermediateCatchEvent: set[IntermediateCatchEvent] = element(default_factory=set)
+    laneSet: set[LaneSet] = element(default_factory=set)
 
     tasks: set[Task] = element(default_factory=set)
-    end_events: set[EndEvent] = element(default_factory=set)
+    userTasks: set[UserTask] = element(default_factory=set)
+    serviceTasks: set[ServiceTask] = element(default_factory=set)
 
     xor_gws: set[XorGateway] = element(default_factory=set)
     or_gws: set[OrGateway] = element(default_factory=set)
@@ -157,12 +165,16 @@ class Process(GenericBPMNNode):
             dict[type[GenericBPMNNode], set[GenericBPMNNode]],
             {
                 Task: self.tasks,
+                UserTask: self.userTasks,
+                ServiceTask: self.serviceTasks,
                 StartEvent: self.start_events,
                 EndEvent: self.end_events,
                 XorGateway: self.xor_gws,
                 OrGateway: self.or_gws,
                 AndGateway: self.and_gws,
                 Process: self.subprocesses,
+                IntermediateCatchEvent: self.intermediateCatchEvent,
+                LaneSet: self.laneSet,
                 GenericBPMNNode: set(),
             },
         )

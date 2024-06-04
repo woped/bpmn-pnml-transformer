@@ -40,7 +40,6 @@ def generate():
     items: list[tuple[str, Pnml]] = []
     for case_name in [
         "collaboration",
-        "laneSet",
         "dataStoreReference",
         "dataObjectReference",
         "dataObject",
