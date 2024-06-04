@@ -18,8 +18,8 @@ cred = credentials.Certificate("secrets/woped-422510-ff5224739dab.json")
 app = firebase_admin.initialize_app(cred)
 db = firestore.Client()
 
-"""Function to check if there are tokens available in the Firestore database"""
 def check_tokens():
+    """Check if there are tokens available in the Firestore database."""
     if db is None:
         raise Exception("No database available")
     doc_ref = db.collection("api-tokens").document("token-document")
