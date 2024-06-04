@@ -85,6 +85,16 @@ class IntermediateCatchEvent(GenericBPMNNode, tag="intermediateCatchEvent"):
     messageEvent: MessageEvent | None = None
     timeEvent: TimeEvent | None = None
 
+    @staticmethod
+    def create_message_event(id: str):
+        """Create a message event."""
+        return IntermediateCatchEvent(id=id, messageEvent=MessageEvent(id=""))
+
+    @staticmethod
+    def create_time_event(id: str):
+        """Create a time event."""
+        return IntermediateCatchEvent(id=id, timeEvent=TimeEvent(id=""))
+
 
 # Swim Lanes
 class Lane(GenericBPMNNode, tag="lane"):

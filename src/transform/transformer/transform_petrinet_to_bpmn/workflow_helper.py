@@ -4,12 +4,21 @@ from collections.abc import Callable
 
 from pydantic import BaseModel, Field
 
-from transformer.models.bpmn.bpmn import BPMN, AndGateway, Process, XorGateway
+from transformer.models.bpmn.bpmn import (
+    BPMN,
+    AndGateway,
+    IntermediateCatchEvent,
+    Process,
+    XorGateway,
+)
 from transformer.models.pnml.base import NetElement
 from transformer.models.pnml.pnml import Arc, Net, Page, Transition
 from transformer.models.pnml.transform_helper import (
     ANDHelperPNML,
     GatewayHelperPNML,
+    MessageHelperPNML,
+    TimeHelperPNML,
+    TriggerHelperPNML,
     XORHelperPNML,
 )
 from transformer.models.pnml.workflow import WorkflowBranchingType
@@ -149,7 +158,7 @@ def handle_workflow_subprocesses(
 
 
 def handle_workflow_operators(
-    net: Net, bpmn: Process, to_handle_temp_gateways: list[GatewayHelperPNML]
+    bpmn: Process, to_handle_temp_gateways: list[GatewayHelperPNML]
 ):
     """Add all found workflow operators of a net as nodes to a bpmn."""
     for temp_gateway in to_handle_temp_gateways:
@@ -157,3 +166,14 @@ def handle_workflow_operators(
             bpmn.add_node(XorGateway(id=temp_gateway.id, name=temp_gateway.get_name()))
         elif isinstance(temp_gateway, ANDHelperPNML):
             bpmn.add_node(AndGateway(id=temp_gateway.id, name=temp_gateway.get_name()))
+
+
+def handle_event_triggers(
+    bpmn: Process, to_handle_temp_triggers: list[TriggerHelperPNML]
+):
+    """Replace all temptriggers with the actual BPMN-Element."""
+    for temp_trigger in to_handle_temp_triggers:
+        if isinstance(temp_trigger, MessageHelperPNML):
+            bpmn.add_node(IntermediateCatchEvent.create_message_event(temp_trigger.id))
+        elif isinstance(temp_trigger, TimeHelperPNML):
+            bpmn.add_node(IntermediateCatchEvent.create_time_event(temp_trigger.id))

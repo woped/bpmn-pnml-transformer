@@ -15,6 +15,7 @@ from transformer.models.bpmn.bpmn import (
 from transformer.models.pnml.pnml import Net, Pnml
 from transformer.models.pnml.transform_helper import (
     GatewayHelperPNML,
+    TriggerHelperPNML,
 )
 from transformer.transform_petrinet_to_bpmn.preprocess_pnml import (
     dangling_transition,
@@ -24,6 +25,7 @@ from transformer.transform_petrinet_to_bpmn.preprocess_pnml import (
 )
 from transformer.transform_petrinet_to_bpmn.workflow_helper import (
     find_workflow_subprocesses,
+    handle_event_triggers,
     handle_workflow_operators,
     handle_workflow_subprocesses,
 )
@@ -86,6 +88,12 @@ def transform_petrinet_to_bpmn(net: Net):
         if isinstance(elem, GatewayHelperPNML)
     ]
 
+    to_handle_temp_triggers = [
+        elem
+        for elem in net._flatten_node_typ_map()
+        if isinstance(elem, TriggerHelperPNML)
+    ]
+
     # handle normal places
     for place in places:
         in_degree, out_degree = net.get_in_degree(place), net.get_out_degree(place)
@@ -112,8 +120,8 @@ def transform_petrinet_to_bpmn(net: Net):
             bpmn.add_node(AndGateway(id=transition.id, name=transition.get_name()))
 
     # handle workflow specific elements
-    handle_workflow_operators(net, bpmn, to_handle_temp_gateways)
-
+    handle_workflow_operators(bpmn, to_handle_temp_gateways)
+    handle_event_triggers(bpmn, to_handle_temp_triggers)
     handle_workflow_subprocesses(
         net, bpmn, to_handle_subprocesses, transform_petrinet_to_bpmn
     )
