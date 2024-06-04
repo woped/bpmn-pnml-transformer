@@ -7,10 +7,10 @@ from transformer.models.bpmn.bpmn import (
     BPMN,
     AndGateway,
     EndEvent,
+    GenericTask,
     OrGateway,
     Process,
     StartEvent,
-    Task,
     XorGateway,
 )
 from transformer.models.pnml.pnml import Place, Pnml, Transition
@@ -23,7 +23,7 @@ from transformer.transform_bpmn_to_petrinet.preprocess_bpmn import (
 from transformer.transform_bpmn_to_petrinet.preprocess_bpmn.extend_process import (
     extend_subprocess,
 )
-from transformer.transform_bpmn_to_petrinet.preprocess_bpmn.gateway_for_workflow import ( # noqa: E501
+from transformer.transform_bpmn_to_petrinet.preprocess_bpmn.gateway_for_workflow import (  # noqa: E501
     preprocess_gateways,
 )
 from transformer.transform_bpmn_to_petrinet.transform_workflow_helper import (
@@ -59,7 +59,7 @@ def transform_bpmn_to_petrinet(bpmn: Process, is_workflow_net: bool = False):
 
     # handle normals nodes
     for node in nodes:
-        if isinstance(node, Task | AndGateway):
+        if isinstance(node, GenericTask | AndGateway):
             net.add_element(
                 Transition.create(
                     id=node.id,

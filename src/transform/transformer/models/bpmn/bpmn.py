@@ -100,24 +100,31 @@ class LaneSet(GenericBPMNNode, tag="laneSet"):
 
 
 #
+class GenericTask(GenericBPMNNode):
+    """Genric Task for different BPMN tasks."""
+
+
+class Task(GenericTask, tag="task"):
+    """Task extension of GenericBPMNNode."""
+
+
+class UserTask(GenericTask, tag="userTask"):
+    """User Task extension of GenericBPMNNode."""
+
+
+class ServiceTask(GenericTask, tag="serviceTask"):
+    """Service Task extension of GenericBPMNNode."""
+
+
+#
+
+
 class Flow(GenericIdNode, tag="sequenceFlow"):
     """Flow extension of GenericBPMNNode."""
 
     name: str | None = attr(default=None)
     sourceRef: str = attr()
     targetRef: str = attr()
-
-
-class Task(GenericBPMNNode, tag="task"):
-    """Task extension of GenericBPMNNode."""
-
-
-class UserTask(GenericBPMNNode, tag="userTask"):
-    """User Task extension of GenericBPMNNode."""
-
-
-class ServiceTask(GenericBPMNNode, tag="serviceTask"):
-    """Service Task extension of GenericBPMNNode."""
 
 
 class Process(GenericBPMNNode):
@@ -127,12 +134,12 @@ class Process(GenericBPMNNode):
 
     start_events: set[StartEvent] = element(default_factory=set)
     end_events: set[EndEvent] = element(default_factory=set)
-    intermediateCatchEvent: set[IntermediateCatchEvent] = element(default_factory=set)
-    laneSet: set[LaneSet] = element(default_factory=set)
+    intermediatecatch_events: set[IntermediateCatchEvent] = element(default_factory=set)
+    lane_sets: set[LaneSet] = element(default_factory=set)
 
     tasks: set[Task] = element(default_factory=set)
-    userTasks: set[UserTask] = element(default_factory=set)
-    serviceTasks: set[ServiceTask] = element(default_factory=set)
+    user_tasks: set[UserTask] = element(default_factory=set)
+    service_tasks: set[ServiceTask] = element(default_factory=set)
 
     xor_gws: set[XorGateway] = element(default_factory=set)
     or_gws: set[OrGateway] = element(default_factory=set)
@@ -165,16 +172,16 @@ class Process(GenericBPMNNode):
             dict[type[GenericBPMNNode], set[GenericBPMNNode]],
             {
                 Task: self.tasks,
-                UserTask: self.userTasks,
-                ServiceTask: self.serviceTasks,
+                UserTask: self.user_tasks,
+                ServiceTask: self.service_tasks,
                 StartEvent: self.start_events,
                 EndEvent: self.end_events,
                 XorGateway: self.xor_gws,
                 OrGateway: self.or_gws,
                 AndGateway: self.and_gws,
                 Process: self.subprocesses,
-                IntermediateCatchEvent: self.intermediateCatchEvent,
-                LaneSet: self.laneSet,
+                IntermediateCatchEvent: self.intermediatecatch_events,
+                LaneSet: self.lane_sets,
                 GenericBPMNNode: set(),
             },
         )
