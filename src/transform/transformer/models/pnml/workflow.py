@@ -23,3 +23,19 @@ class Operator(BaseModel, tag="operator"):
     """Operator extension of BaseModel (+id, type)."""
     id: str = attr()
     type: WorkflowBranchingType = attr()
+
+class TriggerType(int, Enum):
+    """Trigger type definition."""
+    Resource = 200
+    Message = 201
+    Time = 202
+
+class Trigger(BaseModel, tag="trigger"):
+    """Trigger extension of BaseModel (+id, type)."""
+    id: str = attr()
+    type: TriggerType = attr()
+
+class TransitionResource(BaseModel, tag="transitionResource"):
+    """Transition Resource extension of BaseModel (+id, type)."""
+    roleName: str = attr()
+    

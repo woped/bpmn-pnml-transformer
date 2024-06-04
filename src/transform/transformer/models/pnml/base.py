@@ -2,7 +2,12 @@
 
 from pydantic_xml import attr, element
 
-from transformer.models.pnml.workflow import Operator, WorkflowBranchingType
+from transformer.models.pnml.workflow import (
+    Operator,
+    TransitionResource,
+    Trigger,
+    WorkflowBranchingType,
+)
 from transformer.utility.utility import WOPED, BaseModel
 
 
@@ -51,6 +56,12 @@ class Toolspecific(BaseModel, tag="toolspecific"):
 
     # wf-operator
     operator: Operator | None = None
+
+    # traigger type
+    trigger: Trigger | None = None
+
+    # transition resource
+    transitionResource: TransitionResource | None = None
 
     # arc
     probability: str | None = element(tag="probability", default=None)
