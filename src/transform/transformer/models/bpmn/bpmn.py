@@ -95,6 +95,14 @@ class IntermediateCatchEvent(GenericBPMNNode, tag="intermediateCatchEvent"):
         """Create a time event."""
         return IntermediateCatchEvent(id=id, timeEvent=TimeEvent(id=""))
 
+    def is_message(self):
+        """If the catch event is of type message."""
+        return self.messageEvent is not None
+
+    def is_time(self):
+        """If the catch event is of type time."""
+        return self.timeEvent is not None
+
 
 # Swim Lanes
 class Lane(GenericBPMNNode, tag="lane"):

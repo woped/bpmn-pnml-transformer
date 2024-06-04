@@ -4,7 +4,12 @@ from collections.abc import Callable
 from typing import cast
 
 from transformer.models.bpmn.base import Gateway, GenericBPMNNode
-from transformer.models.bpmn.bpmn import AndGateway, Process, XorGateway
+from transformer.models.bpmn.bpmn import (
+    AndGateway,
+    IntermediateCatchEvent,
+    Process,
+    XorGateway,
+)
 from transformer.models.pnml.base import NetElement
 from transformer.models.pnml.pnml import (
     Net,
@@ -15,10 +20,8 @@ from transformer.models.pnml.pnml import (
 )
 from transformer.models.pnml.workflow import WorkflowBranchingType
 from transformer.utility.bpmn import find_end_events, find_start_events
-from transformer.utility.utility import (
-    create_arc_name,
-    create_silent_node_name
-)
+from transformer.utility.utility import create_arc_name, create_silent_node_name
+
 
 def create_workflow_operator_helper_transition(
     net: Net, id: str, name: str | None, i: int, t: WorkflowBranchingType
@@ -159,6 +162,25 @@ type_map = {
     XorGateway: (add_wf_xor_split, add_wf_xor_join, add_wf_xor_split_join),
     AndGateway: (add_wf_and_split, add_wf_and_join, add_wf_and_split_join),
 }
+
+
+def handle_triggers(net: Net, bpmn: Process, triggers: list[IntermediateCatchEvent]):
+    """Handle time and message related intermediate events (triggers)."""
+    for trigger in triggers:
+        if trigger.is_time():
+            net.add_element(
+                Transition.create(
+                    id=trigger.id, name=trigger.name
+                ).mark_as_workflow_time()
+            )
+        elif trigger.is_message:
+            net.add_element(
+                Transition.create(
+                    id=trigger.id, name=trigger.name
+                ).mark_as_workflow_message()
+            )
+        else:
+            raise Exception("Wrong intermediate event type used!")
 
 
 def handle_gateways(net: Net, bpmn: Process, gateways: list[Gateway]):

@@ -8,6 +8,7 @@ from transformer.models.bpmn.bpmn import (
     AndGateway,
     EndEvent,
     GenericTask,
+    IntermediateCatchEvent,
     OrGateway,
     Process,
     StartEvent,
@@ -29,6 +30,7 @@ from transformer.transform_bpmn_to_petrinet.preprocess_bpmn.extend_process impor
 from transformer.transform_bpmn_to_petrinet.transform_workflow_helper import (
     handle_gateways,
     handle_subprocesses,
+    handle_triggers,
 )
 from transformer.utility.utility import create_silent_node_name
 
@@ -48,6 +50,7 @@ def transform_bpmn_to_petrinet(bpmn: Process, is_workflow_net: bool = False):
     # find workflow specific nodes
     to_handle_gateways: list[Gateway] = []
     to_handle_subprocesses: list[Process] = []
+    to_handle_triggers: list[IntermediateCatchEvent] = []
 
     if is_workflow_net:
         for node in nodes:
@@ -55,7 +58,11 @@ def transform_bpmn_to_petrinet(bpmn: Process, is_workflow_net: bool = False):
                 to_handle_subprocesses.append(node)
             elif isinstance(node, Gateway):
                 to_handle_gateways.append(node)
-        nodes = nodes.difference(to_handle_gateways, to_handle_subprocesses)
+            elif isinstance(node, IntermediateCatchEvent):
+                to_handle_triggers.append(node)
+        nodes = nodes.difference(
+            to_handle_gateways, to_handle_subprocesses, to_handle_triggers
+        )
 
     # handle normals nodes
     for node in nodes:
@@ -80,11 +87,12 @@ def transform_bpmn_to_petrinet(bpmn: Process, is_workflow_net: bool = False):
             raise Exception(f"{type(node)} not supported")
 
     # handle workflow specific nodes
-    if is_workflow_net and (to_handle_gateways or to_handle_subprocesses):
+    if is_workflow_net:
         handle_subprocesses(
             net, bpmn, to_handle_subprocesses, transform_bpmn_to_petrinet
         )
         handle_gateways(net, bpmn, to_handle_gateways)
+        handle_triggers(net, bpmn, to_handle_triggers)
 
     # handle remaining flows
     for flow in bpmn.flows:
