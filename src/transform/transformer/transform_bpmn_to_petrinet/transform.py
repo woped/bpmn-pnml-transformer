@@ -15,16 +15,16 @@ from transformer.models.bpmn.bpmn import (
 )
 from transformer.models.pnml.pnml import Place, Pnml, Transition
 from transformer.transform_bpmn_to_petrinet.preprocess_bpmn import (
-    inclusive_bpmn_preprocess as ibp,
+    adjacent_inserter as ias,
 )
 from transformer.transform_bpmn_to_petrinet.preprocess_bpmn import (
-    insert_adjacent_mapped_transition as ias,
+    or_gateways as ibp,
+)
+from transformer.transform_bpmn_to_petrinet.preprocess_bpmn.all_gateways import (  # noqa: E501
+    preprocess_gateways,
 )
 from transformer.transform_bpmn_to_petrinet.preprocess_bpmn.extend_process import (
     extend_subprocess,
-)
-from transformer.transform_bpmn_to_petrinet.preprocess_bpmn.gateway_for_workflow import (  # noqa: E501
-    preprocess_gateways,
 )
 from transformer.transform_bpmn_to_petrinet.transform_workflow_helper import (
     handle_gateways,

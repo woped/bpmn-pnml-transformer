@@ -19,8 +19,8 @@ from transformer.models.pnml.transform_helper import (
 from transformer.transform_petrinet_to_bpmn.preprocess_pnml import (
     dangling_transition,
     event_trigger,
-    preprocess_workflow_operators,
-    split_and_gw_with_name,
+    vanilla_gateway_transition,
+    workflow_operators,
 )
 from transformer.transform_petrinet_to_bpmn.workflow_helper import (
     find_workflow_subprocesses,
@@ -153,8 +153,8 @@ def pnml_to_bpmn(pnml: Pnml):
         net,
         [
             dangling_transition.add_places_at_dangling_transitions,
-            preprocess_workflow_operators.handle_workflow_operators,
-            split_and_gw_with_name.split_and_gw_with_name,
+            workflow_operators.handle_workflow_operators,
+            vanilla_gateway_transition.split_and_gw_with_name,
             event_trigger.split_event_triggers,
         ],
     )
