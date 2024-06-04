@@ -73,8 +73,8 @@ def merge_single_triggers(net: Net):
 
         target = net.get_element(list(net.get_outgoing(connecting_place.id))[0].target)
 
-        # Cant override existing workflow element
-        if target.is_workflow_element():
+        # Cant override existing trigger (event or resource)
+        if target.is_workflow_trigger():
             continue
 
         # not clear how to merge the target if it is a join itself
@@ -144,8 +144,8 @@ def transform_bpmn_to_petrinet(bpmn: Process, is_workflow_net: bool = False):
         handle_subprocesses(
             net, bpmn, to_handle_subprocesses, transform_bpmn_to_petrinet
         )
-        handle_gateways(net, bpmn, to_handle_gateways)
         handle_triggers(net, bpmn, to_handle_triggers)
+        handle_gateways(net, bpmn, to_handle_gateways)
 
     # handle remaining flows
     for flow in bpmn.flows:

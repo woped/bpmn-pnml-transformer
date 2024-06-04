@@ -184,6 +184,125 @@ def gateway_parallel_join_split():
     return bpmn, net, case
 
 
+# TODO same test with xor
+def gateway_parallel_join_split_with_events():
+    """Return a BPMN and the expected workflow net with AND gates and triggers."""
+    case = "parallel_workflow_elements_with_events"
+    se_id = "elem_1"
+    ee_id = "elem_2"
+
+    task_1 = "elem_3"
+    task_11 = "elem_6"
+    task_2 = "elem_30"
+    task_22 = "elem_60"
+
+    gw_split = "elem_4"
+    gw_join = "elem_5"
+    gw_both = "elem_7"
+
+    trigger_before_and_split = "elem_8"
+    trigger_before_and_join_split = "elem_9"
+    trigger_before_and_join = "elem_10"
+
+    bpmn_gw_split = AndGateway(id=gw_split, name=gw_split)
+    bpmn_gw_both = AndGateway(id=gw_both, name=gw_both)
+    bpmn_gw_join = AndGateway(id=gw_join, name=gw_join)
+
+    bpmn_trigger_before_and_split = IntermediateCatchEvent.create_time_event(
+        trigger_before_and_split
+    )
+    bpmn_trigger_before_and_join_split = IntermediateCatchEvent.create_time_event(
+        trigger_before_and_join_split
+    )
+    bpmn_trigger_before_and_join = IntermediateCatchEvent.create_time_event(
+        trigger_before_and_join, trigger_before_and_join
+    )
+
+    bpmn = create_bpmn(
+        case,
+        [
+            [
+                StartEvent(id=se_id),
+                bpmn_trigger_before_and_split,
+                bpmn_gw_split,
+                Task(id=task_1, name=task_1),
+                bpmn_trigger_before_and_join_split,
+                bpmn_gw_both,
+                Task(id=task_2, name=task_2),
+                bpmn_trigger_before_and_join,
+                bpmn_gw_join,
+                EndEvent(id=ee_id),
+            ],
+            [bpmn_gw_split, Task(id=task_11, name=task_11), bpmn_gw_both],
+            [bpmn_gw_both, Task(id=task_22, name=task_22), bpmn_gw_join],
+        ],
+    )
+    and_split = create_operator_transition(
+        gw_split, 1, WorkflowBranchingType.AndSplit, gw_split
+    ).mark_as_workflow_time()
+    and_join_split = create_operator_transition(
+        gw_both, 1, WorkflowBranchingType.AndJoinSplit, gw_both
+    )
+    and_join = create_operator_transition(
+        gw_join, 1, WorkflowBranchingType.AndJoin, gw_join
+    )
+
+    trigger_transition_split_join = Transition.create(
+        trigger_before_and_join_split
+    ).mark_as_workflow_time()
+    trigger_transition_join = Transition.create(
+        trigger_before_and_join, trigger_before_and_join
+    ).mark_as_workflow_time()
+
+    net = create_petri_net(
+        case,
+        [
+            [
+                Place.create(id=se_id),
+                and_split,
+                Place.create(id=create_silent_node_name(and_split.id, task_1)),
+                Transition.create(id=task_1, name=task_1),
+                Place.create(
+                    id=create_silent_node_name(task_1, trigger_before_and_join_split)
+                ),
+                trigger_transition_split_join,
+                Place.create(
+                    id=create_silent_node_name(
+                        trigger_before_and_join_split, and_join_split.id
+                    )
+                ),
+                and_join_split,
+                Place.create(id=create_silent_node_name(and_join_split.id, task_2)),
+                Transition.create(id=task_2, name=task_2),
+                Place.create(
+                    id=create_silent_node_name(task_2, trigger_before_and_join)
+                ),
+                trigger_transition_join,
+                Place.create(
+                    id=create_silent_node_name(trigger_before_and_join, and_join.id)
+                ),
+                and_join,
+                Place.create(id=ee_id),
+            ],
+            [
+                and_split,
+                Place.create(id=create_silent_node_name(and_split.id, task_11)),
+                Transition.create(id=task_11, name=task_11),
+                Place.create(id=create_silent_node_name(task_11, and_join_split.id)),
+                and_join_split,
+            ],
+            [
+                and_join_split,
+                Place.create(id=create_silent_node_name(and_join_split.id, task_22)),
+                Transition.create(id=task_22, name=task_22),
+                Place.create(id=create_silent_node_name(task_22, and_join.id)),
+                and_join,
+            ],
+        ],
+    )
+    return bpmn, net, case
+
+
 def gateway_exclusive_join_split():
     """Return a BPMN and the expected workflow net for an with XOR gates."""
     case = "exclusive_workflow_elements"
@@ -548,6 +667,7 @@ def subprocess():
 
 
 supported_cases_workflow_bpmn: list[tuple[BPMN, Pnml, str]] = [
+    gateway_parallel_join_split_with_events(),
     sequential_message_event(),
     sequential_time_event(),
     subprocess(),

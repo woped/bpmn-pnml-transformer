@@ -43,12 +43,12 @@ class WorkflowOperatorWrapper(BaseModel):
     all_arcs: set[Arc] = Field(default_factory=set)
 
     def get_toolspecific(self):
-        """Get the toolspecific imformation of a random transition node."""
+        """Get the toolspecific imformation of the first transition node."""
         for node in self.nodes:
             if not isinstance(node, Transition):
                 continue
             if not node.toolspecific:
-                raise Exception("Should not happen.")
+                continue
             return node.toolspecific
         raise Exception("Should not happen.")
 
