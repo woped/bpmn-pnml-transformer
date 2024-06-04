@@ -18,6 +18,7 @@ from transformer.models.pnml.transform_helper import (
 )
 from transformer.transform_petrinet_to_bpmn.preprocess_pnml import (
     dangling_transition,
+    event_trigger,
     preprocess_workflow_operators,
     split_and_gw_with_name,
 )
@@ -146,6 +147,7 @@ def apply_preprocessing(net: Net, funcs: list[Callable[[Net], None]]):
 def pnml_to_bpmn(pnml: Pnml):
     """Process and transform a petri net to bpmn."""
     net = pnml.net
+    # TODO: validate each subprocess has the same resources
 
     apply_preprocessing(
         net,
@@ -153,6 +155,7 @@ def pnml_to_bpmn(pnml: Pnml):
             dangling_transition.add_places_at_dangling_transitions,
             preprocess_workflow_operators.handle_workflow_operators,
             split_and_gw_with_name.split_and_gw_with_name,
+            event_trigger.split_event_triggers,
         ],
     )
 

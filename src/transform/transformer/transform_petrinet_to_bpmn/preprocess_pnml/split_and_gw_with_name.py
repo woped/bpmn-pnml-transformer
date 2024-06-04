@@ -22,7 +22,10 @@ def handle_gateway_creation(and_gateway: Transition):
 
 
 def handle_split(net: Net, and_gateway: Transition):
-    """Split into a gateway and explicit task."""
+    """Split into a gateway and explicit task.
+
+    This function also looks at possible Toolspecific annotations.
+    """
     incoming_arcs = net.get_incoming_and_remove_arcs(and_gateway)
 
     explicit_transition = handle_gateway_creation(and_gateway)
@@ -35,7 +38,10 @@ def handle_split(net: Net, and_gateway: Transition):
 
 
 def handle_join(net: Net, and_gateway: Transition):
-    """Split into a gateway and explicit task."""
+    """Split into a gateway and explicit task.
+
+    This function also looks at possible Toolspecific annotations.
+    """
     outgoing_arcs = net.get_outgoing_and_remove_arcs(and_gateway)
 
     explicit_transition = handle_gateway_creation(and_gateway)
@@ -48,7 +54,10 @@ def handle_join(net: Net, and_gateway: Transition):
 
 
 def handle_join_split(net: Net, and_gateway: Transition):
-    """Split into two gateways and explicit task."""
+    """Split into two gateways and explicit task.
+
+    This function also looks at possible Toolspecific annotations.
+    """
     outgoing_arcs = net.get_outgoing_and_remove_arcs(and_gateway)
 
     explicit_transition = handle_gateway_creation(and_gateway)
@@ -70,7 +79,10 @@ def handle_join_split(net: Net, and_gateway: Transition):
 
 
 def split_and_gw_with_name(net: Net):
-    """Split a AND transition with a name into the gateways and explicit task."""
+    """Split a AND transition with a name into the gateways and explicit task.
+
+    This function also looks at possible Toolspecific annotations.
+    """
     and_gateways = [
         t
         for t in net.transitions
