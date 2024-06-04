@@ -20,8 +20,6 @@ class BPMNNamespace(
 ):
     """Extension of BaseBPMNModel with namespace bpmn and namespace map."""
 
-    pass
-
 
 class GenericIdNode(BPMNNamespace):
     """Extension of BPMNNamespace with id attribute and hash method."""
@@ -61,8 +59,6 @@ class GenericBPMNNode(GenericIdNode):
 
 class Gateway(GenericBPMNNode):
     """Gateway extension of BPMN node."""
-
-    pass
 
 
 class NotSupportedNode(GenericBPMNNode):

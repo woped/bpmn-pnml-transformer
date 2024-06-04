@@ -83,8 +83,6 @@ class Toolspecific(BaseModel, tag="toolspecific"):
 class GenericNetNode(GenericNetIDNode):
     """Generic NetNode extension of net id node."""
 
-    pass
-
 
 class NetElement(GenericNetNode):
     """NetElement extension of GenericNetNode (+name, graphics, toolspecific)."""
