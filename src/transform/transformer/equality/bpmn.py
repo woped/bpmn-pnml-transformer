@@ -14,7 +14,10 @@ def bpmn_element_to_comp_value(e: GenericBPMNNode | Flow):
     """Returns a concatenation of a by in/source and out/target comparable BPMN node."""
     if isinstance(e, LaneSet):
         return to_comp_string(
-            [(lane.name, sorted(lane.flowNodeRefs)) for lane in e.lanes]
+            [
+                (lane.name, sorted(lane.flowNodeRefs))
+                for lane in sorted(e.lanes, key=lambda x: x.id)
+            ]
         )
     elif isinstance(e, GenericBPMNNode):
         return to_comp_string(e.id, e.name, sorted(e.outgoing), sorted(e.incoming))
