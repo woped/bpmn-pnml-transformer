@@ -475,7 +475,30 @@ class BPMN(BPMNNamespace, tag="definitions"):
         """Define graphical representation of this instance."""
         d = BPMNDiagram(id="diagram1")
         bpmn = self.process
-        p = BPMNPlane(id=f"plane{bpmn.id}", bpmnElement=bpmn.id)
+        plane_id = bpmn.id
+        if self.collaboration:
+            plane_id = self.collaboration.id
+        p = BPMNPlane(id=f"plane{bpmn.id}", bpmnElement=plane_id)
+
+        if self.collaboration and self.collaboration.participant:
+            p.eles.append(
+                BPMNShape(
+                    id="Participant_id",
+                    bpmnElement=self.collaboration.participant.id,
+                    bounds=DCBounds(width=600, height=500),
+                )
+            )
+        if bpmn.lane_sets:
+            for lane_set in bpmn.lane_sets:
+                for lane in lane_set.lanes:
+                    p.eles.append(
+                        BPMNShape(
+                            id=f"{lane.id}_di",
+                            bpmnElement=lane.id,
+                            bounds=DCBounds(width=600, height=200),
+                        )
+                    )
+
         for flow in bpmn.flows:
             p.eles.append(
                 BPMNEdge(
