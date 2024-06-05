@@ -267,11 +267,16 @@ def annotate_resources(net: Net, bpmn: BPMN):
     for node_refs in role_map.values():
         handled_nodes.update(node_refs)
 
-    # Add all elements without a role annotation to a Unkown lane
+    # If no resources were found creation of pool not necessary
+    if len(handled_nodes) == 0:
+        return
 
+    # Add all elements without a role annotation to a Unkown lane
     all_net_elements = net._flatten_node_typ_map()
     all_net_ids = {node.id for node in all_net_elements}
-    unhandled_ids = all_net_ids.difference(handled_nodes)
+    unhandled_ids = all_net_ids.difference(handled_nodes).intersection(
+        [node.id for node in bpmn.process._flatten_node_typ_map()]
+    )
     UNKOWN_LANE = "Unkown participant"
     role_map[UNKOWN_LANE] = list(unhandled_ids)
 

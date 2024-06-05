@@ -1,15 +1,15 @@
 """Methods to compare petri nets by comparing all nodes of all subprocesses."""
-from typing import cast
 
 from transformer.equality.utils import create_type_dict, to_comp_string
-from transformer.models.pnml.base import NetElement
+from transformer.models.pnml.base import NetElement, ToolspecificGlobal
 from transformer.models.pnml.pnml import Arc, Net
 
 
 def petri_net_element_to_comp_value(e: NetElement | Arc):
     """Returns a comparable concatenation of a petri net element."""
-    if issubclass(type(e), NetElement):
-        e = cast(NetElement, e)
+    if isinstance(e, ToolspecificGlobal):
+        return to_comp_string(e.resources)
+    elif isinstance(e, NetElement):
         return to_comp_string(e.id, e.name, e.toolspecific)
     elif isinstance(e, Arc):
         return to_comp_string(e.source, e.target, e.toolspecific)

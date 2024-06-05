@@ -137,7 +137,6 @@ def subprocess_pool():
                             [
                                 se_id,
                                 ee_id,
-                                create_silent_node_name(subprocess_id, task_lane_2_id),
                             ]
                         ),
                     ),
@@ -212,16 +211,12 @@ def simple_pool():
             id="ls",
             lanes=set(
                 [
-                    Lane(
-                        id=lane_1, name=lane_1, flowNodeRefs=set([se_id, task_lane_1_id])
-                    ),
-                    Lane(
-                        id=lane_2, name=lane_2, flowNodeRefs=set([task_lane_2_id, ee_id])
-                    ),
+                    Lane(id=lane_1, name=lane_1, flowNodeRefs=set([task_lane_1_id])),
+                    Lane(id=lane_2, name=lane_2, flowNodeRefs=set([task_lane_2_id])),
                     Lane(
                         id="Unkown participant",
                         name="Unkown participant",
-                        flowNodeRefs=set([task]),
+                        flowNodeRefs=set([task, se_id, ee_id]),
                     ),
                 ]
             ),

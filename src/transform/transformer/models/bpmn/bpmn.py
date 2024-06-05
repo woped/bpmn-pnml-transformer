@@ -274,6 +274,10 @@ class Process(GenericBPMNNode):
         """Return a node by id."""
         return self._temp_nodes[id]
 
+    def is_node_existing(self, id: str):
+        """Returns whether node with a id is existing in process."""
+        return id in self._temp_nodes
+
     def change_node_id(self, node: GenericBPMNNode, new_id: str):
         """Change node id and update connected flows."""
         incoming_flows = self._temp_node_id_to_incoming.get(node.id, [])
