@@ -2,6 +2,11 @@
 
 from pydantic_xml import attr, element
 
+from transformer.models.pnml.graphics import (
+    Coordinates,
+    OffsetGraphics,
+    PositionGraphics,
+)
 from transformer.models.pnml.workflow import (
     Operator,
     TransitionResource,
@@ -22,25 +27,10 @@ class GenericNetIDNode(BaseModel):
         return hash((type(self),) + (self.id,))
 
 
-class Coordinates(BaseModel):
-    """Coordinate extension of BaseModel (+x and y)."""
-
-    x: float = attr()
-    y: float = attr()
-
-
-class Graphics(BaseModel, tag="graphics"):
-    """Graphics extension of BaseModel (+offset, dimension, position)."""
-
-    offset: Coordinates | None = element("offset", default=None)
-    dimension: Coordinates | None = element("dimension", default=None)
-    position: Coordinates | None = element("position", default=None)
-
-
 class Name(BaseModel, tag="name"):
     """Name extension of BaseModel (+graphics, title)."""
 
-    graphics: Graphics | None = None
+    graphics: OffsetGraphics = element(default=OffsetGraphics())
     title: str | None = element(tag="text", default=None)
 
 
@@ -70,6 +60,16 @@ class ToolspecificGlobal(BaseModel, tag="toolspecific"):
     version: str = attr(default="1.0")
 
     resources: Resources | None = None
+    bounds: PositionGraphics = element(tag="bounds", default=PositionGraphics())
+    scale: str = element(tag="scale", default="100")
+    treeWidthRight: str = element(tag="treeWidthRight", default="748")
+    overviewPanelVisible: str = element(tag="overviewPanelVisible", default="true")
+    treeHeightOverview: str = element(tag="treeHeightOverview", default="100")
+    treePanelVisible: str = element(tag="treePanelVisible", default="true")
+    verticalLayout: str = element(tag="verticalLayout", default="false")
+    simulations: str = element(tag="simulations", default=None)
+    partnerLinks: str = element(tag="partnerLinks", default=None)
+    variables: str = element(tag="variables", default=None)
 
 
 class Toolspecific(BaseModel, tag="toolspecific"):
@@ -144,7 +144,7 @@ class NetElement(GenericNetNode):
     """NetElement extension of GenericNetNode (+name, graphics, toolspecific)."""
 
     name: Name | None = None
-    graphics: Graphics | None = None
+    graphics: PositionGraphics | None = None
     toolspecific: Toolspecific | None = None
 
     def __hash__(self):
@@ -256,4 +256,4 @@ class Inscription(BaseModel, tag="inscription"):
     """Inscription extension of BaseModel (+text, graphics)."""
 
     text: str = element(tag="text")
-    graphics: Graphics
+    graphics: OffsetGraphics

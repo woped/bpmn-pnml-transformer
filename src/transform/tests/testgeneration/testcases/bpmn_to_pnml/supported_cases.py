@@ -17,6 +17,8 @@ from transformer.models.bpmn.bpmn import (
 from transformer.models.pnml.pnml import Place, Pnml, Transition
 from transformer.utility.utility import create_silent_node_name
 
+# TODO: trigger+usertasks
+
 
 def start_end():
     """Returns a simple bpmn and the according petri net for a start-end scenario."""

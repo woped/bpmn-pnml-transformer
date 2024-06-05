@@ -8,13 +8,13 @@ from pydantic_xml import attr, element
 
 from transformer.models.pnml.base import (
     GenericNetNode,
-    Graphics,
     Inscription,
     Name,
     NetElement,
     Toolspecific,
     ToolspecificGlobal,
 )
+from transformer.models.pnml.graphics import OffsetGraphics
 from transformer.models.pnml.transform_helper import (
     ANDHelperPNML,
     HelperPNMLElement,
@@ -54,7 +54,7 @@ class Arc(BaseModel, tag="arc"):
     source: str = attr()
     target: str = attr()
     inscription: Inscription | None = element(default=None)
-    graphics: Graphics | None = element(default=None)
+    graphics: OffsetGraphics | None = element(default=None)
     toolspecific: Toolspecific | None = element(default=None)
 
     def __hash__(self):
