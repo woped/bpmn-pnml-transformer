@@ -24,8 +24,10 @@ from transformer.transform_petrinet_to_bpmn.preprocess_pnml import (
     workflow_operators,
 )
 from transformer.transform_petrinet_to_bpmn.workflow_helper import (
+    annotate_resources,
     find_workflow_subprocesses,
     handle_event_triggers,
+    handle_resource_transitions,
     handle_workflow_operators,
     handle_workflow_subprocesses,
 )
@@ -94,6 +96,16 @@ def transform_petrinet_to_bpmn(net: Net):
         if isinstance(elem, TriggerHelperPNML)
     ]
 
+    # Only transitions could be  be mapped to usertasks
+    to_handle_temp_resources = [
+        transition
+        for transition in transitions
+        if transition.is_workflow_resource()
+        and net.get_in_degree(transition) <= 1
+        and net.get_out_degree(transition) <= 1
+    ]
+    transitions.difference_update(to_handle_temp_resources)
+
     # handle normal places
     for place in places:
         in_degree, out_degree = net.get_in_degree(place), net.get_out_degree(place)
@@ -120,6 +132,7 @@ def transform_petrinet_to_bpmn(net: Net):
             bpmn.add_node(AndGateway(id=transition.id, name=transition.get_name()))
 
     # handle workflow specific elements
+    handle_resource_transitions(bpmn, to_handle_temp_resources)
     handle_workflow_operators(bpmn, to_handle_temp_gateways)
     handle_event_triggers(bpmn, to_handle_temp_triggers)
     handle_workflow_subprocesses(
@@ -155,7 +168,6 @@ def apply_preprocessing(net: Net, funcs: list[Callable[[Net], None]]):
 def pnml_to_bpmn(pnml: Pnml):
     """Process and transform a petri net to bpmn."""
     net = pnml.net
-    # TODO: validate each subprocess has the same resources
 
     apply_preprocessing(
         net,
@@ -166,5 +178,6 @@ def pnml_to_bpmn(pnml: Pnml):
             event_trigger.split_event_triggers,
         ],
     )
-
-    return transform_petrinet_to_bpmn(net)
+    bpmn = transform_petrinet_to_bpmn(net)
+    annotate_resources(net, bpmn)
+    return bpmn
