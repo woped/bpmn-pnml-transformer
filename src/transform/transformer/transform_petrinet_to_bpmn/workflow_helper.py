@@ -27,6 +27,9 @@ from transformer.models.pnml.transform_helper import (
     XORHelperPNML,
 )
 from transformer.models.pnml.workflow import WorkflowBranchingType
+from transformer.utility.pnml import (
+    generate_subprocess_inner_id,
+)
 
 
 class WorkflowOperatorWrapper(BaseModel):
@@ -154,6 +157,14 @@ def handle_workflow_subprocesses(
                 "currently source/sink in subprocess must have no incoming/outgoing arcs"
                 " to convert to BPMN Start and Endevents"
             )
+
+        # Rename inner start and end event because bpmn wont allow same duplicated IDs
+        page_net.change_id(
+            inner_source_id.id, generate_subprocess_inner_id(inner_source_id.id)
+        )
+        page_net.change_id(
+            inner_sink_id.id, generate_subprocess_inner_id(inner_sink_id.id)
+        )
 
         inner_bpmn = caller_func(page_net).process
         inner_bpmn.id = sb_id

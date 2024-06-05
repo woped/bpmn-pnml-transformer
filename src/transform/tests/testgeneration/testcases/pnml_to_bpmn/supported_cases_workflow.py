@@ -92,9 +92,11 @@ def subprocess_pool():
         "temp",
         [
             [
-                StartEvent(id=se_id),
+                StartEvent(id="SB_" + se_id),
                 UserTask(id=sb_t_id),
-                EndEvent(id=create_silent_node_name(subprocess_id, task_lane_2_id)),
+                EndEvent(
+                    id="SB_" + create_silent_node_name(subprocess_id, task_lane_2_id)
+                ),
             ]
         ],
     )
@@ -1519,7 +1521,13 @@ def subprocess():
 
     sub_bpmn = create_bpmn(
         "temp",
-        [[StartEvent(id=se_id), Task(id=sb_t_id, name=sb_t_id), EndEvent(id=ee_id)]],
+        [
+            [
+                StartEvent(id="SB_" + se_id),
+                Task(id=sb_t_id, name=sb_t_id),
+                EndEvent(id="SB_" + ee_id),
+            ]
+        ],
     )
     sub_bpmn.process.id = subprocess_id
     sub_bpmn.process.name = subprocess_name

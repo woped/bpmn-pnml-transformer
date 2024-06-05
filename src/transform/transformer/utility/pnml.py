@@ -4,6 +4,11 @@ from transformer.models.pnml.base import NetElement
 from transformer.models.pnml.pnml import Net
 
 
+def generate_subprocess_inner_id(id: str):
+    """Prepend SB_ to the id."""
+    return f"SB_{id}"
+
+
 def generate_explicit_transition_id(id: str):
     """Prepend EXPLICIT to the id."""
     return f"EXPLICIT{id}"

@@ -279,12 +279,26 @@ class Net(BaseModel, tag="net"):
         storage_set.remove(to_remove_node)
 
         self._temp_elements.pop(to_remove_node.id)
-        incoming = self._temp_node_id_to_incoming.pop(to_remove_node.id)
-        outgoing = self._temp_node_id_to_outgoing.pop(to_remove_node.id)
+        incoming = self._temp_node_id_to_incoming.pop(to_remove_node.id, set())
+        outgoing = self._temp_node_id_to_outgoing.pop(to_remove_node.id, set())
         for arc in incoming:
             arc.target = ""
         for arc in outgoing:
             arc.source = ""
+
+    def change_id(self, old_id: str, new_id: str):
+        """Change the ID of a existing node and the connecting arcs."""
+        if old_id not in self._temp_elements:
+            raise Exception("old element not exisiting")
+        if new_id in self._temp_elements:
+            raise Exception("new id already exists")
+        current_node = self._temp_elements[old_id]
+        incoming, outgoing = self.get_incoming_outgoing_and_remove_arcs(current_node)
+        self.remove_element(current_node)
+        current_node.id = new_id
+        self.add_element(current_node)
+        self.connect_to_element(current_node, incoming)
+        self.connect_from_element(current_node, outgoing)
 
     def remove_element_with_connecting_arcs(self, to_remove_node: GenericNetNode):
         """Remove element by instance and connecting arcs."""
