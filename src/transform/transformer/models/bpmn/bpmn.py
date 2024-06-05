@@ -49,6 +49,7 @@ supported_elements = {
     "process",
     "incoming",
     "outgoing",
+    "flownoderef",
     # Graphics related
     "bpmnlabel",
     "waypoint",
