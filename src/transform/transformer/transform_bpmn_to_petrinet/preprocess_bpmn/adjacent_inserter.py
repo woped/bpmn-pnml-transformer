@@ -1,7 +1,8 @@
 """Insert GenericBPMNNodes."""
 
 from transformer.models.bpmn.base import Gateway, GenericBPMNNode
-from transformer.models.bpmn.bpmn import Flow, Process
+from transformer.models.bpmn.bpmn import EndEvent, Process, StartEvent
+from transformer.utility.utility import create_silent_node_name
 
 
 def is_target_wf_transition(node):
@@ -9,12 +10,17 @@ def is_target_wf_transition(node):
     return isinstance(node, Process | Gateway)
 
 
+def is_place_like(node):
+    """BPMN node will be transformed to a place."""
+    return type(node) == GenericBPMNNode or isinstance(node, StartEvent | EndEvent)
+
+
 def insert_temp_between_adjacent_mapped_transition(bpmn: Process):
     """Add helper Nodes.
 
-    Adjacent BPMN Elements that will be transformed to transitions will break
-    workflow elements.
-    As a solution GenericBPMNNodes are inserted between them.
+    Certain adjacent BPMN Elements that will be transformed to transitions can break
+    the transformation if they are adjacent to other workflow elements.
+    As a solution GenericBPMNNodes are inserted around each critical element.
     They will be transformed to Places as part of the transformation.
     """
     nodes = bpmn._flatten_node_typ_map()
@@ -22,16 +28,37 @@ def insert_temp_between_adjacent_mapped_transition(bpmn: Process):
         if not is_target_wf_transition(node):
             continue
 
-        out_nodes: list[tuple[GenericBPMNNode, Flow]] = [
-            (bpmn.get_node(x.targetRef), x) for x in bpmn.get_outgoing(node.id)
-        ]
-
-        for out_node, out_flow in out_nodes:
-            if not is_target_wf_transition(out_node):
+        for incoming_flow in bpmn.get_incoming(node.id).copy():
+            incoming_node = bpmn.get_node(incoming_flow.sourceRef)
+            # Connected node is already place like
+            if is_place_like(incoming_node):
                 continue
-            bpmn.remove_flow(out_flow)
 
-            linking_node = GenericBPMNNode(id=node.id + out_node.id)
+            linking_node = GenericBPMNNode(
+                id=create_silent_node_name(incoming_node.id, node.id)
+            )
+
+            bpmn.remove_flow(incoming_flow)
+
+            bpmn.add_node(linking_node)
+            bpmn.add_flow(incoming_node, linking_node)
+            bpmn.add_flow(linking_node, node)
+
+        for outgoing_flow in bpmn.get_outgoing(node.id).copy():
+            outgoing_node = bpmn.get_node(outgoing_flow.targetRef)
+            # Connected node is already place like
+            if is_place_like(outgoing_node):
+                continue
+
+            linking_node = GenericBPMNNode(
+                id=create_silent_node_name(node.id, outgoing_node.id)
+            )
+
+            bpmn.remove_flow(outgoing_flow)
+
             bpmn.add_node(linking_node)
             bpmn.add_flow(node, linking_node)
-            bpmn.add_flow(linking_node, out_node)
+            bpmn.add_flow(
+                linking_node,
+                outgoing_node,
+            )

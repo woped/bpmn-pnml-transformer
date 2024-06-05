@@ -165,25 +165,6 @@ type_map = {
 }
 
 
-def handle_triggers(net: Net, bpmn: Process, triggers: list[IntermediateCatchEvent]):
-    """Handle time and message related intermediate events (triggers)."""
-    for trigger in triggers:
-        if trigger.is_time():
-            net.add_element(
-                Transition.create(
-                    id=trigger.id, name=trigger.name
-                ).mark_as_workflow_time()
-            )
-        elif trigger.is_message:
-            net.add_element(
-                Transition.create(
-                    id=trigger.id, name=trigger.name
-                ).mark_as_workflow_message()
-            )
-        else:
-            raise Exception("Wrong intermediate event type used!")
-
-
 def handle_gateways(net: Net, bpmn: Process, gateways: list[Gateway]):
     """Handle gateway transformation to workflow operators."""
     for gateway in gateways:
@@ -209,6 +190,10 @@ def handle_gateway(net: Net, bpmn: Process, node: GenericBPMNNode):
     net_targets = sorted(
         [cast(NetElement, net.get_element(x)) for x in target_ids], key=lambda x: x.id
     )
+
+    if not node.name:
+        node.name = ""
+
     # split
     if in_degree == 1:
         f_split(
@@ -224,6 +209,25 @@ def handle_gateway(net: Net, bpmn: Process, node: GenericBPMNNode):
     # split and join
     else:
         f_split_join(net, net_sources, net_targets, node.id, node.name)
+
+
+def handle_triggers(net: Net, bpmn: Process, triggers: list[IntermediateCatchEvent]):
+    """Handle time and message related intermediate events (triggers)."""
+    for trigger in triggers:
+        if trigger.is_time():
+            net.add_element(
+                Transition.create(
+                    id=trigger.id, name=trigger.name
+                ).mark_as_workflow_time()
+            )
+        elif trigger.is_message:
+            net.add_element(
+                Transition.create(
+                    id=trigger.id, name=trigger.name
+                ).mark_as_workflow_message()
+            )
+        else:
+            raise Exception("Wrong intermediate event type used!")
 
 
 def handle_subprocesses(
