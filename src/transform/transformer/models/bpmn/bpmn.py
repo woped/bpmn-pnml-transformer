@@ -27,26 +27,47 @@ from transformer.models.bpmn.bpmn_graphics import (
 from transformer.models.bpmn.not_supported_models import CatchEvent, ThrowEvent
 from transformer.utility.utility import create_arc_name, get_tag_name
 
-# TODO: change transformation for removed elements
-not_supported_elements = {
-    # custom element
-    "extensionelements",
-    # gateways
-    "complexgateway",
-    "eventbasedgateway",
-    # tasks
-    "sendtask",
-    "receivetask",
-    "manualtask",
-    "businessruletask",
-    "scripttask",
-    "callactivity",
-    # events
-    # https://www.omg.org/spec/BPMN/2.0/PDF P. 425
-    "intermediatethrowevent",
-    "normalintermediatethrowevent",
-    "boundaryevent",
+supported_elements = {
+    "exclusiveGateway",
+    "parallelGateway",
+    "inclusiveGateway",
+    "startEvent",
+    "endEvent",
+    "messageEventDefinition",
+    "timerEventDefinition",
+    "intermediateCatchEvent",
+    "participant",
+    "collaboration",
+    "lane",
+    "laneSet",
+    "task",
+    "userTask",
+    "serviceTask",
+    "sequenceFlow",
+    "subProcess",
+    "definitions",
+    "process",
+    "incoming",
+    "outgoing",
+    # Graphics related
+    "bpmnlabel",
+    "waypoint",
+    "bpmnshape",
+    "bounds",
+    "bpmnplane",
+    "bpmnedge",
+    "bpmndiagram",
 }
+
+ignored_elements = {
+    "dataStoreReference",
+    "dataObjectReference",
+    "dataObject",
+    "category",
+    "textAnnotation",
+}
+
+supported_tags = {e.lower() for e in {*supported_elements, *ignored_elements}}
 
 
 # Gateways
@@ -443,10 +464,10 @@ class BPMN(BPMNNamespace, tag="definitions"):
         used_tags: set[str] = set()
         for elem in tree.iter():
             used_tags.add(get_tag_name(elem))
-        shared_tags = used_tags.intersection(not_supported_elements)
-        if len(shared_tags) > 0:
+        unhandled_tags = used_tags.difference(supported_tags)
+        if len(unhandled_tags) > 0:
             raise NotSupportedBPMNElement(
-                "The following tags are not supported: ", shared_tags
+                "The following tags are currently not supported: ", unhandled_tags
             )
         return BPMN.from_xml_tree(tree)
 
