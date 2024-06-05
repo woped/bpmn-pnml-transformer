@@ -16,8 +16,10 @@ from transformer.models.bpmn.bpmn import (
     Lane,
     LaneSet,
     Participant,
+    ServiceTask,
     StartEvent,
     Task,
+    UserTask,
     XorGateway,
 )
 from transformer.models.pnml.base import (
@@ -31,12 +33,117 @@ from transformer.models.pnml.workflow import WorkflowBranchingType
 from transformer.utility.utility import create_silent_node_name
 
 
+def subprocess_pool():
+    """Return a BPMN and the expected petri net with a pool and a subprocess."""
+    case = "subprocess_pool"
+    se_id = "elem_1"
+    task_lane_2_id = "task_lane_2"
+    ee_id = "elem_2"
+
+    lane_1 = "lane1"
+    lane_2 = "lane2"
+    orga = "orga"
+
+    subprocess_id = "elem_3"
+    subprocess_name = "subprocess"
+    sb_se_id = "elem_sb_1"
+    sb_ee_id = "elem_sb_2"
+    sb_t_id = "elem_sb_3"
+
+    sb_se_id = "elem_sb_1"
+    sb_ee_id = "elem_sb_2"
+    sb_t_id = "elem_sb_3"
+
+    sub_bpmn = create_bpmn(
+        "temp", [[StartEvent(id=sb_se_id), UserTask(id=sb_t_id), EndEvent(id=sb_ee_id)]]
+    )
+    sub_bpmn.process.id = subprocess_id
+    sub_bpmn.process.name = subprocess_name
+
+    bpmn = create_bpmn(
+        case,
+        [
+            [
+                StartEvent(id=se_id),
+                sub_bpmn.process,
+                UserTask(id=task_lane_2_id),
+                EndEvent(id=ee_id),
+            ]
+        ],
+    )
+
+    bpmn.collaboration = Collaboration(
+        id="x",
+        participant=Participant(id="xo", name=orga, processRef=bpmn.process.name or ""),
+    )
+    bpmn.process.lane_sets.add(
+        LaneSet(
+            id="ls",
+            lanes=set(
+                [
+                    Lane(
+                        id=lane_1,
+                        name=lane_1,
+                        flowNodeRefs=set([se_id, subprocess_id]),
+                    ),
+                    Lane(
+                        id=lane_2, name=lane_2, flowNodeRefs=set([task_lane_2_id, ee_id])
+                    ),
+                ]
+            ),
+        )
+    )
+    net = create_petri_net(
+        case,
+        [
+            [
+                Place.create(id=se_id),
+                Transition.create(
+                    subprocess_id, subprocess_name
+                ).mark_as_workflow_subprocess(),
+                Place.create(id=create_silent_node_name(subprocess_id, task_lane_2_id)),
+                Transition.create(id=task_lane_2_id).mark_as_workflow_resource(
+                    lane_2, orga
+                ),
+                Place.create(id=ee_id),
+            ],
+        ],
+    )
+    net.net.toolspecific_global = ToolspecificGlobal(
+        resources=Resources(
+            roles=[
+                Role(name=lane_1),
+                Role(name=lane_2),
+            ],
+            units=[OrganizationUnit(name=orga)],
+        )
+    )
+    net_page = Page(
+        id=subprocess_id,
+        net=create_petri_net(
+            "",
+            [
+                [
+                    Place(id=se_id),
+                    Transition(id=sb_t_id).mark_as_workflow_resource(lane_1, orga),
+                    Place(id=create_silent_node_name(subprocess_id, task_lane_2_id)),
+                ]
+            ],
+        ).net,
+    )
+    net_page.net.id = None
+    net.net.add_page(net_page)
+
+    return bpmn, net, case
+
+
 def simple_pool():
     """Return a BPMN and the expected petri net with a pool with 2 lanes."""
     case = "simple_pool"
     se_id = "elem_1"
     task_lane_1_id = "task_lane_1"
     task_lane_2_id = "task_lane_2"
+    service_task = "service_task"
     ee_id = "elem_2"
 
     lane_1 = "lane1"
@@ -48,8 +155,9 @@ def simple_pool():
         [
             [
                 StartEvent(id=se_id),
-                Task(id=task_lane_1_id),
-                Task(id=task_lane_2_id),
+                UserTask(id=task_lane_1_id),
+                ServiceTask(id=service_task, name=service_task),
+                UserTask(id=task_lane_2_id),
                 EndEvent(id=ee_id),
             ]
         ],
@@ -82,7 +190,9 @@ def simple_pool():
                 Transition.create(id=task_lane_1_id).mark_as_workflow_resource(
                     lane_1, orga
                 ),
-                Place.create(id=create_silent_node_name(task_lane_1_id, task_lane_2_id)),
+                Place.create(id=create_silent_node_name(task_lane_1_id, service_task)),
+                Transition.create(id=service_task, name=service_task),
+                Place.create(id=create_silent_node_name(service_task, task_lane_2_id)),
                 Transition.create(id=task_lane_2_id).mark_as_workflow_resource(
                     lane_2, orga
                 ),
@@ -748,6 +858,7 @@ def subprocess():
 
 
 supported_cases_workflow_bpmn: list[tuple[BPMN, Pnml, str]] = [
+    subprocess_pool(),
     simple_pool(),
     gateway_parallel_join_split_with_events(),
     sequential_message_event(),

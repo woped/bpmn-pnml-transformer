@@ -8,6 +8,7 @@ from transformer.models.bpmn.bpmn import (
     AndGateway,
     IntermediateCatchEvent,
     Process,
+    UserTask,
     XorGateway,
 )
 from transformer.models.pnml.base import NetElement
@@ -229,7 +230,8 @@ def handle_subprocesses(
     net: Net,
     bpmn: Process,
     subprocesses: list[Process],
-    caller_func: Callable[[Process, bool], Pnml],
+    organization: str,
+    caller_func: Callable[[Process, bool, str], Pnml],
 ):
     """Transform a BPMN subprocess to workflow subprocess."""
     for subprocess in subprocesses:
@@ -267,21 +269,25 @@ def handle_subprocesses(
         subprocess.change_node_id(sub_ee, outer_out_id)
 
         # transform inner subprocess
-        inner_net = caller_func(subprocess, True).net
+        inner_net = caller_func(subprocess, True, organization).net
         inner_net.id = None
 
         net.add_page(Page(id=subprocess.id, net=inner_net))
 
 
 def handle_resource_annotations(
-    transitions: set[Transition], participant_mapping: dict[str, str], orga: str
+    net: Net,
+    user_tasks: list[UserTask],
+    participant_mapping: dict[str, str],
+    orga: str,
 ):
     """Handle the annotation of the transformed transitions from usertasks."""
     if len(participant_mapping) == 0:
         return
 
-    for transition in transitions:
-        if transition.id not in participant_mapping:
+    for user_task in user_tasks:
+        if user_task.id not in participant_mapping:
             continue
-
-        transition.mark_as_workflow_resource(participant_mapping[transition.id], orga)
+        net.get_element(user_task.id).mark_as_workflow_resource(
+            participant_mapping[user_task.id], orga
+        )

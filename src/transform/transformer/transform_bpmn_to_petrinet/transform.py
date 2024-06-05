@@ -12,6 +12,7 @@ from transformer.models.bpmn.bpmn import (
     OrGateway,
     Process,
     StartEvent,
+    UserTask,
     XorGateway,
 )
 from transformer.models.pnml.pnml import Net, Place, Pnml, Transition
@@ -69,8 +70,8 @@ def merge_single_triggers(net: Net):
 
         target = net.get_element(list(net.get_outgoing(connecting_place.id))[0].target)
 
-        # Cant override existing trigger (event or resource)
-        if target.is_workflow_trigger():
+        # Cant merge with existing trigger (event or resource) or subprocess
+        if target.is_workflow_trigger() or target.is_workflow_subprocess():
             continue
 
         # not clear how to merge the target if it is a join itself
@@ -102,6 +103,7 @@ def transform_bpmn_to_petrinet(
 
     # find workflow specific nodes
     to_handle_gateways: list[Gateway] = []
+    to_handle_user_tasks: list[UserTask] = []
     to_handle_subprocesses: list[Process] = []
     to_handle_triggers: list[IntermediateCatchEvent] = []
 
@@ -113,6 +115,8 @@ def transform_bpmn_to_petrinet(
                 to_handle_gateways.append(node)
             elif isinstance(node, IntermediateCatchEvent):
                 to_handle_triggers.append(node)
+            elif isinstance(node, UserTask):
+                to_handle_user_tasks.append(node)
         nodes = nodes.difference(
             to_handle_gateways, to_handle_subprocesses, to_handle_triggers
         )
@@ -142,12 +146,12 @@ def transform_bpmn_to_petrinet(
     # handle workflow specific nodes
     if is_workflow_net:
         handle_subprocesses(
-            net, bpmn, to_handle_subprocesses, transform_bpmn_to_petrinet
+            net, bpmn, to_handle_subprocesses, organization, transform_bpmn_to_petrinet
         )
         handle_triggers(net, bpmn, to_handle_triggers)
         handle_gateways(net, bpmn, to_handle_gateways)
         handle_resource_annotations(
-            net.transitions, bpmn.participant_mapping, organization
+            net, to_handle_user_tasks, bpmn.participant_mapping, organization
         )
 
     # handle remaining flows
