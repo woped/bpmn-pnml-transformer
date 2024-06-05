@@ -33,7 +33,7 @@ class DCBounds(BaseBPMNModel, tag="Bounds", ns="dc", nsmap=ns_map):
     height: float = attr()
 
 
-class DIWaypoint(BaseBPMNModel, tag="waypoint", ns="bpmndi", nsmap=ns_map):
+class DIWaypoint(BaseBPMNModel, tag="waypoint", ns="di", nsmap=ns_map):
     """DIWaypoint extension of BaseBPMNModel with x and y xml attribute."""
 
     x: float = attr(default=0)

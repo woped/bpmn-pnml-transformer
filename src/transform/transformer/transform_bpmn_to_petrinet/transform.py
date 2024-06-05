@@ -151,7 +151,7 @@ def transform_bpmn_to_petrinet(
         handle_triggers(net, bpmn, to_handle_triggers)
         handle_gateways(net, bpmn, to_handle_gateways)
         handle_resource_annotations(
-            net, to_handle_user_tasks, bpmn.participant_mapping, organization
+            net, to_handle_user_tasks, bpmn._participant_mapping, organization
         )
 
     # handle remaining flows
@@ -216,7 +216,9 @@ def bpmn_to_workflow_net(bpmn: BPMN):
         else "Default"
     )
     pnml = transform_bpmn_to_petrinet(bpmn.process, True, organization_name)
-    set_global_toolspecifi(pnml.net, bpmn.process.participant_mapping, organization_name)
+    set_global_toolspecifi(
+        pnml.net, bpmn.process._participant_mapping, organization_name
+    )
     return pnml
 
 

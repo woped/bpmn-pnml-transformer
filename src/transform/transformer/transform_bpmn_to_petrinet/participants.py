@@ -14,7 +14,7 @@ def find_subprocess_participants(
     participant_mapping: dict[str, str], subprocess: Process, current_lane_name: str
 ):
     """Find each resource name per UserTask in the current and nested subprocesses."""
-    subprocess.participant_mapping = participant_mapping
+    subprocess._participant_mapping = participant_mapping
     for sb in subprocess.subprocesses:
         find_subprocess_participants(participant_mapping, sb, current_lane_name)
     for node in subprocess._flatten_node_typ_map():
@@ -48,7 +48,7 @@ def create_participant_mapping(bpmn: Process):
             reverse_participant_mapping, sb, reverse_participant_mapping[sb.id]
         )
 
-    bpmn.participant_mapping = reverse_participant_mapping
+    bpmn._participant_mapping = reverse_participant_mapping
 
 
 def set_global_toolspecifi(

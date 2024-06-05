@@ -24,7 +24,6 @@ from transformer.models.bpmn.bpmn_graphics import (
     DCBounds,
     DIWaypoint,
 )
-from transformer.models.bpmn.not_supported_models import CatchEvent, ThrowEvent
 from transformer.utility.utility import create_arc_name, get_tag_name
 
 supported_elements = {
@@ -187,9 +186,9 @@ class Flow(GenericIdNode, tag="sequenceFlow"):
 class Process(GenericBPMNNode):
     """Process extension of GenericBPMNNode."""
 
-    lane_sets: set[LaneSet] = element(default_factory=set)
+    isExecutable: bool = attr(default=False)
 
-    isExecutable: bool | None = attr(default=None)
+    lane_sets: set[LaneSet] = element(default_factory=set)
 
     start_events: set[StartEvent] = element(default_factory=set)
     end_events: set[EndEvent] = element(default_factory=set)
@@ -207,8 +206,6 @@ class Process(GenericBPMNNode):
 
     flows: set[Flow] = element(default_factory=set)
 
-    not_supported: list[ThrowEvent | CatchEvent] = element(default_factory=list)
-
     # internal helper structures
     _type_map: dict[type[GenericBPMNNode], set[GenericBPMNNode]] = PrivateAttr(
         default_factory=dict
@@ -221,7 +218,7 @@ class Process(GenericBPMNNode):
 
     # Holds the name of the ID of the usertask and participant (lane name)
     # Also holds the IDs of the usertasks within subprocesses
-    participant_mapping: dict[str, str] = {}
+    _participant_mapping: dict[str, str] = PrivateAttr(default_factory=dict)
 
     def __init__(self, **data):
         """Process instance constructor."""
@@ -513,6 +510,7 @@ class BPMN(BPMNNamespace, tag="definitions"):
         if bpmn.lane_sets:
             for lane_set in bpmn.lane_sets:
                 for lane in lane_set.lanes:
+                    lane.id = lane.id.replace(" ", "")
                     p.eles.append(
                         BPMNShape(
                             id=f"{lane.id}_di",

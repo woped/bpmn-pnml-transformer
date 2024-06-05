@@ -1,6 +1,6 @@
 """Module for finding start and end events in BPMN processes.
 
-This module provides utility functions to identify and return all start and end events 
+This module provides utility functions to identify and return all start and end events
 in a given BPMN process.
 """
 
