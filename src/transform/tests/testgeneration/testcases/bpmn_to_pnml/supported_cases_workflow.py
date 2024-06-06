@@ -137,6 +137,73 @@ def subprocess_pool():
     return bpmn, net, case
 
 
+def trigger_pool_combination():
+    """Return a BPMN and the expected petri net with a pool and trigger."""
+    case = "trigger_pool_combination"
+
+    se_id = "elem_1"
+    user_task_id = "user_task_1"
+    trigger_id = "trigger"
+    ee_id = "elem_2"
+
+    lane_1 = "lane1"
+    orga = "orga"
+
+    bpmn = create_bpmn(
+        case,
+        [
+            [
+                StartEvent(id=se_id),
+                IntermediateCatchEvent.create_time_event(trigger_id),
+                UserTask(id=user_task_id),
+                EndEvent(id=ee_id),
+            ]
+        ],
+    )
+
+    bpmn.collaboration = Collaboration(
+        id="x",
+        participant=Participant(id="xo", name=orga, processRef=bpmn.process.name or ""),
+    )
+    bpmn.process.lane_sets.add(
+        LaneSet(
+            id="ls",
+            lanes=set(
+                [
+                    Lane(
+                        id=lane_1,
+                        name=lane_1,
+                        flowNodeRefs=set([se_id, user_task_id, ee_id, trigger_id]),
+                    ),
+                ]
+            ),
+        )
+    )
+    net = create_petri_net(
+        case,
+        [
+            [
+                Place.create(id=se_id),
+                Transition.create(id=trigger_id).mark_as_workflow_time(),
+                Place.create(id=create_silent_node_name(trigger_id, user_task_id)),
+                Transition.create(id=user_task_id).mark_as_workflow_resource(
+                    lane_1, orga
+                ),
+                Place.create(id=ee_id),
+            ],
+        ],
+    )
+    net.net.toolspecific_global = ToolspecificGlobal(
+        resources=Resources(
+            roles=[
+                Role(name=lane_1),
+            ],
+            units=[OrganizationUnit(name=orga)],
+        )
+    )
+    return bpmn, net, case
+
+
 def simple_pool():
     """Return a BPMN and the expected petri net with a pool with 2 lanes."""
     case = "simple_pool"
@@ -850,6 +917,7 @@ def subprocess():
 
 
 supported_cases_workflow_bpmn: list[tuple[BPMN, Pnml, str]] = [
+    trigger_pool_combination(),
     subprocess_pool(),
     simple_pool(),
     gateway_parallel_join_split_with_events(),
