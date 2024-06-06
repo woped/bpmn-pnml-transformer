@@ -148,6 +148,105 @@ def subprocess_pool():
     return bpmn, net, case
 
 
+def pool_with_gateways():
+    """Return a petri net and the expected bpmn with a pool and gateways."""
+    case = "pool_with_gateways"
+
+    se_id = "elem_1"
+    task_1 = "task_1"
+    task_2 = "task_2"
+    ee_id = "elem_2"
+
+    lane_1 = "lane1"
+    lane_2 = "lane2"
+    orga = "orga"
+
+    gw_split = "elem_4"
+    gw_join = "elem_5"
+
+    and_split = create_operator_transition(
+        gw_split, 1, WorkflowBranchingType.AndSplit
+    ).mark_as_workflow_resource(lane_1, orga)
+    and_join = create_operator_transition(
+        gw_join, 1, WorkflowBranchingType.AndJoin
+    ).mark_as_workflow_resource(lane_2, orga)
+
+    net = create_petri_net(
+        case,
+        [
+            [
+                Place.create(id=se_id),
+                and_split,
+                Place.create(id=create_silent_node_name(gw_split, task_1)),
+                Transition.create(task_1, task_1),
+                Place.create(id=create_silent_node_name(task_1, gw_join)),
+                and_join,
+                Place.create(id=ee_id),
+            ],
+            [
+                and_split,
+                Place.create(id=create_silent_node_name(gw_split, task_2)),
+                Transition.create(task_2, task_2),
+                Place.create(id=create_silent_node_name(task_2, gw_join)),
+                and_join,
+            ],
+        ],
+    )
+    net.net.toolspecific_global = ToolspecificGlobal(
+        resources=Resources(
+            roles=[
+                Role(name=lane_1),
+                Role(name=lane_2),
+            ],
+            units=[OrganizationUnit(name=orga)],
+        )
+    )
+
+    bpmn_gw_split = AndGateway(id=gw_split)
+    bpmn_gw_join = AndGateway(id=gw_join)
+
+    bpmn = create_bpmn(
+        case,
+        [
+            [
+                StartEvent(id=se_id),
+                bpmn_gw_split,
+                Task(id=task_1, name=task_1),
+                bpmn_gw_join,
+                EndEvent(id=ee_id),
+            ],
+            [
+                bpmn_gw_split,
+                Task(id=task_2, name=task_2),
+                bpmn_gw_join,
+            ],
+        ],
+    )
+
+    bpmn.collaboration = Collaboration(
+        id="x",
+        participant=Participant(id="xo", name=orga, processRef=bpmn.process.name or ""),
+    )
+    bpmn.process.lane_sets.add(
+        LaneSet(
+            id="ls",
+            lanes=set(
+                [
+                    Lane(id=lane_1, name=lane_1, flowNodeRefs=set([gw_split])),
+                    Lane(id=lane_2, name=lane_2, flowNodeRefs=set([gw_join])),
+                    Lane(
+                        id="Unkown participant",
+                        name="Unkown participant",
+                        flowNodeRefs=set([task_1, task_2, se_id, ee_id]),
+                    ),
+                ]
+            ),
+        )
+    )
+
+    return bpmn, net, case
+
+
 def simple_pool():
     """Return a BPMN and the expected petri net with a pool with 2 lanes."""
     case = "simple_pool"
@@ -348,7 +447,6 @@ def sequential_message_event_silent():
     return bpmn, net, case
 
 
-# TODO same test with xor and implicit
 def gateway_parallel_join_split_with_events():
     """Return a BPMN and the expected workflow net with AND gates and triggers."""
     case = "parallel_workflow_elements_with_events"
@@ -1535,6 +1633,7 @@ def subprocess():
 
 
 supported_cases_workflow_pnml: list[tuple[BPMN, Pnml, str]] = [
+    pool_with_gateways(),
     subprocess_pool(),
     simple_pool(),
     gateway_parallel_join_split_with_events(),

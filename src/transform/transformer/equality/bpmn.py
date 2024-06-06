@@ -76,7 +76,14 @@ def compare_bpmn(bpmn1_comp: BPMN, bpmn2_comp: BPMN):
         bpmn2_types = bpmn_type_map(bpmn2)
 
         if bpmn1_types.keys() != bpmn2_types.keys():
-            return False, "Different Elements"
+            return (
+                False,
+                f"""
+Different Elements keys 1:
+{bpmn1_types.keys()}
+keys 2:
+{bpmn2_types.keys()}""",
+            )
 
         for k in bpmn1_types.keys():
             if bpmn1_types[k] != bpmn2_types[k]:
