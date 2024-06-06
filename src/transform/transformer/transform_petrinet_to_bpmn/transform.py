@@ -15,14 +15,19 @@ from transformer.models.bpmn.bpmn import (
 from transformer.models.pnml.pnml import Net, Pnml
 from transformer.models.pnml.transform_helper import (
     GatewayHelperPNML,
+    TriggerHelperPNML,
 )
 from transformer.transform_petrinet_to_bpmn.preprocess_pnml import (
     dangling_transition,
-    preprocess_workflow_operators,
-    split_and_gw_with_name,
+    event_trigger,
+    vanilla_gateway_transition,
+    workflow_operators,
 )
 from transformer.transform_petrinet_to_bpmn.workflow_helper import (
+    annotate_resources,
     find_workflow_subprocesses,
+    handle_event_triggers,
+    handle_resource_transitions,
     handle_workflow_operators,
     handle_workflow_subprocesses,
 )
@@ -85,6 +90,22 @@ def transform_petrinet_to_bpmn(net: Net):
         if isinstance(elem, GatewayHelperPNML)
     ]
 
+    to_handle_temp_triggers = [
+        elem
+        for elem in net._flatten_node_typ_map()
+        if isinstance(elem, TriggerHelperPNML)
+    ]
+
+    # Only transitions could be  be mapped to usertasks
+    to_handle_temp_resources = [
+        transition
+        for transition in transitions
+        if transition.is_workflow_resource()
+        and net.get_in_degree(transition) <= 1
+        and net.get_out_degree(transition) <= 1
+    ]
+    transitions.difference_update(to_handle_temp_resources)
+
     # handle normal places
     for place in places:
         in_degree, out_degree = net.get_in_degree(place), net.get_out_degree(place)
@@ -111,8 +132,9 @@ def transform_petrinet_to_bpmn(net: Net):
             bpmn.add_node(AndGateway(id=transition.id, name=transition.get_name()))
 
     # handle workflow specific elements
-    handle_workflow_operators(net, bpmn, to_handle_temp_gateways)
-
+    handle_resource_transitions(bpmn, to_handle_temp_resources)
+    handle_workflow_operators(bpmn, to_handle_temp_gateways)
+    handle_event_triggers(bpmn, to_handle_temp_triggers)
     handle_workflow_subprocesses(
         net, bpmn, to_handle_subprocesses, transform_petrinet_to_bpmn
     )
@@ -151,9 +173,11 @@ def pnml_to_bpmn(pnml: Pnml):
         net,
         [
             dangling_transition.add_places_at_dangling_transitions,
-            preprocess_workflow_operators.handle_workflow_operators,
-            split_and_gw_with_name.split_and_gw_with_name,
+            workflow_operators.handle_workflow_operators,
+            vanilla_gateway_transition.split_and_gw_with_name,
+            event_trigger.split_event_triggers,
         ],
     )
-
-    return transform_petrinet_to_bpmn(net)
+    bpmn = transform_petrinet_to_bpmn(net)
+    annotate_resources(net, bpmn)
+    return bpmn

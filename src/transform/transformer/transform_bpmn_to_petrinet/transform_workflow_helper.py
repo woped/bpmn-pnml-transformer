@@ -4,7 +4,13 @@ from collections.abc import Callable
 from typing import cast
 
 from transformer.models.bpmn.base import Gateway, GenericBPMNNode
-from transformer.models.bpmn.bpmn import AndGateway, Process, XorGateway
+from transformer.models.bpmn.bpmn import (
+    AndGateway,
+    IntermediateCatchEvent,
+    Process,
+    UserTask,
+    XorGateway,
+)
 from transformer.models.pnml.base import NetElement
 from transformer.models.pnml.pnml import (
     Net,
@@ -15,10 +21,8 @@ from transformer.models.pnml.pnml import (
 )
 from transformer.models.pnml.workflow import WorkflowBranchingType
 from transformer.utility.bpmn import find_end_events, find_start_events
-from transformer.utility.utility import (
-    create_arc_name,
-    create_silent_node_name
-)
+from transformer.utility.utility import create_arc_name, create_silent_node_name
+
 
 def create_workflow_operator_helper_transition(
     net: Net, id: str, name: str | None, i: int, t: WorkflowBranchingType
@@ -186,6 +190,10 @@ def handle_gateway(net: Net, bpmn: Process, node: GenericBPMNNode):
     net_targets = sorted(
         [cast(NetElement, net.get_element(x)) for x in target_ids], key=lambda x: x.id
     )
+
+    if not node.name:
+        node.name = ""
+
     # split
     if in_degree == 1:
         f_split(
@@ -203,11 +211,31 @@ def handle_gateway(net: Net, bpmn: Process, node: GenericBPMNNode):
         f_split_join(net, net_sources, net_targets, node.id, node.name)
 
 
+def handle_triggers(net: Net, bpmn: Process, triggers: list[IntermediateCatchEvent]):
+    """Handle time and message related intermediate events (triggers)."""
+    for trigger in triggers:
+        if trigger.is_time():
+            net.add_element(
+                Transition.create(
+                    id=trigger.id, name=trigger.name
+                ).mark_as_workflow_time()
+            )
+        elif trigger.is_message:
+            net.add_element(
+                Transition.create(
+                    id=trigger.id, name=trigger.name
+                ).mark_as_workflow_message()
+            )
+        else:
+            raise Exception("Wrong intermediate event type used!")
+
+
 def handle_subprocesses(
     net: Net,
     bpmn: Process,
     subprocesses: list[Process],
-    caller_func: Callable[[Process, bool], Pnml],
+    organization: str,
+    caller_func: Callable[[Process, bool, str], Pnml],
 ):
     """Transform a BPMN subprocess to workflow subprocess."""
     for subprocess in subprocesses:
@@ -245,7 +273,25 @@ def handle_subprocesses(
         subprocess.change_node_id(sub_ee, outer_out_id)
 
         # transform inner subprocess
-        inner_net = caller_func(subprocess, True).net
+        inner_net = caller_func(subprocess, True, organization).net
         inner_net.id = None
 
         net.add_page(Page(id=subprocess.id, net=inner_net))
+
+
+def handle_resource_annotations(
+    net: Net,
+    user_tasks: list[UserTask],
+    participant_mapping: dict[str, str],
+    orga: str,
+):
+    """Handle the annotation of the transformed transitions from usertasks."""
+    if len(participant_mapping) == 0:
+        return
+
+    for user_task in user_tasks:
+        if user_task.id not in participant_mapping:
+            continue
+        net.get_element(user_task.id).mark_as_workflow_resource(
+            participant_mapping[user_task.id], orga
+        )

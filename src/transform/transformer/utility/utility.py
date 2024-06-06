@@ -32,8 +32,6 @@ class BaseModel(
 ):
     """BaseModel extension of BaseXmlModel."""
 
-    pass
-
 
 class BaseBPMNModel(
     BaseXmlModel,
@@ -42,5 +40,3 @@ class BaseBPMNModel(
     nsmap={"": "http://www.omg.org/spec/BPMN/20100524/MODEL"},
 ):
     """BaseBPMNModel extension of BaseXmlModel."""
-
-    pass

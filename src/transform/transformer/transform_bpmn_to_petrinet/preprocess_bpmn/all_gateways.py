@@ -1,4 +1,4 @@
-"""Process gateways for bpmn workflows."""
+"""Module for processing gateways for bpmn workflows."""
 
 from typing import cast
 
