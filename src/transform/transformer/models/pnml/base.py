@@ -178,6 +178,12 @@ class NetElement(GenericNetNode):
             return False
         return self.toolspecific.is_workflow_operator()
 
+    def get_workflow_operator_type(self):
+        """If node is a wf operator returns the type."""
+        if not self.toolspecific or not self.toolspecific.operator:
+            return None
+        return self.toolspecific.operator.type
+
     def is_workflow_resource(self):
         """Return whether instance is workflow resource."""
         if not self.toolspecific:

@@ -16,6 +16,7 @@ from transformer.models.bpmn.bpmn import (
     XorGateway,
 )
 from transformer.models.pnml.pnml import Net, Place, Pnml, Transition
+from transformer.models.pnml.workflow import WorkflowBranchingType
 from transformer.transform_bpmn_to_petrinet.participants import (
     create_participant_mapping,
     set_global_toolspecifi,
@@ -57,25 +58,49 @@ def merge_single_triggers(net: Net):
 
         connecting_place = net.get_element(list(net.get_outgoing(trigger.id))[0].target)
 
+        # no following element to merge with
+        if net.get_out_degree(connecting_place) == 0:
+            continue
+
         # not clear how to merge the following element of a split/join place
-        if (
+        # Exception is if it is before a pure workflow split
+        target_transitions = [
+            net.get_element(x.target) for x in net.get_outgoing(id=connecting_place.id)
+        ]
+        place_is_before_wf_split = all(
+            [
+                x.get_workflow_operator_type()
+                in {WorkflowBranchingType.XorSplit, WorkflowBranchingType.AndSplit}
+                for x in target_transitions
+            ]
+        )
+        if not place_is_before_wf_split and (
             net.get_out_degree(connecting_place) > 1
             or net.get_in_degree(connecting_place) > 1
         ):
             continue
 
-        # no following element to merge with
-        if net.get_out_degree(connecting_place) == 0:
-            continue
-
-        target = net.get_element(list(net.get_outgoing(connecting_place.id))[0].target)
+        target_transition = target_transitions[0]
 
         # Cant merge with existing trigger (event or resource) or subprocess
-        if target.is_workflow_trigger() or target.is_workflow_subprocess():
+        if (
+            target_transition.is_workflow_trigger()
+            or target_transition.is_workflow_subprocess()
+        ):
             continue
 
         # not clear how to merge the target if it is a join itself
-        if net.get_in_degree(target) > 1:
+        # Also check WF joins
+        if net.get_in_degree(
+            target_transition
+        ) > 1 or target_transition.get_workflow_operator_type() in {
+            WorkflowBranchingType.XorJoin,
+            WorkflowBranchingType.AndJoin,
+            WorkflowBranchingType.XorJoinAndSplit,
+            WorkflowBranchingType.AndJoinXorSplit,
+            WorkflowBranchingType.XorJoinSplit,
+            WorkflowBranchingType.AndJoinSplit,
+        }:
             continue
 
         incoming_trigger_arcs = net.get_incoming_and_remove_arcs(trigger)
@@ -83,11 +108,14 @@ def merge_single_triggers(net: Net):
         net.remove_element(trigger)
 
         if trigger.is_workflow_message():
-            target.mark_as_workflow_message()
+            for transition in target_transitions:
+                transition.mark_as_workflow_message()
         elif trigger.is_workflow_time():
-            target.mark_as_workflow_time()
+            for transition in target_transitions:
+                transition.mark_as_workflow_time()
 
-        net.connect_to_element(target, incoming_trigger_arcs)
+        for transition in target_transitions:
+            net.connect_to_element(transition, incoming_trigger_arcs)
 
 
 def transform_bpmn_to_petrinet(
