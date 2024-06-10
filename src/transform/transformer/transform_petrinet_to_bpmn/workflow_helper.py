@@ -4,15 +4,32 @@ from collections.abc import Callable
 
 from pydantic import BaseModel, Field
 
-from transformer.models.bpmn.bpmn import BPMN, AndGateway, Process, XorGateway
+from transformer.models.bpmn.bpmn import (
+    BPMN,
+    AndGateway,
+    Collaboration,
+    IntermediateCatchEvent,
+    Lane,
+    LaneSet,
+    Participant,
+    Process,
+    UserTask,
+    XorGateway,
+)
 from transformer.models.pnml.base import NetElement
 from transformer.models.pnml.pnml import Arc, Net, Page, Transition
 from transformer.models.pnml.transform_helper import (
     ANDHelperPNML,
     GatewayHelperPNML,
+    MessageHelperPNML,
+    TimeHelperPNML,
+    TriggerHelperPNML,
     XORHelperPNML,
 )
 from transformer.models.pnml.workflow import WorkflowBranchingType
+from transformer.utility.pnml import (
+    generate_subprocess_inner_id,
+)
 
 
 class WorkflowOperatorWrapper(BaseModel):
@@ -32,6 +49,16 @@ class WorkflowOperatorWrapper(BaseModel):
     outgoing_arcs: set[Arc] = Field(default_factory=set)
     # arcs connected to operator nodes
     all_arcs: set[Arc] = Field(default_factory=set)
+
+    def get_toolspecific(self):
+        """Get the toolspecific imformation of the first transition node."""
+        for node in self.nodes:
+            if not isinstance(node, Transition):
+                continue
+            if not node.toolspecific:
+                continue
+            return node.toolspecific
+        raise Exception("Should not happen.")
 
     def get_copy_unique_in_arcs(self):
         """Get all incoming arcs without duplicate input sources."""
@@ -131,6 +158,14 @@ def handle_workflow_subprocesses(
                 " to convert to BPMN Start and Endevents"
             )
 
+        # Rename inner start and end event because bpmn wont allow same duplicated IDs
+        page_net.change_id(
+            inner_source_id.id, generate_subprocess_inner_id(inner_source_id.id)
+        )
+        page_net.change_id(
+            inner_sink_id.id, generate_subprocess_inner_id(inner_sink_id.id)
+        )
+
         inner_bpmn = caller_func(page_net).process
         inner_bpmn.id = sb_id
         inner_bpmn.name = subprocess_transition.get_name()
@@ -139,7 +174,7 @@ def handle_workflow_subprocesses(
 
 
 def handle_workflow_operators(
-    net: Net, bpmn: Process, to_handle_temp_gateways: list[GatewayHelperPNML]
+    bpmn: Process, to_handle_temp_gateways: list[GatewayHelperPNML]
 ):
     """Add all found workflow operators of a net as nodes to a bpmn."""
     for temp_gateway in to_handle_temp_gateways:
@@ -147,3 +182,113 @@ def handle_workflow_operators(
             bpmn.add_node(XorGateway(id=temp_gateway.id, name=temp_gateway.get_name()))
         elif isinstance(temp_gateway, ANDHelperPNML):
             bpmn.add_node(AndGateway(id=temp_gateway.id, name=temp_gateway.get_name()))
+
+
+def handle_event_triggers(
+    bpmn: Process, to_handle_temp_triggers: list[TriggerHelperPNML]
+):
+    """Replace all temptriggers with the actual BPMN-Element."""
+    for temp_trigger in to_handle_temp_triggers:
+        if isinstance(temp_trigger, MessageHelperPNML):
+            bpmn.add_node(IntermediateCatchEvent.create_message_event(temp_trigger.id))
+        elif isinstance(temp_trigger, TimeHelperPNML):
+            bpmn.add_node(IntermediateCatchEvent.create_time_event(temp_trigger.id))
+
+
+def handle_resource_transitions(
+    bpmn: Process, to_handle_temp_resources: list[Transition]
+):
+    """Convert resource transitions with out and indegree <=1 to usertasks."""
+    for resource in to_handle_temp_resources:
+        bpmn.add_node(UserTask(id=resource.id, name=resource.get_name()))
+
+
+def find_role_type_of_subprocess(net: Net, current_role: str | None = None):
+    """Finds the unique role of a subprocess (and children).
+
+    Should there be more than one role a exception will be thrown.
+    """
+    to_handle_temp_resources = [
+        elem
+        for elem in net._flatten_node_typ_map()
+        if isinstance(elem, NetElement) and elem.is_workflow_resource()
+    ]
+    for resource in to_handle_temp_resources:
+        if not resource.toolspecific or not resource.toolspecific.transitionResource:
+            raise Exception("Not possible.")
+        resource_role = resource.toolspecific.transitionResource.roleName
+        if current_role is not None and current_role != resource_role:
+            raise Exception("Resources must belong to the same organization.")
+        current_role = resource_role
+    for sb in net.pages:
+        nested_role = find_role_type_of_subprocess(sb.net, current_role)
+        if nested_role is not None:
+            current_role = nested_role
+    return current_role
+
+
+def annotate_resources(net: Net, bpmn: BPMN):
+    """Handle resources to participant if net if root element."""
+    current_organization: str | None = None
+    role_map: dict[str, list[str]] = {}
+    to_handle_temp_resources = [
+        elem
+        for elem in net._flatten_node_typ_map()
+        if isinstance(elem, NetElement) and elem.is_workflow_resource()
+    ]
+    for resource in to_handle_temp_resources:
+        if not resource.toolspecific or not resource.toolspecific.transitionResource:
+            raise Exception("Not possible.")
+        resource_organization = (
+            resource.toolspecific.transitionResource.organizationalUnitName
+        )
+        if (
+            current_organization is not None
+            and current_organization != resource_organization
+        ):
+            raise Exception("Resources must belong to same organization.")
+        current_organization = resource_organization
+
+        role_name = resource.toolspecific.transitionResource.roleName
+        if role_name not in role_map:
+            role_map[role_name] = []
+        role_map[role_name].append(resource.id)
+
+    # Add a subprocess to a lane if it has as resource transition
+    for sb in net.pages:
+        sb_role = find_role_type_of_subprocess(sb.net)
+        if sb_role is not None:
+            if sb_role not in role_map:
+                role_map[sb_role] = []
+            role_map[sb_role].append(sb.id)
+
+    # Get all already handled nodes
+    handled_nodes: set[str] = set([])
+    for node_refs in role_map.values():
+        handled_nodes.update(node_refs)
+
+    # If no resources were found creation of pool not necessary
+    if len(handled_nodes) == 0:
+        return
+
+    # Add all elements without a role annotation to a Unkown lane
+    all_net_elements = net._flatten_node_typ_map()
+    all_net_ids = {node.id for node in all_net_elements}
+    unhandled_ids = all_net_ids.difference(handled_nodes).intersection(
+        [node.id for node in bpmn.process._flatten_node_typ_map()]
+    )
+    UNKOWN_LANE = "Unkown participant"
+    role_map[UNKOWN_LANE] = list(unhandled_ids)
+
+    bpmn.collaboration = Collaboration(
+        id="collaboration",
+        participant=Participant(
+            id="participant", name=current_organization, processRef=bpmn.process.id
+        ),
+    )
+    lanes: set[Lane] = set()
+    for role_name, node_refs in role_map.items():
+        if len(node_refs) == 0:
+            continue
+        lanes.add(Lane(id=role_name, name=role_name, flowNodeRefs=set(node_refs)))
+    bpmn.process.lane_sets = set([LaneSet(id="ls", lanes=lanes)])

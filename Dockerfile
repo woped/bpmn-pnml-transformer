@@ -3,6 +3,9 @@ FROM python:3.12-slim
 ENV APP_HOME /APP_HOME
 WORKDIR ${APP_HOME}
 
+# Set the environment variable FORCE_STD_XML
+ENV FORCE_STD_XML true
+
 # Copiying complete source code
 COPY src/. src/.
 # Copying the global requirements.txt

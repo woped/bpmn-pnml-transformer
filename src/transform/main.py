@@ -1,8 +1,9 @@
 """API to transform a given model into a selected direction."""
+import requests
 
+import os
 import flask
 import functions_framework
-import firebase_admin
 from flask import jsonify
 
 from transformer.models.bpmn.bpmn import BPMN
@@ -12,29 +13,13 @@ from transformer.transform_bpmn_to_petrinet.transform import (
     bpmn_to_workflow_net,
 )
 from transformer.transform_petrinet_to_bpmn.transform import pnml_to_bpmn
-from firebase_admin import credentials, firestore 
 
-cred = credentials.Certificate("secrets/woped-422510-ff5224739dab.json")
-app = firebase_admin.initialize_app(cred)
-db = firestore.Client()
-
-def check_tokens():
-    """Check if there are tokens available in the Firestore database."""
-    if db is None:
-        raise Exception("No database available")
-    doc_ref = db.collection("api-tokens").document("token-document")
-    doc = doc_ref.get()
-
-    if doc.exists:
-        tokens = doc.to_dict().get("tokens",0)
-        if tokens <= 0:
-            raise Exception("No tokens available")
+CHECK_TOKEN_URL = 'https://europe-west3-woped-422510.cloudfunctions.net/checkTokens'
         
-        else:
-            doc_ref.update({"tokens": tokens-1})
+is_force_std_xml_active = os.getenv("FORCE_STD_XML")
+if is_force_std_xml_active is None:
+    raise Exception("Env variable is_force_std_xml_active not set!")
 
-    else:
-        raise Exception("No document available")
 
 @functions_framework.http
 def post_transform(request: flask.Request):
@@ -46,9 +31,14 @@ def post_transform(request: flask.Request):
     Args:
         request: A request with a parameter "direction" as transformation direction
         and a form with the xml model "bpmn" or "pnml".
-    """
-    check_tokens()
-    
+    """    
+    try:
+        response = requests.get(CHECK_TOKEN_URL)
+        if response.status_code == 400:
+            raise Exception("Token check not successful")
+    except Exception:
+        return jsonify({"error": "Token check not successful"}), 400
+   
     transform_direction = request.args.get("direction")
     if transform_direction == "bpmntopnml":
         bpmn_xml_content = request.form["bpmn"]

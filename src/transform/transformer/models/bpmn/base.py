@@ -7,20 +7,16 @@ from transformer.exceptions import NotSupportedBPMNElement
 from transformer.utility.utility import BaseBPMNModel
 
 ns_map = {
+    "xsi": "http://www.w3.org/2001/XMLSchema-instance",
     "bpmn": "http://www.omg.org/spec/BPMN/20100524/MODEL",
     "bpmndi": "http://www.omg.org/spec/BPMN/20100524/DI",
-    "xsi": "http://www.w3.org/2001/XMLSchema-instance",
-    "omgdc": "http://www.omg.org/spec/DD/20100524/DC",
-    "omgdi": "http://www.omg.org/spec/DD/20100524/DI",
+    "dc": "http://www.omg.org/spec/DD/20100524/DC",
+    "di": "http://www.omg.org/spec/DD/20100524/DI",
 }
 
 
-class BPMNNamespace(
-    BaseBPMNModel,
-):
+class BPMNNamespace(BaseBPMNModel, ns="bpmn", nsmap=ns_map):
     """Extension of BaseBPMNModel with namespace bpmn and namespace map."""
-
-    pass
 
 
 class GenericIdNode(BPMNNamespace):
@@ -61,8 +57,6 @@ class GenericBPMNNode(GenericIdNode):
 
 class Gateway(GenericBPMNNode):
     """Gateway extension of BPMN node."""
-
-    pass
 
 
 class NotSupportedNode(GenericBPMNNode):

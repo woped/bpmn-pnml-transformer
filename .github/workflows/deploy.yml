@@ -7,38 +7,62 @@ on:
 
 env:
   PYTHON_VERSION: '3.12'
+  DOCKER_REGISTRY: 'woped'
+  DOCKER_IMAGE_NAME: 'pnml-bpmn-transformer'
 
 jobs:
 
   build_and_push_docker:
+    name: Push Docker image to Docker Hub
     runs-on: ubuntu-latest
 
     permissions:
-      contents: "read"
-      id-token: "write"
+      packages: write
+      contents: read
+      attestations: write
+      id-token: write
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Check out the repo
+        uses: actions/checkout@v4
 
-      - id: "auth"
-        name: "Authenticate to Google Cloud"
-        uses: "google-github-actions/auth@v2"
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
         with:
-          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
-          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_ACCESSTOKEN }}
 
-      - name: Build Docker image
-        run: |
-          docker build -t gcr.io/${{ steps.auth.outputs.project_id }}/my-application:latest .
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_IMAGE_NAME }}
+  
+      - name: Build and push Docker image
+        id: push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
 
-      - name: Push Docker image to GCR
-        run: |
-          echo ${{ secrets.GCP_SERVICE_ACCOUNT }} | docker login -u _json_key --password-stdin https://gcr.io
-          docker push gcr.io/${{ steps.auth.outputs.project_id }}/my-application:latest
+      # Quick Fix: Temporaryly disabeld due to error `Error: No credentials found for registry ***`
+
+      # - name: Generate artifact attestation
+      #   uses: actions/attest-build-provenance@v1
+      #   with:
+      #     subject-name: ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_IMAGE_NAME }}
+      #     subject-digest: ${{ steps.push.outputs.digest }}
+      #     push-to-registry: true
+      #     github-token: ${{ github.token }}
 
   deploy:
     runs-on: ubuntu-latest
-    needs: build_and_push_docker
+
+    # deploy even if build 
+    # needs: build_and_push_docker
 
     strategy:
       matrix:
@@ -53,6 +77,12 @@ jobs:
             entry_point: "post_transform"
             source_dir: "src/transform"
             description: "Transformation endpoint."
+          - name: checkTokens
+            test_dir: "checkTokens"
+            entry_point: "check_tokens"
+            source_dir: "src/checkTokens"
+            description: "[CANARY] Check Tokens endpoint."
+            set_force_std_xml: true
 
     permissions:
       contents: "read"
@@ -79,6 +109,14 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      - name: Set FUNCTION_ENV_VARS
+        run: |
+          if [ "${{ matrix.function.set_force_std_xml }}" == "true" ]; then
+            echo "FUNCTION_ENV_VARS=FORCE_STD_XML=true" >> $GITHUB_ENV
+          else
+            echo "FUNCTION_ENV_VARS=" >> $GITHUB_ENV
+          fi
+  
       - id: "deploy"
         uses: "google-github-actions/deploy-cloud-functions@v2"
         with:
@@ -88,3 +126,5 @@ jobs:
           runtime: "python312"
           region: "europe-west3"
           description: ${{ matrix.function.description }}
+          env_vars: ${{ env.FUNCTION_ENV_VARS }}
+
