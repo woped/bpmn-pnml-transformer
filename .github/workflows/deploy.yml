@@ -80,9 +80,13 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Set environment variables for functions that require FORCE_STD_XML
-        if: matrix.function.set_force_std_xml == 'true'
-        run: echo "FUNCTION_ENV_VARS=FORCE_STD_XML=true" >> $GITHUB_ENV
+      - name: Set FUNCTION_ENV_VARS
+        run: |
+          if [ "${{ matrix.function.set_force_std_xml }}" == "true" ]; then
+            echo "FUNCTION_ENV_VARS=FORCE_STD_XML=true" >> $GITHUB_ENV
+          else
+            echo "FUNCTION_ENV_VARS=" >> $GITHUB_ENV
+          fi
   
       - id: "deploy"
         uses: "google-github-actions/deploy-cloud-functions@v2"
