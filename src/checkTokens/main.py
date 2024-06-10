@@ -2,7 +2,6 @@
 
 This module defines a Google Cloud Function for RateLimiting the transform Endpoint.
 """
-import json
 import tempfile
 import base64
 import firebase_admin
