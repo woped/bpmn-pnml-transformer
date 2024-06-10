@@ -1,6 +1,5 @@
 """API to transform a given model into a selected direction."""
 
-from tkinter import N
 import flask
 import functions_framework
 from flask import jsonify
