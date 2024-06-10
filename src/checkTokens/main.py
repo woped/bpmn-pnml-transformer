@@ -10,12 +10,6 @@ from flask import jsonify
 import os
 
 # Firestore initialisieren
-serviceAccountCertEncoded = os.getenv("GCP_SERVICE_ACCOUNT_CERTIFICATE")
-cred = credentials.Certificate(serviceAccountCertEncoded)
-firebase_admin.initialize_app(cred)
-print(os.getcwd())
-db = firestore.client()
-
 GCP_SERVICE_ACCOUNT_CERTIFICATE_BASE64 = os.getenv( "GCP_SERVICE_ACCOUNT_CERTIFICATE" )
 if( GCP_SERVICE_ACCOUNT_CERTIFICATE_BASE64 is None ):
     print( "Env var GCP_SERVICE_ACCOUNT_CERTIFICATE not found!" )
@@ -24,6 +18,13 @@ GCP_SERVICE_ACCOUNT_CERTIFICATE_DECODED_BYTES = base64\
     .b64decode(GCP_SERVICE_ACCOUNT_CERTIFICATE_BASE64)
 GCP_SERVICE_ACCOUNT_CERTIFICATE_DECODED_STRING = GCP_SERVICE_ACCOUNT_CERTIFICATE_BASE64\
     .decode('utf-8')
+
+cred = credentials.Certificate(GCP_SERVICE_ACCOUNT_CERTIFICATE_DECODED_STRING)
+firebase_admin.initialize_app(cred)
+print(os.getcwd())
+db = firestore.client()
+
+
 
 
 @functions_framework.http
