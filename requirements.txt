@@ -16,7 +16,7 @@ MarkupSafe==2.1.5
 packaging==24.1
 pip==24.0
 pluggy==1.5.0
-pytest==8.2.1
+pytest==8.2.2
 requests==2.32.2
 ruff==0.4.5
 setuptools==70.0.0
