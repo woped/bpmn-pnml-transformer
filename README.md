@@ -16,12 +16,12 @@ Developed during the "Integrationsseminar" lecture at DHBW Karlsruhe, this proje
 ## Architecture
 
 ### Main Architecture Design
-![Architecture Drawing](https://github.com/Niyada/bpmn-pnml-transformer-poc/blob/main/doc/imgs/architecture.design.png?raw=true)
+![Architecture Drawing](https://github.com/Niyada/bpmn-pnml-transformer-poc/blob/main/docs/imgs/architecture.design.png?raw=true)
 
 Complete architecure and deployment concept overview
 
 ### Pipelinde Designs
-![CI/CD Workflows](https://github.com/Niyada/bpmn-pnml-transformer-poc/blob/main/doc/imgs/workflows.design.png?raw=true)
+![CI/CD Workflows](https://github.com/Niyada/bpmn-pnml-transformer-poc/blob/main/docs/imgs/workflows.design.png?raw=true)
 
 CI workflow on the left, CD workflow on the right
 
