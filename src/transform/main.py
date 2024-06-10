@@ -1,5 +1,7 @@
 """API to transform a given model into a selected direction."""
 
+import os
+
 import flask
 import functions_framework
 from flask import jsonify
@@ -11,6 +13,10 @@ from transformer.transform_bpmn_to_petrinet.transform import (
     bpmn_to_workflow_net,
 )
 from transformer.transform_petrinet_to_bpmn.transform import pnml_to_bpmn
+
+is_force_std_xml_active = os.getenv("FORCE_STD_XML")
+if is_force_std_xml_active is None:
+    raise Exception("Env variable is_force_std_xml_active not set!")
 
 
 @functions_framework.http
