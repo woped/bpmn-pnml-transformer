@@ -32,12 +32,12 @@ jobs:
             entry_point: "post_transform"
             source_dir: "src/transform"
             description: "[CANARY] Transformation endpoint."
+            set_force_std_xml: true
           - name: checkTokens
             test_dir: "checkTokens"
             entry_point: "check_tokens"
             source_dir: "src/checkTokens"
             description: "[CANARY] Check Tokens endpoint."
-            set_force_std_xml: true
 
     # Add "id-token" with the intended permissions.
     permissions:
