@@ -13,4 +13,5 @@ src/transform/test_log
 # VS Code
 .vscode/
 
-
+# MacOS
+.DS_Store
