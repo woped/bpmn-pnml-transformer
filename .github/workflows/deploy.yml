@@ -54,10 +54,13 @@ jobs:
           subject-name: ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_IMAGE_NAME }}
           subject-digest: ${{ steps.push.outputs.digest }}
           push-to-registry: true
+          github-token: ${{ github.token }}
 
   deploy:
     runs-on: ubuntu-latest
-    needs: build_and_push_docker
+
+    # deploy even if build 
+    # needs: build_and_push_docker
 
     strategy:
       matrix:
