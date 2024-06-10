@@ -1,0 +1,25 @@
+openapi: "3.0.0"
+info:
+  title: "BPMN-PNML-Transformer"
+  description: "Transforms BPMN diagrams to PNML or PNML diagrams to BPMN."
+  version: "1.0.0"
+servers:
+  - url: "https://europe-west3-woped-422510.cloudfunctions.net"
+paths:
+  "/transform":
+    post:
+      summary: "Returns the transformed diagram."
+      parameters:
+        - in: query
+          name: direction
+          required: true
+          schema:
+            type: string
+            enum: [bpmntopnml, pnmltobpmn]
+          description: The direction in which the transformation should be performed.
+      responses:
+        200:
+          description: "OK"
+        400:
+          description: "Bad Request"
+
