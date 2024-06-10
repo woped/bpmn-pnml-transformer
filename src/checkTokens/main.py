@@ -2,6 +2,8 @@
 
 This module defines a Google Cloud Function for RateLimiting the transform Endpoint.
 """
+import json
+import tempfile
 import base64
 import firebase_admin
 import functions_framework
@@ -19,12 +21,13 @@ GCP_SERVICE_ACCOUNT_CERTIFICATE_DECODED_BYTES = base64\
 GCP_SERVICE_ACCOUNT_CERTIFICATE_DECODED_STRING = GCP_SERVICE_ACCOUNT_CERTIFICATE_BASE64\
     .decode('utf-8')
 
-cred = credentials.Certificate(GCP_SERVICE_ACCOUNT_CERTIFICATE_DECODED_STRING)
+with tempfile.NamedTemporaryFile(delete=False) as temp_file:
+    temp_file.write(GCP_SERVICE_ACCOUNT_CERTIFICATE_DECODED_STRING.encode('utf-8'))
+    temp_file_path = temp_file.name
+
+cred = credentials.Certificate(temp_file_path)
 firebase_admin.initialize_app(cred)
-print(os.getcwd())
 db = firestore.client()
-
-
 
 
 @functions_framework.http
