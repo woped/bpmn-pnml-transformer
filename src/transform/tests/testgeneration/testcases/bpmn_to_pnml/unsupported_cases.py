@@ -32,8 +32,6 @@ def generate():
         "complexGateway",
         "eventBasedGateway",
         # tasks
-        "userTask",
-        "serviceTask",
         "sendTask",
         "receiveTask",
         "manualTask",
@@ -44,7 +42,6 @@ def generate():
         # https://www.omg.org/spec/BPMN/2.0/PDF P. 425
         "intermediateThrowEvent",
         "normalIntermediateThrowEvent",
-        "IntermediateCatchEvent",
         "BoundaryEvent",
     ]:
         r = rename_bpmn_xml(bpmn, f"{case_name}")

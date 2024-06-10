@@ -12,19 +12,26 @@ from transformer.models.bpmn.bpmn import (
     Task,
     XorGateway,
 )
-from transformer.models.pnml.pnml import Net, Place, Pnml, Transition
+from transformer.models.pnml.pnml import Net, Pnml
+from transformer.models.pnml.transform_helper import (
+    GatewayHelperPNML,
+    TriggerHelperPNML,
+)
 from transformer.transform_petrinet_to_bpmn.preprocess_pnml import (
-    split_different_operator as sdo,
+    dangling_transition,
+    event_trigger,
+    vanilla_gateway_transition,
+    workflow_operators,
 )
 from transformer.transform_petrinet_to_bpmn.workflow_helper import (
-    find_workflow_operators,
+    annotate_resources,
     find_workflow_subprocesses,
+    handle_event_triggers,
+    handle_resource_transitions,
     handle_workflow_operators,
     handle_workflow_subprocesses,
 )
 from transformer.utility.utility import create_arc_name
-
-split_different_operators = sdo.split_different_operators
 
 
 def remove_silent_tasks(bpmn: Process):
@@ -77,15 +84,27 @@ def transform_petrinet_to_bpmn(net: Net):
     to_handle_subprocesses = find_workflow_subprocesses(net)
     transitions.difference_update(to_handle_subprocesses)
 
-    to_handle_operators = find_workflow_operators(net)
-    for operator_wrapper in to_handle_operators:
-        for operator_node in operator_wrapper.nodes:
-            if isinstance(operator_node, Place):
-                places.remove(operator_node)
-            elif isinstance(operator_node, Transition):
-                transitions.remove(operator_node)
-            else:
-                raise Exception()
+    to_handle_temp_gateways = [
+        elem
+        for elem in net._flatten_node_typ_map()
+        if isinstance(elem, GatewayHelperPNML)
+    ]
+
+    to_handle_temp_triggers = [
+        elem
+        for elem in net._flatten_node_typ_map()
+        if isinstance(elem, TriggerHelperPNML)
+    ]
+
+    # Only transitions could be  be mapped to usertasks
+    to_handle_temp_resources = [
+        transition
+        for transition in transitions
+        if transition.is_workflow_resource()
+        and net.get_in_degree(transition) <= 1
+        and net.get_out_degree(transition) <= 1
+    ]
+    transitions.difference_update(to_handle_temp_resources)
 
     # handle normal places
     for place in places:
@@ -103,20 +122,22 @@ def transform_petrinet_to_bpmn(net: Net):
             net.get_in_degree(transition),
             net.get_out_degree(transition),
         )
-        if in_degree == 0 or out_degree == 0:
-            bpmn.add_node(StartEvent(id=place.id, name=transition.get_name()))
+        if in_degree == 0:
+            bpmn.add_node(StartEvent(id=transition.id, name=transition.get_name()))
         elif out_degree == 0:
-            bpmn.add_node(EndEvent(id=place.id, name=transition.get_name()))
+            bpmn.add_node(EndEvent(id=transition.id, name=transition.get_name()))
         elif in_degree == 1 and out_degree == 1:
             bpmn.add_node(Task(id=transition.id, name=transition.get_name()))
         else:
             bpmn.add_node(AndGateway(id=transition.id, name=transition.get_name()))
 
     # handle workflow specific elements
+    handle_resource_transitions(bpmn, to_handle_temp_resources)
+    handle_workflow_operators(bpmn, to_handle_temp_gateways)
+    handle_event_triggers(bpmn, to_handle_temp_triggers)
     handle_workflow_subprocesses(
         net, bpmn, to_handle_subprocesses, transform_petrinet_to_bpmn
     )
-    handle_workflow_operators(net, bpmn, to_handle_operators)
 
     # handle remaining arcs
     for arc in net.arcs:
@@ -148,6 +169,15 @@ def pnml_to_bpmn(pnml: Pnml):
     """Process and transform a petri net to bpmn."""
     net = pnml.net
 
-    apply_preprocessing(net, [split_different_operators])
-
-    return transform_petrinet_to_bpmn(net)
+    apply_preprocessing(
+        net,
+        [
+            dangling_transition.add_places_at_dangling_transitions,
+            workflow_operators.handle_workflow_operators,
+            vanilla_gateway_transition.split_and_gw_with_name,
+            event_trigger.split_event_triggers,
+        ],
+    )
+    bpmn = transform_petrinet_to_bpmn(net)
+    annotate_resources(net, bpmn)
+    return bpmn

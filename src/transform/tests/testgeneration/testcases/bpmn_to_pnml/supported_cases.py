@@ -1,4 +1,5 @@
 """Generates simple BPMN and the according petri net for multiple cases."""
+
 from testgeneration.bpmn.utility import create_bpmn
 from testgeneration.pnml.utility import create_petri_net
 
@@ -6,13 +7,17 @@ from transformer.models.bpmn.bpmn import (
     BPMN,
     AndGateway,
     EndEvent,
+    IntermediateCatchEvent,
     OrGateway,
     StartEvent,
     Task,
+    UserTask,
     XorGateway,
 )
 from transformer.models.pnml.pnml import Place, Pnml, Transition
 from transformer.utility.utility import create_silent_node_name
+
+# TODO: trigger+usertasks
 
 
 def start_end():
@@ -34,15 +39,43 @@ def start_end():
     return bpmn, net, case
 
 
-def task():
-    """Returns a simple bpmn and the according petri net for a task."""
-    case = "task"
+def intermediate_catch_event():
+    """Returns a  bpmn and the according petri net for a IntermediateCatchEvent."""
+    case = "intermediate_catch_event"
+    se_id = "start"
+    event = "event"
+    ee_id = "end"
+    bpmn = create_bpmn(
+        case,
+        [
+            [
+                StartEvent(id=se_id),
+                IntermediateCatchEvent(id=event, name=event),
+                EndEvent(id=ee_id),
+            ]
+        ],
+    )
+    net = create_petri_net(
+        case,
+        [
+            [
+                Place(id=se_id),
+                Transition.create(id=event, name=event),
+                Place(id=ee_id),
+            ]
+        ],
+    )
+    return bpmn, net, case
+
+
+def gen_task(task_cls, case):
+    """Helper to generate a test_case depending on the supplied task class."""
     se_id = "elem_1"
     ee_id = "elem_2"
     task_id = "elem_3"
     bpmn = create_bpmn(
         case,
-        [[StartEvent(id=se_id), Task(id=task_id, name=task_id), EndEvent(id=ee_id)]],
+        [[StartEvent(id=se_id), task_cls(id=task_id, name=task_id), EndEvent(id=ee_id)]],
     )
     net = create_petri_net(
         case,
@@ -55,6 +88,21 @@ def task():
         ],
     )
     return bpmn, net, case
+
+
+def task():
+    """Returns a bpmn and the according petri net for a task."""
+    return gen_task(Task, "task")
+
+
+def user_task():
+    """Returns a bpmn and the according petri net for a user task."""
+    return gen_task(UserTask, "usertask")
+
+
+def system_task():
+    """Returns a bpmn and the according petri net for a user task."""
+    return gen_task(UserTask, "systemtask")
 
 
 def gateway_parallel():
@@ -262,7 +310,10 @@ def subprocess():
 
 all_cases: list[tuple[BPMN, Pnml, str]] = [
     start_end(),
+    intermediate_catch_event(),
     task(),
+    user_task(),
+    system_task(),
     gateway_inclusive_or(),
     gateway_parallel(),
     gateway_exclusive_or(),
