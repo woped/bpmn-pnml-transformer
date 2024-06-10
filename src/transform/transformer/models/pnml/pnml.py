@@ -3,6 +3,7 @@
 from pathlib import Path
 from typing import cast
 
+from defusedxml.ElementTree import fromstring
 from pydantic import PrivateAttr
 from pydantic_xml import attr, element
 
@@ -352,7 +353,7 @@ class Pnml(BaseModel, tag="pnml"):
 
     def to_string(self) -> str:
         """Return string of net instance as serialized XML."""
-        return cast(str, self.to_xml(encoding="unicode", pretty_print=False))
+        return cast(str, self.to_xml(encoding="unicode"))
 
     def write_to_file(self, path: str):
         """Save net to file."""
@@ -361,7 +362,8 @@ class Pnml(BaseModel, tag="pnml"):
     @staticmethod
     def from_xml_str(xml_content: str):
         """Return a petri net from a XML string."""
-        net = Pnml.from_xml(bytes(xml_content, encoding="utf-8"))
+        tree = fromstring(xml_content)
+        net = Pnml.from_xml_tree(tree)
         return net
 
     @staticmethod
