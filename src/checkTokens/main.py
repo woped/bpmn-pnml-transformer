@@ -2,6 +2,7 @@
 
 This module defines a Google Cloud Function for RateLimiting the transform Endpoint.
 """
+import base64
 import firebase_admin
 import functions_framework
 from firebase_admin import credentials, firestore
@@ -15,7 +16,15 @@ firebase_admin.initialize_app(cred)
 print(os.getcwd())
 db = firestore.client()
 
-os.env
+GCP_SERVICE_ACCOUNT_CERTIFICATE_BASE64 = os.getenv( "GCP_SERVICE_ACCOUNT_CERTIFICATE" )
+if( GCP_SERVICE_ACCOUNT_CERTIFICATE_BASE64 is None ):
+    print( "Env var GCP_SERVICE_ACCOUNT_CERTIFICATE not found!" )
+
+GCP_SERVICE_ACCOUNT_CERTIFICATE_DECODED_BYTES = base64\
+    .b64decode(GCP_SERVICE_ACCOUNT_CERTIFICATE_BASE64)
+GCP_SERVICE_ACCOUNT_CERTIFICATE_DECODED_STRING = GCP_SERVICE_ACCOUNT_CERTIFICATE_BASE64\
+    .decode('utf-8')
+
 
 @functions_framework.http
 def check_tokens(request):
