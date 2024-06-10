@@ -26,6 +26,6 @@ Werkzeug==3.0.3
 wheel==0.43.0
 # 
 lxml==5.2.2
-pydantic==2.7.1
+pydantic==2.7.3
 pydantic_xml==2.11.0
 defusedxml==0.7.1
