@@ -53,6 +53,7 @@ jobs:
             entry_point: "post_transform"
             source_dir: "src/transform"
             description: "Transformation endpoint."
+            set_force_std_xml: true
 
     permissions:
       contents: "read"
@@ -79,6 +80,10 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      - name: Set environment variables for functions that require FORCE_STD_XML
+        if: matrix.function.set_force_std_xml == 'true'
+        run: echo "FUNCTION_ENV_VARS=FORCE_STD_XML=true" >> $GITHUB_ENV
+  
       - id: "deploy"
         uses: "google-github-actions/deploy-cloud-functions@v2"
         with:
@@ -88,3 +93,5 @@ jobs:
           runtime: "python312"
           region: "europe-west3"
           description: ${{ matrix.function.description }}
+          env_vars: ${{ env.FUNCTION_ENV_VARS }}
+
