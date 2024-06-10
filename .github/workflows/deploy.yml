@@ -54,6 +54,7 @@ jobs:
           subject-name: ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_IMAGE_NAME }}
           subject-digest: ${{ steps.push.outputs.digest }}
           push-to-registry: true
+          github-token: ${{ github.token }}
 
   deploy:
     runs-on: ubuntu-latest
