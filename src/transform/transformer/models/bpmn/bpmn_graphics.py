@@ -24,7 +24,7 @@ class BPMNDIObject(BPMNDIID):
     bpmnElement: str = attr()
 
 
-class DCBounds(BaseBPMNModel, tag="Bounds", ns="omgdc", nsmap=ns_map):
+class DCBounds(BaseBPMNModel, tag="Bounds", ns="dc", nsmap=ns_map):
     """DCBounds extension of BaseBPMNModel with x,y, width and height xml attributes."""
 
     x: float = attr(default=0)
@@ -33,7 +33,7 @@ class DCBounds(BaseBPMNModel, tag="Bounds", ns="omgdc", nsmap=ns_map):
     height: float = attr()
 
 
-class DIWaypoint(BaseBPMNModel, tag="waypoint", ns="omgdi", nsmap=ns_map):
+class DIWaypoint(BaseBPMNModel, tag="waypoint", ns="di", nsmap=ns_map):
     """DIWaypoint extension of BaseBPMNModel with x and y xml attribute."""
 
     x: float = attr(default=0)

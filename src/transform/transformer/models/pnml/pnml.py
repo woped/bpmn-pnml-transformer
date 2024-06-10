@@ -3,20 +3,24 @@
 from pathlib import Path
 from typing import cast
 
+from defusedxml.ElementTree import fromstring
 from pydantic import PrivateAttr
 from pydantic_xml import attr, element
 
 from transformer.models.pnml.base import (
     GenericNetNode,
-    Graphics,
     Inscription,
     Name,
     NetElement,
     Toolspecific,
+    ToolspecificGlobal,
 )
+from transformer.models.pnml.graphics import OffsetGraphics
 from transformer.models.pnml.transform_helper import (
     ANDHelperPNML,
     HelperPNMLElement,
+    MessageHelperPNML,
+    TimeHelperPNML,
     XORHelperPNML,
 )
 from transformer.utility.utility import (
@@ -51,7 +55,7 @@ class Arc(BaseModel, tag="arc"):
     source: str = attr()
     target: str = attr()
     inscription: Inscription | None = element(default=None)
-    graphics: Graphics | None = element(default=None)
+    graphics: OffsetGraphics | None = element(default=None)
     toolspecific: Toolspecific | None = element(default=None)
 
     def __hash__(self):
@@ -71,6 +75,8 @@ class Net(BaseModel, tag="net"):
     This class also contains internal helperstructures to improve the performance of
     operations. It also contains helper methods to modify the Net.
     """
+
+    toolspecific_global: ToolspecificGlobal | None = None
 
     type_field: str | None = attr(default=None, alias="type")
     id: str | None = attr(default=None)
@@ -118,6 +124,8 @@ class Net(BaseModel, tag="net"):
                 # Temporary helper elements (not actual petri net element)
                 XORHelperPNML: set([]),
                 ANDHelperPNML: set([]),
+                TimeHelperPNML: set([]),
+                MessageHelperPNML: set([]),
             },
         )
         for place in self.places:
@@ -272,28 +280,52 @@ class Net(BaseModel, tag="net"):
         storage_set.remove(to_remove_node)
 
         self._temp_elements.pop(to_remove_node.id)
-        incoming = self._temp_node_id_to_incoming.pop(to_remove_node.id)
-        outgoing = self._temp_node_id_to_outgoing.pop(to_remove_node.id)
+        incoming = self._temp_node_id_to_incoming.pop(to_remove_node.id, set())
+        outgoing = self._temp_node_id_to_outgoing.pop(to_remove_node.id, set())
         for arc in incoming:
             arc.target = ""
         for arc in outgoing:
             arc.source = ""
 
-    def get_incoming_and_remove_arcs(self, transition: Transition):
+    def change_id(self, old_id: str, new_id: str):
+        """Change the ID of a existing node and the connecting arcs."""
+        if old_id not in self._temp_elements:
+            raise Exception("old element not exisiting")
+        if new_id in self._temp_elements:
+            raise Exception("new id already exists")
+        current_node = self._temp_elements[old_id]
+        incoming, outgoing = self.get_incoming_outgoing_and_remove_arcs(current_node)
+        self.remove_element(current_node)
+        current_node.id = new_id
+        self.add_element(current_node)
+        self.connect_to_element(current_node, incoming)
+        self.connect_from_element(current_node, outgoing)
+
+    def remove_element_with_connecting_arcs(self, to_remove_node: GenericNetNode):
+        """Remove element by instance and connecting arcs."""
+        for arc in [
+            *self.get_incoming(to_remove_node.id),
+            *self.get_outgoing(to_remove_node.id),
+        ]:
+            self.remove_arc(arc)
+
+        self.remove_element(to_remove_node)
+
+    def get_incoming_and_remove_arcs(self, transition: NetElement):
         """Get a copy of each incoming arc and remove original arcs."""
         incoming_arcs = [arc.model_copy() for arc in self.get_incoming(transition.id)]
         for to_remove_arc in incoming_arcs:
             self.remove_arc(to_remove_arc)
         return incoming_arcs
 
-    def get_outgoing_and_remove_arcs(self, transition: Transition):
+    def get_outgoing_and_remove_arcs(self, transition: NetElement):
         """Get a copy of each outgoing arc and remove original arcs."""
         outgoing_arcs = [arc.model_copy() for arc in self.get_outgoing(transition.id)]
         for to_remove_arc in outgoing_arcs:
             self.remove_arc(to_remove_arc)
         return outgoing_arcs
 
-    def get_incoming_outgoing_and_remove_arcs(self, transition: Transition):
+    def get_incoming_outgoing_and_remove_arcs(self, transition: NetElement):
         """Get a copy of all connecting arc and remove original arcs."""
         return self.get_incoming_and_remove_arcs(
             transition
@@ -321,7 +353,7 @@ class Pnml(BaseModel, tag="pnml"):
 
     def to_string(self) -> str:
         """Return string of net instance as serialized XML."""
-        return cast(str, self.to_xml(encoding="unicode", pretty_print=False))
+        return cast(str, self.to_xml(encoding="unicode"))
 
     def write_to_file(self, path: str):
         """Save net to file."""
@@ -330,7 +362,8 @@ class Pnml(BaseModel, tag="pnml"):
     @staticmethod
     def from_xml_str(xml_content: str):
         """Return a petri net from a XML string."""
-        net = Pnml.from_xml(bytes(xml_content, encoding="utf-8"))
+        tree = fromstring(xml_content)
+        net = Pnml.from_xml_tree(tree)
         return net
 
     @staticmethod

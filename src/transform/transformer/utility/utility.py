@@ -2,15 +2,14 @@
 
 from xml.etree.ElementTree import Element
 
-from lxml import etree
 from pydantic_xml import BaseXmlModel
 
 WOPED = "WoPeD"
 
 
 def get_tag_name(element: Element):
-    """Return the lowercase tag name of an element."""
-    return etree.QName(element).localname.lower()
+    """Return the name of an element."""
+    return element.tag.rpartition("}")[2].lower()
 
 
 def create_silent_node_name(source: str, target: str):
@@ -32,8 +31,6 @@ class BaseModel(
 ):
     """BaseModel extension of BaseXmlModel."""
 
-    pass
-
 
 class BaseBPMNModel(
     BaseXmlModel,
@@ -42,5 +39,3 @@ class BaseBPMNModel(
     nsmap={"": "http://www.omg.org/spec/BPMN/20100524/MODEL"},
 ):
     """BaseBPMNModel extension of BaseXmlModel."""
-
-    pass

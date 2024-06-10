@@ -1,5 +1,7 @@
 """API to transform a given model into a selected direction."""
 
+import os
+
 import flask
 import functions_framework
 import firebase_admin
@@ -18,6 +20,7 @@ cred = credentials.Certificate("secrets/woped-422510-ff5224739dab.json")
 app = firebase_admin.initialize_app(cred)
 db = firestore.Client()
 
+
 def check_tokens():
     """Check if there are tokens available in the Firestore database."""
     if db is None:
@@ -35,6 +38,12 @@ def check_tokens():
 
     else:
         raise Exception("No document available")
+
+
+is_force_std_xml_active = os.getenv("FORCE_STD_XML")
+if is_force_std_xml_active is None:
+    raise Exception("Env variable is_force_std_xml_active not set!")
+
 
 @functions_framework.http
 def post_transform(request: flask.Request):
