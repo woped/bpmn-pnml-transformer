@@ -2,9 +2,8 @@
 
 from pathlib import Path
 from typing import cast
-from xml.etree.ElementTree import Element
 
-from lxml import etree, objectify
+from defusedxml.ElementTree import fromstring
 from pydantic import PrivateAttr
 from pydantic_xml import attr, element
 
@@ -455,10 +454,7 @@ class BPMN(BPMNNamespace, tag="definitions"):
     @staticmethod
     def from_xml(xml_content: str):
         """Return a BPMN from a XML string."""
-        parser = etree.XMLParser()
-        tree: Element = objectify.fromstring(
-            bytes(xml_content, encoding="utf-8"), parser
-        )
+        tree = fromstring(xml_content)
         used_tags: set[str] = set()
         for elem in tree.iter():
             used_tags.add(get_tag_name(elem))
@@ -483,7 +479,7 @@ class BPMN(BPMNNamespace, tag="definitions"):
     def to_string(self) -> str:
         """Transform this instance into a string and creates placeholder graphics."""
         self.set_graphics()
-        return cast(str, self.to_xml(encoding="unicode", pretty_print=False))
+        return cast(str, self.to_xml(encoding="unicode"))
 
     def write_to_file(self, path: str):
         """Save this instance xml encoded to a file."""
