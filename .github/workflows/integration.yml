@@ -48,8 +48,8 @@ jobs:
           PIPELINE_TIMESTAMP=$(date +%Y%m%d%H%M%S)
           echo "PIPELINE_TIMESTAMP=$PIPELINE_TIMESTAMP" >> $GITHUB_ENV
           echo "CANARY_FUNCTION_NAME=CANARY_${{ matrix.function.name }}_${{ github.event.pull_request.number || 'manual' }}_$PIPELINE_TIMESTAMP" >> $GITHUB_ENV
-          echo "GCP_SERVICE_ACCOUNT_CERTIFICATE_KV_PAIR=GCP_SERVICE_ACCOUNT_CERTIFICATE=${{ secrets.GCP_SERVICE_ACCOUNT_CERTIFICATE }}"
-          echo "GCP_SERVICE_ACCOUNT_CERTIFICATE=${{ secrets.GCP_SERVICE_ACCOUNT_CERTIFICATE }}"
+          echo "GCP_SERVICE_ACCOUNT_CERTIFICATE_KV_PAIR=GCP_SERVICE_ACCOUNT_CERTIFICATE=${{ secrets.GCP_SERVICE_ACCOUNT_CERTIFICATE }}" >> $GITHUB_ENV
+          echo "GCP_SERVICE_ACCOUNT_CERTIFICATE=${{ secrets.GCP_SERVICE_ACCOUNT_CERTIFICATE }}" >> $GITHUB_ENV
 
       # Set FORCE_STD_XML for transform function only if the flag exists and is true
       - name: Set FORCE_STD_XML if required
