@@ -7,6 +7,8 @@ on:
 
 env:
   PYTHON_VERSION: '3.12'
+  DOCKER_REGISTRY: 'woped'
+  DOCKER_IMAGE_NAME: 'pnml-bpmn-transformer'
 
 jobs:
 
@@ -34,7 +36,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: woped/pnml-bpmn-transformer
+          images: ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_IMAGE_NAME }}
   
       - name: Build and push Docker image
         id: push
@@ -49,7 +51,7 @@ jobs:
       - name: Generate artifact attestation
         uses: actions/attest-build-provenance@v1
         with:
-          subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME}}
+          subject-name: ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_IMAGE_NAME }}
           subject-digest: ${{ steps.push.outputs.digest }}
           push-to-registry: true
 
