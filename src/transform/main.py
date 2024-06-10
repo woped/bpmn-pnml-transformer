@@ -13,6 +13,7 @@ from transformer.transform_bpmn_to_petrinet.transform import (
     bpmn_to_workflow_net,
 )
 from transformer.transform_petrinet_to_bpmn.transform import pnml_to_bpmn
+from transformer.utility.utility import clean_xml_string
 
 CHECK_TOKEN_URL = 'https://europe-west3-woped-422510.cloudfunctions.net/checkTokens'
         
@@ -57,11 +58,11 @@ def post_transform(request: flask.Request):
             transformed_pnml = bpmn_to_workflow_net(bpmn)
         else:
             transformed_pnml = bpmn_to_st_net(bpmn)
-        return jsonify({"pnml": transformed_pnml.to_string()})
+        return jsonify({"pnml": clean_xml_string(transformed_pnml.to_string())})
     elif transform_direction == "pnmltobpmn":
         pnml_xml_content = request.form["pnml"]
         pnml = Pnml.from_xml_str(pnml_xml_content)
         transformed_bpmn = pnml_to_bpmn(pnml)
-        return jsonify({"bpmn": transformed_bpmn.to_string()})
+        return jsonify({"bpmn": clean_xml_string(transformed_bpmn.to_string())})
     else:
         raise Exception("Query params not supported")
