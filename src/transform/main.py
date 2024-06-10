@@ -21,6 +21,12 @@ if is_force_std_xml_active is None:
     raise Exception("Env variable is_force_std_xml_active not set!")
 
 
+
+is_force_std_xml_active = os.getenv("FORCE_STD_XML")
+if is_force_std_xml_active is None:
+    raise Exception("Env variable is_force_std_xml_active not set!")
+
+
 @functions_framework.http
 def post_transform(request: flask.Request):
     """HTTP based model transformation API.

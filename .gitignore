@@ -13,5 +13,8 @@ src/transform/test_log
 # VS Code
 .vscode/
 
+# Service Account Secrets
+secrets/
+
 # MacOS
 .DS_Store
