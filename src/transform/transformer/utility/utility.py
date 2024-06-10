@@ -24,6 +24,14 @@ def create_arc_name(source: str | None, target: str | None):
     return f"{source}TO{target}"
 
 
+def clean_xml_string(xml_string: str):
+    """Remove whitespaces and newline characters from string and add XML header."""
+    xml_string = xml_string.replace('\n', '').replace('\\"', '"')
+    if not xml_string.startswith('<?xml'):
+        xml_string = '<?xml version="1.0" encoding="UTF-8"?>' + xml_string
+    return xml_string
+
+
 class BaseModel(
     BaseXmlModel,
     search_mode="unordered",
