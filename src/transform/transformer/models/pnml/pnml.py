@@ -62,7 +62,7 @@ class Arc(BaseModel, tag="arc"):
         return hash((type(self),) + (self.id,) + (self.source,) + (self.target,))
 
 
-class Page(GenericNetNode, tag="page"):
+class Page(BaseModel, tag="page"):
     """Page extension of GenericNetNode (+Net)."""
 
     net: "Net"

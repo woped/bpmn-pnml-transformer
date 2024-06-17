@@ -126,11 +126,7 @@ class Toolspecific(BaseModel, tag="toolspecific"):
         return self.is_workflow_message() or self.is_workflow_time()
 
 
-class GenericNetNode(BaseModel):
-    """Generic NetNode extension of net id node."""
-
-
-class NetElement(GenericNetNode):
+class NetElement(BaseModel):
     """NetElement extension of GenericNetNode (+name, graphics, toolspecific)."""
 
     name: Name | None = None
