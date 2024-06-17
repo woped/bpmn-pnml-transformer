@@ -8,7 +8,7 @@ servers:
 paths:
   "/transform":
     post:
-      summary: "Returns the transformed diagram as XML."
+      summary: "Returns the transformed diagram as XML TEST."
       parameters:
         - name: direction
           in: query
