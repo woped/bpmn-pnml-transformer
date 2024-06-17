@@ -8,7 +8,7 @@ servers:
 paths:
   "/transform":
     post:
-      summary: "Returns the transformed diagram as XML TEST."
+      summary: "Returns the transformed diagram as XML."
       parameters:
         - name: direction
           in: query
@@ -23,14 +23,14 @@ paths:
           application/x-www-form-urlencoded:
             schema:
               oneOf:
-              - type: object
-                properties:
-                  bpmn:
-                    type: string
-              - type: object
-                properties:
-                  pnml:
-                    type: string
+                - type: object
+                  properties:
+                    bpmn:
+                      type: string
+                - type: object
+                  properties:
+                    pnml:
+                      type: string
             #examples:
              # bpmntopnml:
               #  summary: Example of a BPMN to PNML request
