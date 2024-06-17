@@ -5,7 +5,7 @@ with the health status of the service, indicating if it's operational.
 """
 
 import functions_framework
-from flask import jsonify
+from flask import jsonify, make_response
 
 @functions_framework.http
 def get_health(request):
@@ -19,8 +19,16 @@ def get_health(request):
         Response object using `make_response`
         <https://flask.palletsprojects.com/en/1.1.x/api/#flask.make_response>.
     """
+    if request.method == 'OPTIONS':
+        # Handle CORS preflight request
+        response = make_response()
+        response.headers['Access-Control-Allow-Origin'] = '*'
+        response.headers['Access-Control-Allow-Methods'] = 'GET,OPTIONS'
+        response.headers['Access-Control-Allow-Headers'] = 'Content-Type,Authorization'
+        return response
+
     health_status = {
-        "healthy" : True
+        "healthy": True
     }
 
     if request and request.args:
@@ -28,10 +36,13 @@ def get_health(request):
             health_status["message"] = request.args["message"]
         else:
             error = {
-                "code" : 400,
+                "code": 400,
                 "message": "Invalid parameter provided.",
             }
-            return jsonify(error), error["code"]
+            response = jsonify(error)
+            response.headers['Access-Control-Allow-Origin'] = '*'
+            return response, error["code"]
 
-
-    return jsonify(health_status)
+    response = jsonify(health_status)
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    return response
