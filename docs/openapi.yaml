@@ -22,20 +22,15 @@ paths:
         content:
           application/x-www-form-urlencoded:
             schema:
-              type: object
-              properties:
-                attr1:
-                  type: string
-                attr2:
-                  type: string
-                language:
-                  type: string
-                  default: en
-                  enum:
-                    - en
-                    - es
-              required:
-                - language
+              oneOf:
+              - type: object
+                properties:
+                  bpmn:
+                    type: string
+              - type: object
+                properties:
+                  pnml:
+                    type: string
             #examples:
              # bpmntopnml:
               #  summary: Example of a BPMN to PNML request
