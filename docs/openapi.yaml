@@ -22,6 +22,7 @@ paths:
         content:
           application/x-www-form-urlencoded:
             schema:
+              type: object
               oneOf:
                 - properties:
                     direction:
@@ -39,15 +40,15 @@ paths:
                       type: string
                       description: 'Necessary parameter, if direction is "pnmltobpmn".'
                   required: [direction, pnml]
-            examples:
-              bpmntopnml:
-                summary: Example of a BPMN to PNML request
-                value:
-                  bpmn: "<BPMN XML content here>"
-              pnmltobpmn:
-                summary: Example of a PNML to BPMN request
-                value:
-                  pnml: "<PNML XML content here>"
+            #examples:
+             # bpmntopnml:
+              #  summary: Example of a BPMN to PNML request
+               # value:
+                #  bpmn: "<BPMN XML content here>"
+              #pnmltobpmn:
+               # summary: Example of a PNML to BPMN request
+                #value:
+                 # pnml: "<PNML XML content here>"
       responses:
         200:
           description: Successful conversion
