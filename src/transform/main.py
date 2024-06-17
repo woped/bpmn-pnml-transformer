@@ -35,7 +35,7 @@ def post_transform(request: flask.Request):
         # Handle CORS preflight request
         response = make_response()
         response.headers['Access-Control-Allow-Origin'] = '*'
-        response.headers['Access-Control-Allow-Methods'] = 'GET,OPTIONS'
+        response.headers['Access-Control-Allow-Methods'] = 'POST,OPTIONS'
         response.headers['Access-Control-Allow-Headers'] = 'Content-Type,Authorization'
         return response
 
