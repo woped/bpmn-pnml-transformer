@@ -8,18 +8,56 @@ servers:
 paths:
   "/transform":
     post:
-      summary: "Returns the transformed diagram."
+      summary: "Returns the transformed diagram as XML."
       parameters:
-        - in: query
-          name: direction
+        - name: direction
+          in: query
           required: true
           schema:
             type: string
             enum: [bpmntopnml, pnmltobpmn]
-          description: The direction in which the transformation should be performed.
+          description: Specifies the direction of the transformation.
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              oneOf:
+                - properties:
+                    direction:
+                      type: string
+                      enum: [bpmntopnml]
+                    bpmn:
+                      type: string
+                      description: 'Necessary parameter, if direction is "bpmntopnml".'
+                  required: [direction, bpmn]
+                - properties:
+                    direction:
+                      type: string
+                      enum: [pnmltobpmnCa]
+                    pnml:
+                      type: string
+                      description: 'Necessary parameter, if direction is "pnmltobpmn".'
+                  required: [direction, pnml]
+            examples:
+              bpmntopnml:
+                summary: Example of a BPMN to PNML request
+                value:
+                  bpmn: "<BPMN XML content here>"
+              pnmltobpmn:
+                summary: Example of a PNML to BPMN request
+                value:
+                  pnml: "<PNML XML content here>"
       responses:
+        200:
+          description: Successful conversion
+        400:
+          description: Invalid input
+  "/health":
+    get:
+      summary: Shows the health status of the transformer.
+            responses:
         200:
           description: "OK"
         400:
           description: "Bad Request"
-
