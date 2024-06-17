@@ -2,15 +2,14 @@
 
 from xml.etree.ElementTree import Element
 
-from lxml import etree
 from pydantic_xml import BaseXmlModel
 
 WOPED = "WoPeD"
 
 
 def get_tag_name(element: Element):
-    """Return the lowercase tag name of an element."""
-    return etree.QName(element).localname.lower()
+    """Return the name of an element."""
+    return element.tag.rpartition("}")[2].lower()
 
 
 def create_silent_node_name(source: str, target: str):
@@ -23,6 +22,14 @@ def create_arc_name(source: str | None, target: str | None):
     if source is None or target is None:
         raise Exception("source and target must have a value")
     return f"{source}TO{target}"
+
+
+def clean_xml_string(xml_string: str):
+    """Remove whitespaces and newline characters from string and add XML header."""
+    xml_string = xml_string.replace('\n', '').replace('\\"', '"')
+    if not xml_string.startswith('<?xml'):
+        xml_string = '<?xml version="1.0" encoding="UTF-8"?>' + xml_string
+    return xml_string
 
 
 class BaseModel(
