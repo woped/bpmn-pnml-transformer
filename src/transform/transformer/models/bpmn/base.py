@@ -29,12 +29,6 @@ class GenericIdNode(BPMNNamespace):
         return hash((type(self),) + (self.id,))
 
 
-class FlowRef(BaseBPMNModel):
-    """Extension of BaseBPMNModel."""
-
-    text: str
-
-
 class GenericBPMNNode(GenericIdNode):
     """BPMN extension of GenericIdNode with name, incoming and outgoing attribute."""
 
