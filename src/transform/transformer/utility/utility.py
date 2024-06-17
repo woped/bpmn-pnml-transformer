@@ -3,7 +3,7 @@
 from xml.etree.ElementTree import Element
 
 from pydantic_xml import BaseXmlModel
-from pydantic_xml import attr, element
+from pydantic_xml import attr
 
 WOPED = "WoPeD"
 
