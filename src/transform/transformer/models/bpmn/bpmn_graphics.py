@@ -12,14 +12,8 @@ class BPMNDINamespace(BaseBPMNModel, ns="bpmndi", nsmap=ns_map):
     pass
 
 
-class BPMNDIID(BPMNDINamespace):
-    """BPMNDIID extension of BPMNDINamespace with string ID attribute."""
-
-    id: str | None = attr(default=None)
-
-
-class BPMNDIObject(BPMNDIID):
-    """BPMNDIObject extension of BPMNDIID with element xml attribute."""
+class BPMNDIObject(BPMNDINamespace):
+    """BPMNDIObject extension of BPMNDINamespace with element xml attribute."""
 
     bpmnElement: str = attr()
 
@@ -67,7 +61,7 @@ class BPMNPlane(BPMNDIObject, tag="BPMNPlane"):
     eles: list[BPMNShape | BPMNEdge] = element(default_factory=list)
 
 
-class BPMNDiagram(BPMNDIID, tag="BPMNDiagram"):
-    """BPMNDiagram extension of BPMNDIID with plane as attribute."""
+class BPMNDiagram(BPMNDINamespace, tag="BPMNDiagram"):
+    """BPMNDiagram extension of BPMNDINamespace with plane as attribute."""
 
     plane: BPMNPlane | None = element(default=None)
