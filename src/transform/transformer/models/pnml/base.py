@@ -127,7 +127,7 @@ class Toolspecific(BaseModel, tag="toolspecific"):
 
 
 class NetElement(BaseModel):
-    """NetElement extension of GenericNetNode (+name, graphics, toolspecific)."""
+    """NetElement extension of BaseModel (+name, graphics, toolspecific)."""
 
     name: Name | None = None
     graphics: PositionGraphics | None = None
