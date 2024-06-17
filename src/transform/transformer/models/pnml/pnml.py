@@ -51,7 +51,6 @@ class Place(NetElement, tag="place"):
 class Arc(BaseModel, tag="arc"):
     """Arc extension of BaseModel (+ID,source,target,inscription...)."""
 
-    id: str = attr()
     source: str = attr()
     target: str = attr()
     inscription: Inscription | None = element(default=None)
