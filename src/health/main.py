@@ -1,5 +1,4 @@
-"""
-Implements the 'get_health' HTTP Cloud Function.
+"""Implements the 'get_health' HTTP Cloud Function.
 
 This module defines a Google Cloud Function for responding to HTTP requests
 with the health status of the service, indicating if it's operational.
