@@ -19,26 +19,12 @@ class BPMNNamespace(BaseBPMNModel, ns="bpmn", nsmap=ns_map):
     """Extension of BaseBPMNModel with namespace bpmn and namespace map."""
 
 
-class GenericIdNode(BPMNNamespace):
-    """Extension of BPMNNamespace with id attribute and hash method."""
-
-    id: str = attr()
-
-    def __hash__(self):
-        """Returns a hash of this instance."""
-        return hash((type(self),) + (self.id,))
-
-
-class GenericBPMNNode(GenericIdNode):
+class GenericBPMNNode(BPMNNamespace):
     """BPMN extension of GenericIdNode with name, incoming and outgoing attribute."""
 
     name: str | None = attr(default=None)
     incoming: set[str] = element("incoming", default_factory=set)
     outgoing: set[str] = element("outgoing", default_factory=set)
-
-    def __hash__(self):
-        """Returns a hash of this instance."""
-        return hash((type(self),) + (self.id,))
 
     def get_in_degree(self):
         """Returns incoming degree of this instance."""
