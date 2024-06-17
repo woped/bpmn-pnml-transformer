@@ -22,9 +22,20 @@ paths:
         content:
           application/x-www-form-urlencoded:
             schema:
-              oneOf:
-                - $ref: '#/components/schemas/BPMNtoPNMLRequest'
-                - $ref: '#/components/schemas/PNMLtoBPMNRequest'
+              type: object
+              properties:
+                attr1:
+                  type: string
+                attr2:
+                  type: string
+                language:
+                  type: string
+                  default: en
+                  enum:
+                    - en
+                    - es
+              required:
+                - language
             #examples:
              # bpmntopnml:
               #  summary: Example of a BPMN to PNML request
@@ -47,21 +58,3 @@ paths:
           description: OK
         400:
           description: Bad Request
-components:
-  schemas:
-    BPMNtoPNMLRequest:
-      type: object
-      properties:
-        bpmn:
-          type: string
-          description: BPMN XML content
-      required:
-        - bpmn
-    PNMLtoBPMNRequest:
-      type: object
-      properties:
-        pnml:
-          type: string
-          description: PNML XML content
-      required:
-        - pnml
