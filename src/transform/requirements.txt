@@ -1,4 +1,4 @@
 lxml==5.2.2
-pydantic==2.7.3
+pydantic==2.7.4
 pydantic_xml==2.11.0
 defusedxml==0.7.1

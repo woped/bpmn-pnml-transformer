@@ -18,7 +18,7 @@ pip==24.0
 pluggy==1.5.0
 pytest==8.2.2
 requests==2.32.3
-ruff==0.4.8
+ruff==0.4.9
 setuptools==70.0.0
 urllib3==2.2.1
 watchdog==4.0.1
@@ -26,6 +26,6 @@ Werkzeug==3.0.3
 wheel==0.43.0
 # 
 lxml==5.2.2
-pydantic==2.7.3
+pydantic==2.7.4
 pydantic_xml==2.11.0
 defusedxml==0.7.1
