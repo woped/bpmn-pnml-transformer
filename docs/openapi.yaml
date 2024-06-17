@@ -55,9 +55,9 @@ paths:
           description: Invalid input
   "/health":
     get:
-      summary: Shows the health status of the transformer.
-            responses:
+      summary: Shows the health status of transformer.
+      responses:
         200:
-          description: "OK"
+          description: OK
         400:
-          description: "Bad Request"
+          description: Bad Request
