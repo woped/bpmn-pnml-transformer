@@ -22,9 +22,9 @@ paths:
         content:
           application/x-www-form-urlencoded:
             schema:
-              type: object
               oneOf:
-                - properties:
+                - type: object
+                  properties:
                     direction:
                       type: string
                       enum: [bpmntopnml]
@@ -32,7 +32,8 @@ paths:
                       type: string
                       description: 'Necessary parameter, if direction is "bpmntopnml".'
                   required: [direction, bpmn]
-                - properties:
+                - type: object
+                  properties:
                     direction:
                       type: string
                       enum: [pnmltobpmnCa]
