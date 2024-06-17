@@ -133,10 +133,6 @@ class NetElement(BaseModel):
     graphics: PositionGraphics | None = None
     toolspecific: Toolspecific | None = None
 
-    def __hash__(self):
-        """Return instance hashed by type and id."""
-        return hash((type(self),) + (self.id,))
-
     def get_name(self):
         """Returns name of instance."""
         if not self.name:
