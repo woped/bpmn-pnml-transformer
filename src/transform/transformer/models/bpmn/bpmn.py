@@ -171,7 +171,7 @@ class ServiceTask(GenericTask, tag="serviceTask"):
 # Flow
 
 
-class Flow(GenericIdNode, tag="sequenceFlow"):
+class Flow(BPMNNamespace, tag="sequenceFlow"):
     """Flow extension of GenericBPMNNode."""
 
     name: str | None = attr(default=None)
