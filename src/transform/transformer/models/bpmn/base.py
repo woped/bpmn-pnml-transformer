@@ -20,7 +20,7 @@ class BPMNNamespace(BaseBPMNModel, ns="bpmn", nsmap=ns_map):
 
 
 class GenericBPMNNode(BPMNNamespace):
-    """BPMN extension of GenericIdNode with name, incoming and outgoing attribute."""
+    """BPMN extension of BPMNNamespace with name, incoming and outgoing attribute."""
 
     name: str | None = attr(default=None)
     incoming: set[str] = element("incoming", default_factory=set)
