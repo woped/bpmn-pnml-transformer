@@ -78,7 +78,6 @@ class Net(BaseModel, tag="net"):
     toolspecific_global: ToolspecificGlobal | None = None
 
     type_field: str | None = attr(default=None, alias="type")
-    id: str | None = attr(default=None)
 
     places: set[Place] = element(default_factory=set)
     transitions: set[Transition] = element(default_factory=set)
