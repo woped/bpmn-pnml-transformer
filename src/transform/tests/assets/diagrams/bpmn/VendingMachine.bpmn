@@ -1,0 +1,273 @@
+<?xml version="1.0" encoding="UTF-8"?><definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" xmlns:signavio="http://www.signavio.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" exporter="Signavio Process Editor, http://www.signavio.com" exporterVersion="18.1.3" expressionLanguage="http://www.w3.org/TR/XPath" id="sid-b673d28b-8561-4bff-8926-ceff104c4423" targetNamespace="http://www.signavio.com" typeLanguage="http://www.w3.org/2001/XMLSchema" xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL http://www.omg.org/spec/BPMN/2.0/20100501/BPMN20.xsd">
+   <process id="noID" isClosed="false" isExecutable="true" processType="None">
+      <extensionElements>
+         <signavio:signavioDiagramMetaData metaKey="prozessreifegrad" metaValue=""/>
+         <signavio:signavioDiagramMetaData metaKey="iso9000ff" metaValue=""/>
+         <signavio:signavioDiagramMetaData metaKey="processgoal" metaValue=""/>
+         <signavio:signavioDiagramMetaData metaKey="meta-processowner" metaValue=""/>
+         <signavio:signavioDiagramMetaData metaKey="revisionid" metaValue="6f2a1a0d85eb4f0e9e4f056928dcf61a"/>
+      </extensionElements>
+      <task completionQuantity="1" id="t4" isForCompensation="false" name="brew" startQuantity="1">
+         <extensionElements>
+            <signavio:signavioMetaData metaKey="bgcolor" metaValue="#ffffcc"/>
+            <signavio:signavioMetaData metaKey="bordercolor" metaValue="#000000"/>
+            <signavio:signavioMetaData metaKey="erteiltfreigabe" metaValue=""/>
+            <signavio:signavioMetaData metaKey="meta-risks" metaValue=""/>
+            <signavio:signavioMetaData metaKey="wirdkonsultiert" metaValue=""/>
+            <signavio:signavioMetaData metaKey="externaldocuments" metaValue=""/>
+            <signavio:signavioMetaData metaKey="wirdinformiert" metaValue=""/>
+         </extensionElements>
+         <incoming>OUTANDt3TOt4</incoming>
+         <outgoing>t4TOt3</outgoing>
+      </task>
+      <task completionQuantity="1" id="t1" isForCompensation="false" name="reject" startQuantity="1">
+         <extensionElements>
+            <signavio:signavioMetaData metaKey="bgcolor" metaValue="#ffffcc"/>
+            <signavio:signavioMetaData metaKey="bordercolor" metaValue="#000000"/>
+            <signavio:signavioMetaData metaKey="erteiltfreigabe" metaValue=""/>
+            <signavio:signavioMetaData metaKey="meta-risks" metaValue=""/>
+            <signavio:signavioMetaData metaKey="wirdkonsultiert" metaValue=""/>
+            <signavio:signavioMetaData metaKey="externaldocuments" metaValue=""/>
+            <signavio:signavioMetaData metaKey="wirdinformiert" metaValue=""/>
+         </extensionElements>
+         <incoming>p1TOt1</incoming>
+         <outgoing>t1TOp0</outgoing>
+      </task>
+      <task completionQuantity="1" id="t2" isForCompensation="false" name="accept" startQuantity="1">
+         <extensionElements>
+            <signavio:signavioMetaData metaKey="bgcolor" metaValue="#ffffcc"/>
+            <signavio:signavioMetaData metaKey="bordercolor" metaValue="#000000"/>
+            <signavio:signavioMetaData metaKey="erteiltfreigabe" metaValue=""/>
+            <signavio:signavioMetaData metaKey="meta-risks" metaValue=""/>
+            <signavio:signavioMetaData metaKey="wirdkonsultiert" metaValue=""/>
+            <signavio:signavioMetaData metaKey="externaldocuments" metaValue=""/>
+            <signavio:signavioMetaData metaKey="wirdinformiert" metaValue=""/>
+         </extensionElements>
+         <incoming>p1TOt2</incoming>
+         <outgoing>t2TOt3</outgoing>
+      </task>
+      <task completionQuantity="1" id="t0" isForCompensation="false" name="insert" startQuantity="1">
+         <extensionElements>
+            <signavio:signavioMetaData metaKey="bgcolor" metaValue="#ffffcc"/>
+            <signavio:signavioMetaData metaKey="bordercolor" metaValue="#000000"/>
+            <signavio:signavioMetaData metaKey="erteiltfreigabe" metaValue=""/>
+            <signavio:signavioMetaData metaKey="meta-risks" metaValue=""/>
+            <signavio:signavioMetaData metaKey="wirdkonsultiert" metaValue=""/>
+            <signavio:signavioMetaData metaKey="externaldocuments" metaValue=""/>
+            <signavio:signavioMetaData metaKey="wirdinformiert" metaValue=""/>
+         </extensionElements>
+         <incoming>p0TOt0</incoming>
+         <outgoing>t0TOp1</outgoing>
+      </task>
+      <task completionQuantity="1" id="EXPLICITt3" isForCompensation="false" name="dispense" startQuantity="1">
+         <extensionElements>
+            <signavio:signavioMetaData metaKey="bgcolor" metaValue="#ffffcc"/>
+            <signavio:signavioMetaData metaKey="bordercolor" metaValue="#000000"/>
+            <signavio:signavioMetaData metaKey="erteiltfreigabe" metaValue=""/>
+            <signavio:signavioMetaData metaKey="meta-risks" metaValue=""/>
+            <signavio:signavioMetaData metaKey="wirdkonsultiert" metaValue=""/>
+            <signavio:signavioMetaData metaKey="externaldocuments" metaValue=""/>
+            <signavio:signavioMetaData metaKey="wirdinformiert" metaValue=""/>
+         </extensionElements>
+         <incoming>t3TOEXPLICITt3</incoming>
+         <outgoing>EXPLICITt3TOOUTANDt3</outgoing>
+      </task>
+      <exclusiveGateway gatewayDirection="Diverging" id="p1" name="inserted">
+         <extensionElements>
+            <signavio:signavioMetaData metaKey="bgcolor" metaValue="#ffffff"/>
+            <signavio:signavioMetaData metaKey="bordercolor" metaValue="#000000"/>
+         </extensionElements>
+         <incoming>t0TOp1</incoming>
+         <outgoing>p1TOt2</outgoing>
+         <outgoing>p1TOt1</outgoing>
+      </exclusiveGateway>
+      <exclusiveGateway gatewayDirection="Converging" id="p0" name="ready">
+         <extensionElements>
+            <signavio:signavioMetaData metaKey="bgcolor" metaValue="#ffffff"/>
+            <signavio:signavioMetaData metaKey="bordercolor" metaValue="#000000"/>
+         </extensionElements>
+         <incoming>t1TOp0</incoming>
+         <incoming>OUTANDt3TOp0</incoming>
+         <outgoing>p0TOt0</outgoing>
+      </exclusiveGateway>
+      <parallelGateway gatewayDirection="Diverging" id="OUTANDt3" name="">
+         <extensionElements>
+            <signavio:signavioMetaData metaKey="bgcolor" metaValue="#ffffff"/>
+            <signavio:signavioMetaData metaKey="bordercolor" metaValue="#000000"/>
+         </extensionElements>
+         <incoming>EXPLICITt3TOOUTANDt3</incoming>
+         <outgoing>OUTANDt3TOt4</outgoing>
+         <outgoing>OUTANDt3TOp0</outgoing>
+      </parallelGateway>
+      <parallelGateway gatewayDirection="Converging" id="t3" name="">
+         <extensionElements>
+            <signavio:signavioMetaData metaKey="bgcolor" metaValue="#ffffff"/>
+            <signavio:signavioMetaData metaKey="bordercolor" metaValue="#000000"/>
+         </extensionElements>
+         <incoming>t4TOt3</incoming>
+         <incoming>t2TOt3</incoming>
+         <outgoing>t3TOEXPLICITt3</outgoing>
+      </parallelGateway>
+      <sequenceFlow id="p0TOt0" isImmediate="true" name="" sourceRef="p0" targetRef="t0">
+         <extensionElements>
+            <signavio:signavioMetaData metaKey="bordercolor" metaValue="#000000"/>
+         </extensionElements>
+      </sequenceFlow>
+      <sequenceFlow id="t1TOp0" isImmediate="true" name="" sourceRef="t1" targetRef="p0">
+         <extensionElements>
+            <signavio:signavioMetaData metaKey="bordercolor" metaValue="#000000"/>
+         </extensionElements>
+      </sequenceFlow>
+      <sequenceFlow id="t3TOEXPLICITt3" isImmediate="true" name="" sourceRef="t3" targetRef="EXPLICITt3">
+         <extensionElements>
+            <signavio:signavioMetaData metaKey="bordercolor" metaValue="#000000"/>
+         </extensionElements>
+      </sequenceFlow>
+      <sequenceFlow id="p1TOt2" isImmediate="true" name="" sourceRef="p1" targetRef="t2">
+         <extensionElements>
+            <signavio:signavioMetaData metaKey="bordercolor" metaValue="#000000"/>
+         </extensionElements>
+      </sequenceFlow>
+      <sequenceFlow id="OUTANDt3TOt4" isImmediate="true" name="" sourceRef="OUTANDt3" targetRef="t4">
+         <extensionElements>
+            <signavio:signavioMetaData metaKey="bordercolor" metaValue="#000000"/>
+         </extensionElements>
+      </sequenceFlow>
+      <sequenceFlow id="OUTANDt3TOp0" isImmediate="true" name="" sourceRef="OUTANDt3" targetRef="p0">
+         <extensionElements>
+            <signavio:signavioMetaData metaKey="bordercolor" metaValue="#000000"/>
+         </extensionElements>
+      </sequenceFlow>
+      <sequenceFlow id="t4TOt3" isImmediate="true" name="" sourceRef="t4" targetRef="t3">
+         <extensionElements>
+            <signavio:signavioMetaData metaKey="bordercolor" metaValue="#000000"/>
+         </extensionElements>
+      </sequenceFlow>
+      <sequenceFlow id="t2TOt3" isImmediate="true" name="" sourceRef="t2" targetRef="t3">
+         <extensionElements>
+            <signavio:signavioMetaData metaKey="bordercolor" metaValue="#000000"/>
+         </extensionElements>
+      </sequenceFlow>
+      <sequenceFlow id="EXPLICITt3TOOUTANDt3" isImmediate="true" name="" sourceRef="EXPLICITt3" targetRef="OUTANDt3">
+         <extensionElements>
+            <signavio:signavioMetaData metaKey="bordercolor" metaValue="#000000"/>
+         </extensionElements>
+      </sequenceFlow>
+      <sequenceFlow id="t0TOp1" isImmediate="true" name="" sourceRef="t0" targetRef="p1">
+         <extensionElements>
+            <signavio:signavioMetaData metaKey="bordercolor" metaValue="#000000"/>
+         </extensionElements>
+      </sequenceFlow>
+      <sequenceFlow id="p1TOt1" isImmediate="true" name="" sourceRef="p1" targetRef="t1">
+         <extensionElements>
+            <signavio:signavioMetaData metaKey="bordercolor" metaValue="#000000"/>
+         </extensionElements>
+      </sequenceFlow>
+   </process>
+   <bpmndi:BPMNDiagram id="sid-235c99cb-fde5-4bf3-b838-d676842453fa">
+      <bpmndi:BPMNPlane bpmnElement="noID" id="sid-5c23274b-1a63-4d5d-a887-38dc94044ebc">
+         <bpmndi:BPMNShape bpmnElement="t4" id="t4_gui">
+            <omgdc:Bounds height="80.0" width="99.99999999999999" x="109.99999836087228" y="499.99998763203666"/>
+            <bpmndi:BPMNLabel labelStyle="sid-f7b3f375-05a5-40c7-b092-d5759e6b8dac">
+               <omgdc:Bounds height="12.0" width="26.22856903076172" x="146.8857138454914" y="531.9999876320367"/>
+            </bpmndi:BPMNLabel>
+         </bpmndi:BPMNShape>
+         <bpmndi:BPMNShape bpmnElement="t1" id="t1_gui">
+            <omgdc:Bounds height="80.0" width="100.0" x="393.7288014699843" y="128.82447641254134"/>
+            <bpmndi:BPMNLabel labelStyle="sid-f7b3f375-05a5-40c7-b092-d5759e6b8dac">
+               <omgdc:Bounds height="12.0" width="30.857147216796875" x="428.3002278615859" y="160.82447641254134"/>
+            </bpmndi:BPMNLabel>
+         </bpmndi:BPMNShape>
+         <bpmndi:BPMNShape bpmnElement="t2" id="t2_gui">
+            <omgdc:Bounds height="80.0" width="99.99999999999989" x="614.9340797091226" y="614.999984055758"/>
+            <bpmndi:BPMNLabel labelStyle="sid-f7b3f375-05a5-40c7-b092-d5759e6b8dac">
+               <omgdc:Bounds height="12.0" width="34.71428680419922" x="647.576936307023" y="646.999984055758"/>
+            </bpmndi:BPMNLabel>
+         </bpmndi:BPMNShape>
+         <bpmndi:BPMNShape bpmnElement="t0" id="t0_gui">
+            <omgdc:Bounds height="80.0" width="100.0" x="614.9340609356244" y="279.9999958276749"/>
+            <bpmndi:BPMNLabel labelStyle="sid-f7b3f375-05a5-40c7-b092-d5759e6b8dac">
+               <omgdc:Bounds height="12.0" width="30.857147216796875" x="649.505487327226" y="311.9999958276749"/>
+            </bpmndi:BPMNLabel>
+         </bpmndi:BPMNShape>
+         <bpmndi:BPMNShape bpmnElement="EXPLICITt3" id="EXPLICITt3_gui">
+            <omgdc:Bounds height="79.99999999999989" width="99.99999999999989" x="393.7288140980867" y="612.0717265333336"/>
+            <bpmndi:BPMNLabel labelStyle="sid-f7b3f375-05a5-40c7-b092-d5759e6b8dac">
+               <omgdc:Bounds height="12.0" width="47.82856750488281" x="419.81453034564527" y="644.0717265333336"/>
+            </bpmndi:BPMNLabel>
+         </bpmndi:BPMNShape>
+         <bpmndi:BPMNShape bpmnElement="p1" id="p1_gui" isMarkerVisible="true">
+            <omgdc:Bounds height="40.0" width="40.0" x="644.934070098856" y="519.9999843537814"/>
+            <bpmndi:BPMNLabel labelStyle="sid-13a18b63-d897-470b-9c24-f838a299531a">
+               <omgdc:Bounds height="12.0" width="43.97142791748047" x="675.434070098856" y="550.4999843537814"/>
+            </bpmndi:BPMNLabel>
+         </bpmndi:BPMNShape>
+         <bpmndi:BPMNShape bpmnElement="p0" id="p0_gui" isMarkerVisible="true">
+            <omgdc:Bounds height="40.0" width="40.0" x="423.72881365105184" y="300.0"/>
+            <bpmndi:BPMNLabel labelStyle="sid-13a18b63-d897-470b-9c24-f838a299531a">
+               <omgdc:Bounds height="12.0" width="30.085716247558594" x="454.22881365105184" y="330.5"/>
+            </bpmndi:BPMNLabel>
+         </bpmndi:BPMNShape>
+         <bpmndi:BPMNShape bpmnElement="OUTANDt3" id="OUTANDt3_gui">
+            <omgdc:Bounds height="40.0" width="40.0" x="423.72881996510324" y="519.9999873340134"/>
+         </bpmndi:BPMNShape>
+         <bpmndi:BPMNShape bpmnElement="t3" id="t3_gui">
+            <omgdc:Bounds height="40.0" width="40.0" x="423.7288073370006" y="812.4450664242687"/>
+         </bpmndi:BPMNShape>
+         <bpmndi:BPMNEdge bpmnElement="p0TOt0" id="p0TOt0_gui">
+            <omgdi:waypoint x="463.72881365105184" y="319.9999995154242"/>
+            <omgdi:waypoint x="614.9340609356244" y="319.9999958519037"/>
+         </bpmndi:BPMNEdge>
+         <bpmndi:BPMNEdge bpmnElement="t1TOp0" id="t1TOp0_gui">
+            <omgdi:waypoint x="443.72880157857367" y="208.82447641254134"/>
+            <omgdi:waypoint x="443.7288114792648" y="300.0"/>
+         </bpmndi:BPMNEdge>
+         <bpmndi:BPMNEdge bpmnElement="t3TOEXPLICITt3" id="t3TOEXPLICITt3_gui">
+            <omgdi:waypoint x="443.7288082934873" y="812.4450664242687"/>
+            <omgdi:waypoint x="443.7288140502623" y="692.0717265333335"/>
+         </bpmndi:BPMNEdge>
+         <bpmndi:BPMNEdge bpmnElement="p1TOt2" id="p1TOt2_gui">
+            <omgdi:waypoint x="664.9340726278735" y="559.9999843537814"/>
+            <omgdi:waypoint x="664.9340795826716" y="614.999984055758"/>
+         </bpmndi:BPMNEdge>
+         <bpmndi:BPMNEdge bpmnElement="OUTANDt3TOt4" id="OUTANDt3TOt4_gui">
+            <omgdi:waypoint x="423.72881996510324" y="539.9999873555083"/>
+            <omgdi:waypoint x="209.99999836087227" y="539.99998757961"/>
+         </bpmndi:BPMNEdge>
+         <bpmndi:BPMNEdge bpmnElement="OUTANDt3TOp0" id="OUTANDt3TOp0_gui">
+            <omgdi:waypoint x="443.7288193910985" y="519.9999873340134"/>
+            <omgdi:waypoint x="443.72881422505657" y="340.0"/>
+         </bpmndi:BPMNEdge>
+         <bpmndi:BPMNEdge bpmnElement="t4TOt3" id="t4TOt3_gui">
+            <omgdi:waypoint x="159.99302424349926" y="579.9999876320367"/>
+            <omgdi:waypoint x="158.23244263376563" y="832.4450664242687"/>
+            <omgdi:waypoint x="423.7288073370006" y="832.4450664242687"/>
+         </bpmndi:BPMNEdge>
+         <bpmndi:BPMNEdge bpmnElement="t2TOt3" id="t2TOt3_gui">
+            <omgdi:waypoint x="664.9340797091226" y="694.999984055758"/>
+            <omgdi:waypoint x="664.9340797091226" y="832.4450664242687"/>
+            <omgdi:waypoint x="463.7288073370006" y="832.4450664242687"/>
+         </bpmndi:BPMNEdge>
+         <bpmndi:BPMNEdge bpmnElement="EXPLICITt3TOOUTANDt3" id="EXPLICITt3TOOUTANDt3_gui">
+            <omgdi:waypoint x="443.72881996510324" y="612.0717265333336"/>
+            <omgdi:waypoint x="443.72881996510324" y="559.9999873340134"/>
+         </bpmndi:BPMNEdge>
+         <bpmndi:BPMNEdge bpmnElement="t0TOp1" id="t0TOp1_gui">
+            <omgdi:waypoint x="664.9340626016666" y="359.9999958276749"/>
+            <omgdi:waypoint x="664.9340692658349" y="519.9999843537814"/>
+         </bpmndi:BPMNEdge>
+         <bpmndi:BPMNEdge bpmnElement="p1TOt1" id="p1TOt1_gui">
+            <omgdi:waypoint x="684.934070098856" y="539.9999843537814"/>
+            <omgdi:waypoint x="786.0" y="539.9999843537814"/>
+            <omgdi:waypoint x="786.0" y="160.72766488386264"/>
+            <omgdi:waypoint x="493.72880146998426" y="160.72766488386264"/>
+         </bpmndi:BPMNEdge>
+      </bpmndi:BPMNPlane>
+      <bpmndi:BPMNLabelStyle id="sid-13a18b63-d897-470b-9c24-f838a299531a">
+         <omgdc:Font isBold="false" isItalic="false" isStrikeThrough="false" isUnderline="false" name="Arial" size="11.0"/>
+      </bpmndi:BPMNLabelStyle>
+      <bpmndi:BPMNLabelStyle id="sid-f7b3f375-05a5-40c7-b092-d5759e6b8dac">
+         <omgdc:Font isBold="false" isItalic="false" isStrikeThrough="false" isUnderline="false" name="Arial" size="12.0"/>
+      </bpmndi:BPMNLabelStyle>
+   </bpmndi:BPMNDiagram>
+</definitions>

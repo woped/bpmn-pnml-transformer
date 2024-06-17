@@ -22,24 +22,32 @@ paths:
         content:
           application/x-www-form-urlencoded:
             schema:
-              oneOf:
-                - type: object
-                  properties:
+              oneOf: 
+                - properties:
+                    direction:
+                      type: string
+                      enum: [bpmntopnml]
                     bpmn:
                       type: string
-                - type: object
-                  properties:
+                      description: 'Necessary parameter, if direction is "bpmntopnml".'
+                  required: [direction, bpmn]
+                - properties:
+                    direction:
+                      type: string
+                      enum: [pnmltobpmnCa]
                     pnml:
                       type: string
-            #examples:
-             # bpmntopnml:
-              #  summary: Example of a BPMN to PNML request
-               # value:
-                #  bpmn: "<BPMN XML content here>"
-              #pnmltobpmn:
-               # summary: Example of a PNML to BPMN request
-                #value:
-                 # pnml: "<PNML XML content here>"
+                      description: 'Necessary parameter, if direction is "pnmltobpmn".'
+                  required: [direction, pnml]
+            examples:
+              bpmntopnml:
+                summary: Example of a BPMN to PNML request
+                value:
+                  bpmn: "<BPMN XML content here>"
+              pnmltobpmn:
+                summary: Example of a PNML to BPMN request
+                value:
+                  pnml: "<PNML XML content here>"
       responses:
         200:
           description: Successful conversion

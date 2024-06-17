@@ -3,11 +3,11 @@
 from flask import Flask, request
 from health.main import get_health
 from transform.main import post_transform
-#from flask_cors import CORS
+from flask_cors import CORS
 
 
 app = Flask(__name__)
-#CORS(app)
+CORS(app)
 
 @app.route('/health', methods=['GET'])
 def health_route():
