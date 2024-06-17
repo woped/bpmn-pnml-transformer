@@ -46,3 +46,4 @@ def get_health(request):
     response = jsonify(health_status)
     response.headers['Access-Control-Allow-Origin'] = '*'
     return response
+

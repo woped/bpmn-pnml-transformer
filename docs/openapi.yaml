@@ -1,4 +1,4 @@
-openapi: "3.0.0"
+openapi: "3.0.3"
 info:
   title: "BPMN-PNML-Transformer"
   description: "Transforms BPMN diagrams to PNML or PNML diagrams to BPMN."
@@ -22,7 +22,7 @@ paths:
         content:
           application/x-www-form-urlencoded:
             schema:
-              oneOf:
+              oneOf: 
                 - properties:
                     direction:
                       type: string
