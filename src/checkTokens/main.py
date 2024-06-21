@@ -32,6 +32,7 @@ with tempfile.NamedTemporaryFile(delete=False) as temp_file:
 
 print(temp_file)
 print(temp_file_path)
+print('test')
 
 cred = credentials.Certificate(temp_file_path)
 firebase_admin.initialize_app(cred)
