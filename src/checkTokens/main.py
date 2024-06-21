@@ -29,8 +29,6 @@ with tempfile.NamedTemporaryFile(delete=False) as temp_file:
     temp_file.write(GCP_SERVICE_ACCOUNT_CERTIFICATE_DECODED_STRING.encode('utf-8'))
     temp_file_path = temp_file.name
 
-
-print('tempfile:' + temp_file)
 with open(temp_file_path) as file:
     content = file.read()
 
