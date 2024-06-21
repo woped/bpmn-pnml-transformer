@@ -4,7 +4,7 @@ import requests
 import os
 import flask
 import functions_framework
-from flask import jsonify
+from flask import jsonify, make_response
 
 from transformer.models.bpmn.bpmn import BPMN
 from transformer.models.pnml.pnml import Pnml
@@ -46,6 +46,14 @@ def post_transform(request: flask.Request):
     except Exception:
         return jsonify({"error": "Token check not successful"}), 400
    
+    if request.method == 'OPTIONS':
+        # Handle CORS preflight request
+        response = make_response()
+        response.headers['Access-Control-Allow-Origin'] = '*'
+        response.headers['Access-Control-Allow-Methods'] = 'POST,OPTIONS'
+        response.headers['Access-Control-Allow-Headers'] = 'Content-Type,Authorization'
+        return response
+
     transform_direction = request.args.get("direction")
     if transform_direction == "bpmntopnml":
         bpmn_xml_content = request.form["bpmn"]
@@ -58,11 +66,15 @@ def post_transform(request: flask.Request):
             transformed_pnml = bpmn_to_workflow_net(bpmn)
         else:
             transformed_pnml = bpmn_to_st_net(bpmn)
-        return jsonify({"pnml": clean_xml_string(transformed_pnml.to_string())})
+        response = jsonify({"pnml": clean_xml_string(transformed_pnml.to_string())})
+        response.headers['Access-Control-Allow-Origin'] = '*'
+        return response
     elif transform_direction == "pnmltobpmn":
         pnml_xml_content = request.form["pnml"]
         pnml = Pnml.from_xml_str(pnml_xml_content)
         transformed_bpmn = pnml_to_bpmn(pnml)
-        return jsonify({"bpmn": clean_xml_string(transformed_bpmn.to_string())})
+        response = jsonify({"bpmn": clean_xml_string(transformed_bpmn.to_string())})
+        response.headers['Access-Control-Allow-Origin'] = '*'
+        return response
     else:
         raise Exception("Query params not supported")
