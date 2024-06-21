@@ -15,22 +15,28 @@ GCP_SERVICE_ACCOUNT_CERTIFICATE_BASE64 = os.getenv( "GCP_SERVICE_ACCOUNT_CERTIFI
 if( GCP_SERVICE_ACCOUNT_CERTIFICATE_BASE64 is None ):
     print( "Env var GCP_SERVICE_ACCOUNT_CERTIFICATE not found!" )
 
-print(GCP_SERVICE_ACCOUNT_CERTIFICATE_BASE64)
+print('Base64:' + GCP_SERVICE_ACCOUNT_CERTIFICATE_BASE64)
 
 GCP_SERVICE_ACCOUNT_CERTIFICATE_DECODED_BYTES = \
     base64.b64decode(GCP_SERVICE_ACCOUNT_CERTIFICATE_BASE64)
 
-print(GCP_SERVICE_ACCOUNT_CERTIFICATE_DECODED_BYTES)
+print('Decoded Bytes:' + GCP_SERVICE_ACCOUNT_CERTIFICATE_DECODED_BYTES)
 GCP_SERVICE_ACCOUNT_CERTIFICATE_DECODED_STRING = \
     GCP_SERVICE_ACCOUNT_CERTIFICATE_DECODED_BYTES.decode('utf-8')
 
-print(GCP_SERVICE_ACCOUNT_CERTIFICATE_DECODED_STRING)
+print('Decoded String: ' + GCP_SERVICE_ACCOUNT_CERTIFICATE_DECODED_STRING)
 
 with tempfile.NamedTemporaryFile(delete=False) as temp_file:
     temp_file.write(GCP_SERVICE_ACCOUNT_CERTIFICATE_DECODED_STRING.encode('utf-8'))
     temp_file_path = temp_file.name
 
-print(temp_file)
+
+print('tempfile:' + temp_file)
+with open(temp_file_path) as file:
+    content = file.read()
+
+print('content:' + content)
+
 print(temp_file_path)
 print('test')
 
