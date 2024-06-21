@@ -27,7 +27,7 @@ GCP_SERVICE_ACCOUNT_CERTIFICATE_DECODED_STRING = \
 print('Decoded String: ' + GCP_SERVICE_ACCOUNT_CERTIFICATE_DECODED_STRING)
 cleaned_string = GCP_SERVICE_ACCOUNT_CERTIFICATE_DECODED_STRING.replace('\n', '\\n')
 cleaned_string = cleaned_string.replace('\r', '\\r')
-json_data = json.loads(GCP_SERVICE_ACCOUNT_CERTIFICATE_DECODED_STRING)
+json_data = json.loads(cleaned_string)
 
 with tempfile.NamedTemporaryFile(delete=False) as temp_file:
     #temp_file.write(GCP_SERVICE_ACCOUNT_CERTIFICATE_DECODED_STRING.encode('utf-8'))
