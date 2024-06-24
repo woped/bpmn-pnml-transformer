@@ -12,7 +12,7 @@ from firebase_admin import credentials, firestore
 from flask import jsonify
 import os
 
-# Firestore initialisieren
+
 GCP_SERVICE_ACCOUNT_CERTIFICATE_BASE64 = os.getenv( "GCP_SERVICE_ACCOUNT_CERTIFICATE" )
 if( GCP_SERVICE_ACCOUNT_CERTIFICATE_BASE64 is None ):
     print( "Env var GCP_SERVICE_ACCOUNT_CERTIFICATE not found!" )
@@ -26,11 +26,11 @@ GCP_SERVICE_ACCOUNT_CERTIFICATE_DECODED_STRING = \
     GCP_SERVICE_ACCOUNT_CERTIFICATE_DECODED_BYTES.decode('utf-8')
 
 print('Decoded String: ' + GCP_SERVICE_ACCOUNT_CERTIFICATE_DECODED_STRING)
-cleaned_string = GCP_SERVICE_ACCOUNT_CERTIFICATE_DECODED_STRING.replace('\n', '\\n')
-cleaned_string = cleaned_string.replace('\r', '\\r')
-cleaned_string = re.sub(r'[^\x20-\x7E\t\n\r]', '', cleaned_string)
-cleaned_string = cleaned_string.replace('\n','')
-cleaned_string = cleaned_string.strip()
+
+cleaned_string = re.sub(r'[^\x20-\x7E]', ''
+                        , GCP_SERVICE_ACCOUNT_CERTIFICATE_DECODED_STRING)
+
+cleaned_string = cleaned_string.replace('\n', '').strip()
 print('Cleaned String:  ' + cleaned_string)
 
 json_data = json.loads(cleaned_string)
