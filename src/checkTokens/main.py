@@ -34,7 +34,7 @@ cleaned_string = cleaned_string.replace('\n', '').strip()
 print('Cleaned String:  ' + cleaned_string)
 json_data = json.loads(cleaned_string)
 
-with tempfile.NamedTemporaryFile(delete=False) as temp_file:
+with tempfile.NamedTemporaryFile(delete=False, mode='w') as temp_file:
     #temp_file.write(GCP_SERVICE_ACCOUNT_CERTIFICATE_DECODED_STRING.encode('utf-8'))
     #temp_file.write(cleaned_string.encode('utf-8'))
     json.dump(json_data, temp_file, ensure_ascii=False)
