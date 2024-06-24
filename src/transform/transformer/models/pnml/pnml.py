@@ -8,7 +8,6 @@ from pydantic import PrivateAttr
 from pydantic_xml import attr, element
 
 from transformer.models.pnml.base import (
-    GenericNetNode,
     Inscription,
     Name,
     NetElement,
@@ -51,7 +50,6 @@ class Place(NetElement, tag="place"):
 class Arc(BaseModel, tag="arc"):
     """Arc extension of BaseModel (+ID,source,target,inscription...)."""
 
-    id: str = attr()
     source: str = attr()
     target: str = attr()
     inscription: Inscription | None = element(default=None)
@@ -63,8 +61,8 @@ class Arc(BaseModel, tag="arc"):
         return hash((type(self),) + (self.id,) + (self.source,) + (self.target,))
 
 
-class Page(GenericNetNode, tag="page"):
-    """Page extension of GenericNetNode (+Net)."""
+class Page(BaseModel, tag="page"):
+    """Page extension of BaseModel (+Net)."""
 
     net: "Net"
 
@@ -79,7 +77,6 @@ class Net(BaseModel, tag="net"):
     toolspecific_global: ToolspecificGlobal | None = None
 
     type_field: str | None = attr(default=None, alias="type")
-    id: str | None = attr(default=None)
 
     places: set[Place] = element(default_factory=set)
     transitions: set[Transition] = element(default_factory=set)
@@ -89,7 +86,7 @@ class Net(BaseModel, tag="net"):
 
     # internal helper structures
     _temp_elements: dict[str, NetElement] = PrivateAttr(default_factory=dict)
-    _type_map: dict[type[GenericNetNode], set[GenericNetNode]] = PrivateAttr(
+    _type_map: dict[type[BaseModel], set[BaseModel]] = PrivateAttr(
         default_factory=dict
     )
     _temp_arcs: dict[int, Arc] = PrivateAttr(default_factory=dict)
@@ -116,7 +113,7 @@ class Net(BaseModel, tag="net"):
     def _init_reference_structures(self):
         """Populate the helper structures."""
         self._type_map = cast(
-            dict[type[GenericNetNode], set[GenericNetNode]],
+            dict[type[BaseModel], set[BaseModel]],
             {
                 Place: self.places,
                 Transition: self.transitions,
@@ -140,7 +137,7 @@ class Net(BaseModel, tag="net"):
 
     def _flatten_node_typ_map(self):
         """Return all nodes as a single list."""
-        all_nodes: list[GenericNetNode] = []
+        all_nodes: list[BaseModel] = []
         for type_sets in self._type_map.values():
             all_nodes.extend(type_sets)
         return all_nodes
@@ -157,13 +154,13 @@ class Net(BaseModel, tag="net"):
         else:
             self._temp_node_id_to_outgoing[arc.source].add(arc)
 
-    def get_in_degree(self, node: GenericNetNode):
+    def get_in_degree(self, node: BaseModel):
         """Return degree of incoming arcs."""
         if node.id not in self._temp_node_id_to_incoming:
             return 0
         return len(self._temp_node_id_to_incoming[node.id])
 
-    def get_out_degree(self, node: GenericNetNode):
+    def get_out_degree(self, node: BaseModel):
         """Return degree of outgoing arcs."""
         if node.id not in self._temp_node_id_to_outgoing:
             return 0
@@ -271,7 +268,7 @@ class Net(BaseModel, tag="net"):
             return None
         return self._temp_elements[id]
 
-    def remove_element(self, to_remove_node: GenericNetNode):
+    def remove_element(self, to_remove_node: BaseModel):
         """Remove element by instance."""
         storage_set = self._type_map[type(to_remove_node)]
         if storage_set is None:
@@ -301,7 +298,7 @@ class Net(BaseModel, tag="net"):
         self.connect_to_element(current_node, incoming)
         self.connect_from_element(current_node, outgoing)
 
-    def remove_element_with_connecting_arcs(self, to_remove_node: GenericNetNode):
+    def remove_element_with_connecting_arcs(self, to_remove_node: BaseModel):
         """Remove element by instance and connecting arcs."""
         for arc in [
             *self.get_incoming(to_remove_node.id),
