@@ -75,13 +75,16 @@ class TestE2EPostTransform(unittest.TestCase):
             )
         }
         payload = {
-            "pnml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?><pnml><net id=\"Process_0"
-            "5gf0wk\"><place id=\"StartEvent_1kldrri\" /><place id=\"Event_02tt0ub\" /><"
-            "transition id=\"Activity_16g2nsl\"><name><graphics><offset x=\"20.0\" y=\"2"
-            "0.0\" /></graphics><text>Task</text></name></transition><arc id=\"Activity_"
-            "16g2nslTOEvent_02tt0ub\" source=\"Activity_16g2nsl\" target=\"Event_02tt0ub"
-            "\" /><arc id=\"StartEvent_1kldrriTOActivity_16g2nsl\" source=\"StartEvent_1"
-            "kldrri\" target=\"Activity_16g2nsl\" /></net></pnml>"
+            "pnml": (
+                "<?xml version=\"1.0\" encoding=\"UTF-8\"?><pnml><net id=\"Process_0"
+                "5gf0wk\"><place id=\"StartEvent_1kldrri\" /><place id=\"Event_02t"
+                "t0ub\" /><transition id=\"Activity_16g2nsl\"><name><graphics><offset x"
+                "=\"20.0\" y=\"20.0\" /></graphics><text>Task</text></name></transition>"
+                "<arc id=\"Activity_16g2nslTOEvent_02tt0ub\" source=\"Activity_16g2nsl\""
+                " target=\"Event_02tt0ub\" /><arc id=\"StartEvent_1kldrriTOActivity_16"
+                "g2nsl\" source=\"StartEvent_1kldrri\" target=\"Activity_16g2nsl\" />"
+                "</net></pnml>"
+            )
         }
         response = requests.post(
             f'{self.url}?direction=pnmltobpmn', 
