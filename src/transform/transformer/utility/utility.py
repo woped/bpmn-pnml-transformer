@@ -47,9 +47,7 @@ class BaseModel(
 
 
 class BaseBPMNModel(
-    BaseXmlModel,
-    search_mode="unordered",
-    skip_empty=True,
+    BaseModel,
     nsmap={"": "http://www.omg.org/spec/BPMN/20100524/MODEL"},
 ):
     """BaseBPMNModel extension of BaseXmlModel."""
