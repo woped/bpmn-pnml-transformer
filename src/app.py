@@ -4,6 +4,7 @@ from flask import Flask, request
 from health.main import get_health
 from transform.main import post_transform
 from checkTokens.main import check_Tokens
+from refreshTokens.main import refresh_Tokens
 from flask_cors import CORS
 
 
@@ -24,6 +25,11 @@ def transform_route():
 def checkTokens_route():
     """Mapping route for checkTokens endpoint."""
     return check_Tokens(request)
+
+@app.route('/refreshTokens', methods=['GET'])
+def refreshTokens_route():
+    """Mapping route for refreshTokens endpoint."""
+    return refresh_Tokens(request)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8080)
