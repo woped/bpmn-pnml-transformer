@@ -12,7 +12,6 @@ from transformer.models.bpmn.base import (
     BPMNNamespace,
     Gateway,
     GenericBPMNNode,
-    GenericIdNode,
 )
 from transformer.models.bpmn.bpmn_graphics import (
     BPMNDiagram,
@@ -91,12 +90,12 @@ class EndEvent(GenericBPMNNode, tag="endEvent"):
     """EndEvent extension of GenericBPMNNode."""
 
 
-class MessageEvent(GenericIdNode, tag="messageEventDefinition"):
-    """MessageEvent extension of GenericIdNode."""
+class MessageEvent(BPMNNamespace, tag="messageEventDefinition"):
+    """MessageEvent extension of BPMNNamespace."""
 
 
-class TimeEvent(GenericIdNode, tag="timerEventDefinition"):
-    """TimeEvent extension of GenericIdNode."""
+class TimeEvent(BPMNNamespace, tag="timerEventDefinition"):
+    """TimeEvent extension of BPMNNamespace."""
 
 
 class IntermediateCatchEvent(GenericBPMNNode, tag="intermediateCatchEvent"):
@@ -171,7 +170,7 @@ class ServiceTask(GenericTask, tag="serviceTask"):
 # Flow
 
 
-class Flow(GenericIdNode, tag="sequenceFlow"):
+class Flow(BPMNNamespace, tag="sequenceFlow"):
     """Flow extension of GenericBPMNNode."""
 
     name: str | None = attr(default=None)
