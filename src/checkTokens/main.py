@@ -32,7 +32,6 @@ cleaned_string = re.sub(r'[^\x20-\x7E]', ''
 
 cleaned_string = cleaned_string.replace('\n', '').strip()
 print('Cleaned String:  ' + cleaned_string)
-
 json_data = json.loads(cleaned_string)
 
 with tempfile.NamedTemporaryFile(delete=False) as temp_file:
