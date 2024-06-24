@@ -85,7 +85,7 @@ class TestE2EPostTransform(unittest.TestCase):
         }
         response = requests.post(
             f'{self.url}?direction=pnmltobpmn', 
-            json = payload,
+            data = payload,
             timeout=self.REQUEST_TIMEOUT,
             headers=self.shared_haeaders,
         )
