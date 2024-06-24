@@ -95,6 +95,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Set environment variables
+        run: |
+          echo "GCP_SERVICE_ACCOUNT_CERTIFICATE=${{ secrets.GCP_SERVICE_ACCOUNT_CERTIFICATE }}" >> $GITHUB_ENV
+
       - id: "auth"
         name: "Authenticate to Google Cloud"
         uses: "google-github-actions/auth@v2"
