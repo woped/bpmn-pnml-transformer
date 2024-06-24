@@ -3,6 +3,7 @@
 from xml.etree.ElementTree import Element
 
 from pydantic_xml import BaseXmlModel
+from pydantic_xml import attr
 
 WOPED = "WoPeD"
 
@@ -37,12 +38,16 @@ class BaseModel(
     skip_empty=True,
 ):
     """BaseModel extension of BaseXmlModel."""
+    id: str | None = attr(default=None)
+    name: str | None = attr(default=None)
+
+    def __hash__(self):
+        """Return hash of this instance."""
+        return hash((type(self),) + (self.id,))
 
 
 class BaseBPMNModel(
-    BaseXmlModel,
-    search_mode="unordered",
-    skip_empty=True,
+    BaseModel,
     nsmap={"": "http://www.omg.org/spec/BPMN/20100524/MODEL"},
 ):
     """BaseBPMNModel extension of BaseXmlModel."""

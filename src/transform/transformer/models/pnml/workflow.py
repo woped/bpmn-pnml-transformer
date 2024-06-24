@@ -25,7 +25,6 @@ class WorkflowBranchingType(int, Enum):
 class Operator(BaseModel, tag="operator"):
     """Operator extension of BaseModel (+id, type)."""
 
-    id: str = attr()
     type: WorkflowBranchingType = attr()
 
 

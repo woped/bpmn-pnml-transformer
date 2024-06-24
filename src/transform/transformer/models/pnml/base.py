@@ -17,16 +17,6 @@ from transformer.models.pnml.workflow import (
 from transformer.utility.utility import WOPED, BaseModel
 
 
-class GenericNetIDNode(BaseModel):
-    """Generic Petri net node extension of BaseModel (+ID)."""
-
-    id: str = attr()
-
-    def __hash__(self):
-        """Return hash of this instance."""
-        return hash((type(self),) + (self.id,))
-
-
 class Name(BaseModel, tag="name"):
     """Name extension of BaseModel (+graphics, title)."""
 
@@ -136,20 +126,12 @@ class Toolspecific(BaseModel, tag="toolspecific"):
         return self.is_workflow_message() or self.is_workflow_time()
 
 
-class GenericNetNode(GenericNetIDNode):
-    """Generic NetNode extension of net id node."""
-
-
-class NetElement(GenericNetNode):
-    """NetElement extension of GenericNetNode (+name, graphics, toolspecific)."""
+class NetElement(BaseModel):
+    """NetElement extension of BaseModel (+name, graphics, toolspecific)."""
 
     name: Name | None = None
     graphics: PositionGraphics | None = None
     toolspecific: Toolspecific | None = None
-
-    def __hash__(self):
-        """Return instance hashed by type and id."""
-        return hash((type(self),) + (self.id,))
 
     def get_name(self):
         """Returns name of instance."""
