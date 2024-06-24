@@ -34,7 +34,7 @@ def refresh_tokens(request):
     doc = doc_ref.get()
     if doc.exists:
         doc_ref.update({"tokens": 100})
-        return jsonify({"Tokens set to 100"}), 200
+        return jsonify({"tokens": 100}), 200
     else:
         return jsonify({"error": "No document available"}), 404
     
