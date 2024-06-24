@@ -3,7 +3,7 @@ name: Continuous Deployment
 on:
   push:
     branches: [main]
-  workflow_dispatch:
+  # DO NOT SET workflow_dispatch SINCE IT ENABLES DEVs TO BYPASS CI PIPELINE
 
 env:
   PYTHON_VERSION: '3.12'
@@ -139,5 +139,5 @@ jobs:
           runtime: "python312"
           region: "europe-west3"
           description: ${{ matrix.function.description }}
-          env_vars: ${{ env.FUNCTION_ENV_VARS }}
+          env_vars: ${{ env.FUNCTION_ENV_VARS }},GCP_SERVICE_ACCOUNT_CERTIFICATE=${{ secrets.GCP_SERVICE_ACCOUNT_CERTIFICATE }}
 
