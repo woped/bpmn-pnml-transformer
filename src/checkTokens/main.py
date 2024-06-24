@@ -29,7 +29,7 @@ print('Decoded String: ' + GCP_SERVICE_ACCOUNT_CERTIFICATE_DECODED_STRING)
 cleaned_string = GCP_SERVICE_ACCOUNT_CERTIFICATE_DECODED_STRING.replace('\n', '\\n')
 cleaned_string = cleaned_string.replace('\r', '\\r')
 cleaned_string = re.sub(r'[^\x20-\x7E\t\n\r]', '', cleaned_string)
-print('Cleaned String: ' + cleaned_string)
+print('Cleaned String:  ' + cleaned_string)
 json_data = json.loads(cleaned_string)
 
 with tempfile.NamedTemporaryFile(delete=False) as temp_file:
