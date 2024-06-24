@@ -26,9 +26,6 @@ from transformer.transform_bpmn_to_petrinet.preprocess_bpmn import (
     all_gateways,
     or_gateways,
 )
-from transformer.transform_bpmn_to_petrinet.preprocess_bpmn.extend_process import (
-    extend_subprocess,
-)
 from transformer.transform_bpmn_to_petrinet.transform_workflow_helper import (
     handle_gateways,
     handle_resource_annotations,
@@ -120,7 +117,6 @@ def merge_single_triggers(net: Net):
 
 def transform_bpmn_to_petrinet(
     bpmn: Process,
-    is_workflow_net: bool = False,
     organization: str = "DEFAULT ORGANIZATION",
 ):
     """Transform a BPMN to ST or WOPED workflow Net."""
@@ -135,19 +131,18 @@ def transform_bpmn_to_petrinet(
     to_handle_subprocesses: list[Process] = []
     to_handle_triggers: list[IntermediateCatchEvent] = []
 
-    if is_workflow_net:
-        for node in nodes:
-            if isinstance(node, Process):
-                to_handle_subprocesses.append(node)
-            elif isinstance(node, Gateway):
-                to_handle_gateways.append(node)
-            elif isinstance(node, IntermediateCatchEvent):
-                to_handle_triggers.append(node)
-            elif isinstance(node, UserTask):
-                to_handle_user_tasks.append(node)
-        nodes = nodes.difference(
-            to_handle_gateways, to_handle_subprocesses, to_handle_triggers
-        )
+    for node in nodes:
+        if isinstance(node, Process):
+            to_handle_subprocesses.append(node)
+        elif isinstance(node, Gateway):
+            to_handle_gateways.append(node)
+        elif isinstance(node, IntermediateCatchEvent):
+            to_handle_triggers.append(node)
+        elif isinstance(node, UserTask):
+            to_handle_user_tasks.append(node)
+    nodes = nodes.difference(
+        to_handle_gateways, to_handle_subprocesses, to_handle_triggers
+    )
 
     # handle normals nodes
     for node in nodes:
@@ -172,15 +167,14 @@ def transform_bpmn_to_petrinet(
             raise Exception(f"{type(node)} not supported")
 
     # handle workflow specific nodes
-    if is_workflow_net:
-        handle_subprocesses(
-            net, bpmn, to_handle_subprocesses, organization, transform_bpmn_to_petrinet
-        )
-        handle_triggers(net, bpmn, to_handle_triggers)
-        handle_gateways(net, bpmn, to_handle_gateways)
-        handle_resource_annotations(
-            net, to_handle_user_tasks, bpmn._participant_mapping, organization
-        )
+    handle_subprocesses(
+        net, bpmn, to_handle_subprocesses, organization, transform_bpmn_to_petrinet
+    )
+    handle_triggers(net, bpmn, to_handle_triggers)
+    handle_gateways(net, bpmn, to_handle_gateways)
+    handle_resource_annotations(
+        net, to_handle_user_tasks, bpmn._participant_mapping, organization
+    )
 
     # handle remaining flows
     for flow in bpmn.flows:
@@ -202,8 +196,7 @@ def transform_bpmn_to_petrinet(
             net.add_arc(source, target)
 
     # Post processing
-    if is_workflow_net:
-        merge_single_triggers(net)
+    merge_single_triggers(net)
 
     return pnml
 
@@ -215,15 +208,6 @@ def apply_preprocessing(bpmn: Process, funcs: list[Callable[[Process], None]]):
 
     for f in funcs:
         f(bpmn)
-
-
-def bpmn_to_st_net(bpmn: BPMN):
-    """Return a processed and transformed ST-net of process."""
-    extend_subprocess(bpmn.process.subprocesses, bpmn.process)
-
-    apply_preprocessing(bpmn.process, [or_gateways.replace_inclusive_gateways])
-
-    return transform_bpmn_to_petrinet(bpmn.process)
 
 
 def bpmn_to_workflow_net(bpmn: BPMN):
@@ -243,14 +227,14 @@ def bpmn_to_workflow_net(bpmn: BPMN):
         if bpmn.collaboration and bpmn.collaboration.participant
         else "Default"
     )
-    pnml = transform_bpmn_to_petrinet(bpmn.process, True, organization_name)
+    pnml = transform_bpmn_to_petrinet(bpmn.process, organization_name)
     set_global_toolspecifi(
         pnml.net, bpmn.process._participant_mapping, organization_name
     )
     return pnml
 
 
-def bpmn_to_st_net_from_xml(bpmn_xml: str):
-    """Return a processed and transformed workflow net of process from xml file."""
+def bpmn_to_wf_net_from_xml(bpmn_xml: str):
+    """Return a processed and transformed workflow net of process from xml str."""
     bpmn = BPMN.from_xml(bpmn_xml)
-    return bpmn_to_st_net(bpmn)
+    return bpmn_to_workflow_net(bpmn)
