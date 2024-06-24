@@ -1,3 +1,4 @@
+"""Utility for exception handling."""
 from enum import Enum
 
 class DeterminedException(Exception, Enum):
