@@ -26,7 +26,7 @@ firebase_admin.initialize_app(cred)
 db = firestore.client()
 
 @functions_framework.http
-def refresh_Tokens(request):
+def refresh_tokens(request):
     """Refresh the available tokens in the Firestore database."""
     if db is None:
         return jsonify({"error": "No database available"}), 500
