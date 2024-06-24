@@ -4,6 +4,7 @@ Includes tests to check whether all PNML and BPMN subelemts are identified corre
 """
 
 import unittest
+from lxml import etree
 
 from transformer.equality.bpmn import get_all_processes_by_id
 from transformer.equality.petrinet import get_all_nets_by_id
@@ -16,14 +17,14 @@ class TestSubelements(unittest.TestCase):
 
     def test_pnml_eqaulity_subprocess(self):
         """Tests whether all pnml subprocesses are identified."""
-        pnml = Pnml.from_file("tests/assets/multiplesubprocesses.pnml")
+        pnml = Pnml.from_file("src/transform/tests/assets/multiplesubprocesses.pnml")
         subnets = {}
         get_all_nets_by_id(pnml.net, subnets)
         self.assertEqual(len(subnets), 7)
 
     def test_bpmn_eqaulity_subprocess(self):
         """Tests whether all bpmn subprocesses are identified."""
-        bpmn = BPMN.from_file("tests/assets/multiplesubprocesses.bpmn")
+        bpmn = BPMN.from_file("src/transform/tests/assets/multiplesubprocesses.bpmn")
         subnets = {}
         get_all_processes_by_id(bpmn.process, subnets)
         self.assertEqual(len(subnets), 5)
