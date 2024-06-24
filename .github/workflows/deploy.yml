@@ -26,6 +26,10 @@ jobs:
       - name: Check out the repo
         uses: actions/checkout@v4
 
+      - name: Set environment variables
+        run: |
+          echo "GCP_SERVICE_ACCOUNT_CERTIFICATE=${{ secrets.GCP_SERVICE_ACCOUNT_CERTIFICATE }}" >> $GITHUB_ENV
+
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
         with:
