@@ -23,6 +23,10 @@ jobs:
       id-token: write
 
     steps:
+      - name: Set environment variables
+        run: |
+          echo "GCP_SERVICE_ACCOUNT_CERTIFICATE=${{ secrets.GCP_SERVICE_ACCOUNT_CERTIFICATE }}" >> $GITHUB_ENV
+          
       - name: Check out the repo
         uses: actions/checkout@v4
 
