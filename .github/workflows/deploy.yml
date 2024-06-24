@@ -77,6 +77,11 @@ jobs:
             entry_point: "post_transform"
             source_dir: "src/transform"
             description: "Transformation endpoint."
+          - name: checkTokens
+            test_dir: "checkTokens"
+            entry_point: "check_tokens"
+            source_dir: "src/checkTokens"
+            description: "[CANARY] Check Tokens endpoint."
             set_force_std_xml: true
 
     permissions:

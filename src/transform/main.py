@@ -1,7 +1,7 @@
 """API to transform a given model into a selected direction."""
+import requests
 
 import os
-
 import flask
 import functions_framework
 from flask import jsonify, make_response
@@ -14,6 +14,14 @@ from transformer.transform_bpmn_to_petrinet.transform import (
 )
 from transformer.transform_petrinet_to_bpmn.transform import pnml_to_bpmn
 from transformer.utility.utility import clean_xml_string
+
+CHECK_TOKEN_URL = 'https://europe-west3-woped-422510.cloudfunctions.net/checkTokens'
+        
+is_force_std_xml_active = os.getenv("FORCE_STD_XML")
+if is_force_std_xml_active is None:
+    raise Exception("Env variable is_force_std_xml_active not set!")
+
+
 
 is_force_std_xml_active = os.getenv("FORCE_STD_XML")
 if is_force_std_xml_active is None:
@@ -30,7 +38,14 @@ def post_transform(request: flask.Request):
     Args:
         request: A request with a parameter "direction" as transformation direction
         and a form with the xml model "bpmn" or "pnml".
-    """
+    """    
+    try:
+        response = requests.get(CHECK_TOKEN_URL)
+        if response.status_code == 400:
+            raise Exception("Token check not successful")
+    except Exception:
+        return jsonify({"error": "Token check not successful"}), 400
+   
     if request.method == 'OPTIONS':
         # Handle CORS preflight request
         response = make_response()
