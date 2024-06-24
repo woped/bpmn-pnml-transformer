@@ -235,7 +235,7 @@ def handle_subprocesses(
     bpmn: Process,
     subprocesses: list[Process],
     organization: str,
-    caller_func: Callable[[Process, bool, str], Pnml],
+    caller_func: Callable[[Process, str], Pnml],
 ):
     """Transform a BPMN subprocess to workflow subprocess."""
     for subprocess in subprocesses:
@@ -285,7 +285,7 @@ def handle_subprocesses(
         subprocess.change_node_id(sub_ee, outer_out_id)
 
         # transform inner subprocess
-        inner_net = caller_func(subprocess, True, organization).net
+        inner_net = caller_func(subprocess, organization).net
         inner_net.id = None
 
         net.add_page(Page(id=subprocess.id, net=inner_net))
