@@ -53,18 +53,19 @@ def post_transform(request: flask.Request):
         response.headers["Access-Control-Allow-Headers"] = "Content-Type,Authorization"
         return response
 
+    return handle_transformation(request)
+
+
+def handle_transformation(request: flask.Request):
+    """Handle the transformation."""
     transform_direction = request.args.get("direction")
+    if transform_direction is None:
+        raise Exception("Direction not specified.")
+
     if transform_direction == "bpmntopnml":
         bpmn_xml_content = request.form["bpmn"]
-        isTargetWorkflow = (
-            request.form.get("isTargetWorkflow", "false").lower() == "true"
-        )
-
         bpmn = BPMN.from_xml(bpmn_xml_content)
-        if isTargetWorkflow:
-            transformed_pnml = bpmn_to_workflow_net(bpmn)
-        else:
-            transformed_pnml = bpmn_to_workflow_net(bpmn)
+        transformed_pnml = bpmn_to_workflow_net(bpmn)
         response = jsonify({"pnml": clean_xml_string(transformed_pnml.to_string())})
         response.headers["Access-Control-Allow-Origin"] = "*"
         return response
@@ -76,4 +77,4 @@ def post_transform(request: flask.Request):
         response.headers["Access-Control-Allow-Origin"] = "*"
         return response
     else:
-        raise Exception("Query params not supported")
+        raise Exception("Direction not supported.")
