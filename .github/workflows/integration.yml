@@ -38,6 +38,11 @@ jobs:
             entry_point: "check_tokens"
             source_dir: "src/checkTokens"
             description: "[CANARY] Check Tokens endpoint."
+          - name: refreshTokens
+            test_dir: "refreshTokens"
+            entry_point: "refresh_tokens"
+            source_dir: "src/refreshTokens"
+            description: "[CANARY] Refresh Tokens endpoint."
 
     # Add "id-token" with the intended permissions.
     permissions:
