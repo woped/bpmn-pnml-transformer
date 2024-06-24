@@ -50,9 +50,17 @@ paths:
                   pnml: "<PNML XML content here>"
       responses:
         200:
-          description: Successful conversion
+          description: Successful Transformation
         400:
-          description: Invalid input
+          description: Bad Request
+        403:
+          description: Access Forbidden
+        404:
+          description: Not Found
+        408:
+          description: Request Timeout after 60s
+        413:
+          description: Payload too large (max. 10 MB)
   "/health":
     get:
       summary: Shows the health status of transformer.
@@ -61,3 +69,9 @@ paths:
           description: OK
         400:
           description: Bad Request
+        403:
+          description: Access Forbidden
+        404:
+          description: Not Found
+        408:
+          description: Request Timeout after 60s
