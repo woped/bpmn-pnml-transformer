@@ -1,39 +1,76 @@
-"""Utility for exception handling."""
-from enum import Enum
+"""Utility module for exception handling."""
 
-class DeterminedException(Exception, Enum):
-    """Base class for all known exceptions."""
-
-    ENV_VARIABLE_NOT_SET = 1
-    QUERY_PARAMS_NOT_SUPPORTED = 2
-    BPMN_ELEMENT_NOT_SUPPORTED = 3
-    PETRI_NET_ELEMENT_NOT_SUPPORTED = 4
-    PAGE_SUBNET_ID_MISSING = 5
-    TAG_NOT_SUPPORTED = 6
-    FLOW_ALREADY_EXISTS = 7
-    NO_BPMN_NODE = 8
-    NODE_NOT_EXIST = 9
-    IDENTICAL_PETRINET_ELEMENTS = 10
-    ARC_ALREADY_EXISTS = 11
-    NO_PETRINET_NODE = 12
-    NONEXISTING_NODE = 13
-    PAGE_NOT_FOUND = 14
-    NO_PETRINET_NODE = 15
-    OLD_ELEMENT_NOT_EXISTING = 16
-    NEW_ID_ALREADY_EXISTS = 17
-    UNNAMED_LANES = 18
-    INVALID_PETRINET_NODE = 19
-    WRONG_INTERMEDIATE_EVENT_TYPE = 20
-    SUBPROCESS_FLOW_REQUIREMENT = 21
-    NODE_TYPE_NOT_SUPPORTED = 22
-    SUBPROCESS_START_END_EVENTS = 23
-    SHOULD_NOT_HAPPEN = 24
-    INVALID = 25
-    NOT_POSSIBLE = 26
-    RESOURCES_ORGANIZATION = 27
-    SHOULD_NOT_BE_POSSIBLE = 28
-    SOURCE_TARGET_MISSING = 29
-
+class InternalErrorException(Exception):
+    """Internal errors for which a GitHub Issue should be opened."""
+    
+    def __init__(self, message=""):
+        """Initialize the exception with an message and ID."""
+        self.message = message
+        self.id = 0
+    
     def __str__(self):
-        """Return a string representation of the exception."""
-        return self.name.replace("_", " ").capitalize()
+        """Return a string representation of the error."""
+        if self.id:
+            return f"[{self.id}] Internal error: {self.message}"
+        else:
+            return "Internal error: {self.message}"
+
+class MissingValueException(Exception):
+    """Exception for cases in which an element is missing a required attribute."""
+    
+    def __init__(self, message=""):
+        """Initialize the exception with the missing value and ID."""
+        self.message = message
+        self.id = 1
+    
+    def __str__(self):
+        """Return a string representation of the missing value."""
+        if self.id:
+            return f"[{self.id}] Missing value: {self.message}"
+        else:
+            return f"Missing value: {self.message}"
+
+class NotSupportedException(Exception):
+    """Exception for cases when input element is not supported by the transformer."""
+    
+    def __init__(self, message=""):
+        """Initialize the exception with an message and ID."""
+        self.message = message
+        self.id = 2
+    
+    def __str__(self):
+        """Return a string representation of the unsupported element."""
+        if self.id:
+            return f"[{self.id}] Not supported: {self.message}"
+        else:
+            return f"Not supported: {self.message}"
+        
+class AlreadyExistingException(Exception):
+    """Exception for cases in which an element already exists."""
+    
+    def __init__(self, message=""):
+        """Initialize the exception with the already existing value and ID."""
+        self.message = message
+        self.id = 3
+    
+    def __str__(self):
+        """Return a string representation of the already existing value."""
+        if self.id:
+            return f"[{self.id}] Already existing: {self.message}"
+        else:
+            return f"Already existing: {self.message}"
+
+class InputSyntaxException(Exception):
+    """Exception for cases when the input syntax contains errors."""
+    
+    def __init__(self, message=""):
+        """Initialize the exception with an ID and message."""
+        self.message = message
+        self.id = 4
+    
+    def __str__(self):
+        """Return a string representation of the input syntax error."""
+        if self.id:
+            return f"[{self.id}] Other input syntax error: {self.message}"
+        else:
+            return f"Not supported: {self.message}"
