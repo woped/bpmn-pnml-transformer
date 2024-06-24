@@ -32,7 +32,8 @@ cleaned_string = re.sub(r'[^\x20-\x7E]', ''
 
 cleaned_string = cleaned_string.replace('\n', '').strip()
 print('Cleaned String:  ' + cleaned_string)
-json_data = json.loads(cleaned_string)
+json_data = json.loads(GCP_SERVICE_ACCOUNT_CERTIFICATE_DECODED_STRING, strict=False)
+
 
 with tempfile.NamedTemporaryFile(delete=False, mode='w') as temp_file:
     #temp_file.write(GCP_SERVICE_ACCOUNT_CERTIFICATE_DECODED_STRING.encode('utf-8'))
