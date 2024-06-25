@@ -100,14 +100,14 @@ class TestE2EPostTransform(unittest.TestCase):
         """Tests the status code of the transform endpoint."""
         expected_response = {
             "pnml": (
-                "<?xml version=\"1.0\" encoding=\"UTF-8\"?><pnml><net id=\"Process_0"
-                "5gf0wk\"><place id=\"StartEvent_1kldrri\" /><place id=\"Event_02t"
-                "t0ub\" /><transition id=\"Activity_16g2nsl\"><name><graphics><offset x"
-                "=\"20.0\" y=\"20.0\" /></graphics><text>Task</text></name></transition>"
-                "<arc id=\"Activity_16g2nslTOEvent_02tt0ub\" source=\"Activity_16g2nsl\""
-                " target=\"Event_02tt0ub\" /><arc id=\"StartEvent_1kldrriTOActivity_16"
-                "g2nsl\" source=\"StartEvent_1kldrri\" target=\"Activity_16g2nsl\" />"
-                "</net></pnml>"
+                "<?xml version=\"1.0\" encoding=\"UTF-8\"?><pnml id=\"\"><net id=\"Proce"
+                "ss_05gf0wk\"><place id=\"Event_02tt0ub\" /><place id=\"StartEvent_1kldr"
+                "ri\" /><transition id=\"Activity_16g2nsl\"><name id=\"\"><graphics "
+                "id=\"\"><offset id=\"\" x=\"20.0\" y=\"20.0\" /></graphics><text>Task"
+                "</text></name></transition><arc id=\"Activity_16g2nslTOEvent_02tt0ub\""
+                " source=\"Activity_16g2nsl\" target=\"Event_02tt0ub\" /><arc id=\"Star"
+                "tEvent_1kldrriTOActivity_16g2nsl\" source=\"StartEvent_1kldrri\" targe"
+                "t=\"Activity_16g2nsl\" /></net></pnml>"
             )
         }
         payload = {
