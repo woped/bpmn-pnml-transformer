@@ -4,6 +4,11 @@ from collections.abc import Callable
 
 from pydantic import BaseModel, Field
 
+from exceptions import (
+    InternalTransformationException,
+    SubprocessWrongInnerSourceSinkDegree,
+    UnkownResourceOrganizationMapping,
+)
 from transformer.models.bpmn.bpmn import (
     BPMN,
     AndGateway,
@@ -58,7 +63,7 @@ class WorkflowOperatorWrapper(BaseModel):
             if not node.toolspecific:
                 continue
             return node.toolspecific
-        raise Exception("Should not happen.")
+        raise InternalTransformationException("Should not happen.")
 
     def get_copy_unique_in_arcs(self):
         """Get all incoming arcs without duplicate input sources."""
@@ -97,7 +102,7 @@ def find_workflow_operators(net: Net):
         if not node.is_workflow_operator():
             continue
         if not node.toolspecific or not node.toolspecific.operator:
-            raise Exception("invalid")
+            raise InternalTransformationException("Should not happen.")
         op_id = node.toolspecific.operator.id
         if op_id not in operator_map:
             operator_map[op_id] = []
@@ -153,10 +158,7 @@ def handle_workflow_subprocesses(
             page_net.get_in_degree(inner_source_id) > 0
             or page_net.get_out_degree(inner_sink_id) > 0
         ):
-            raise Exception(
-                "currently source/sink in subprocess must have no incoming/outgoing arcs"
-                " to convert to BPMN Start and Endevents"
-            )
+            raise SubprocessWrongInnerSourceSinkDegree()
 
         # Rename inner start and end event because bpmn wont allow same duplicated IDs
         page_net.change_id(
@@ -215,10 +217,10 @@ def find_role_type_of_subprocess(net: Net, current_role: str | None = None):
     ]
     for resource in to_handle_temp_resources:
         if not resource.toolspecific or not resource.toolspecific.transitionResource:
-            raise Exception("Not possible.")
+            raise InternalTransformationException("Not possible.")
         resource_role = resource.toolspecific.transitionResource.roleName
         if current_role is not None and current_role != resource_role:
-            raise Exception("Resources must belong to the same organization.")
+            raise UnkownResourceOrganizationMapping()
         current_role = resource_role
     for sb in net.pages:
         nested_role = find_role_type_of_subprocess(sb.net, current_role)
@@ -238,7 +240,7 @@ def annotate_resources(net: Net, bpmn: BPMN):
     ]
     for resource in to_handle_temp_resources:
         if not resource.toolspecific or not resource.toolspecific.transitionResource:
-            raise Exception("Not possible.")
+            raise InternalTransformationException("Not possible.")
         resource_organization = (
             resource.toolspecific.transitionResource.organizationalUnitName
         )
@@ -246,7 +248,7 @@ def annotate_resources(net: Net, bpmn: BPMN):
             current_organization is not None
             and current_organization != resource_organization
         ):
-            raise Exception("Resources must belong to same organization.")
+            raise UnkownResourceOrganizationMapping()
         current_organization = resource_organization
 
         role_name = resource.toolspecific.transitionResource.roleName

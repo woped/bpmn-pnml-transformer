@@ -3,6 +3,11 @@
 from collections.abc import Callable
 from typing import cast
 
+from exceptions import (
+    InternalTransformationException,
+    UnkownIntermediateCatchEvent,
+    WrongSubprocessDegree,
+)
 from transformer.models.bpmn.base import Gateway, GenericBPMNNode
 from transformer.models.bpmn.bpmn import (
     AndGateway,
@@ -49,7 +54,7 @@ def add_arc(net: Net, source: NetElement, target: NetElement):
         net.add_arc(source, p, create_arc_name(source.id, p.id))
         net.add_arc(p, target, create_arc_name(p.id, target.id))
     else:
-        raise Exception("invalid petrinet node")
+        raise InternalTransformationException("invalid petrinet node")
 
 
 def add_wf_xor_split(
@@ -227,7 +232,7 @@ def handle_triggers(net: Net, bpmn: Process, triggers: list[IntermediateCatchEve
                 ).mark_as_workflow_message()
             )
         else:
-            raise Exception("Wrong intermediate event type used!")
+            raise UnkownIntermediateCatchEvent()
 
 
 def handle_subprocesses(
@@ -239,8 +244,8 @@ def handle_subprocesses(
 ):
     """Transform a BPMN subprocess to workflow subprocess."""
     for subprocess in subprocesses:
-        if subprocess.get_in_degree() != 1 and subprocess.get_out_degree != 1:
-            raise Exception("Subprocess must have exactly one in and outgoing flow!")
+        if subprocess.get_in_degree() != 1 or subprocess.get_out_degree() != 1:
+            raise WrongSubprocessDegree()
 
         subprocess_transition = net.add_element(
             Transition.create(
@@ -255,11 +260,6 @@ def handle_subprocesses(
             list(bpmn.get_incoming(subprocess.id)),
             list(bpmn.get_outgoing(subprocess.id)),
         )
-
-        if len(outer_in_flows) != 1 or len(outer_out_flows) != 1:
-            raise Exception(
-                f"Degree of subprocess with name {subprocess.name} must be 1."
-            )
 
         outer_in_id, outer_out_id = (
             outer_in_flows[0].sourceRef,

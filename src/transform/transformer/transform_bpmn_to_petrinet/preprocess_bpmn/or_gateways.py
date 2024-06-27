@@ -2,6 +2,7 @@
 
 from typing import cast
 
+from exceptions import ORGatewayDetectionIssue
 from transformer.models.bpmn.base import GenericBPMNNode
 from transformer.models.bpmn.bpmn import (
     AndGateway,
@@ -103,9 +104,7 @@ def find_matching_gateways(bpmn_helper: Process, inclusive_gateways: list[OrGate
                 bpmn_helper, [split], split_ids, join_ids, set(), out_flow_id
             )
             if r is None:
-                raise Exception(
-                    "Could not find matching splits and joins for OR-Gateways"
-                )
+                raise ORGatewayDetectionIssue()
             matches.append(
                 InclusiveGatewayBridge(
                     split,

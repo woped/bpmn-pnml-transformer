@@ -7,6 +7,12 @@ import functions_framework
 import requests
 from flask import jsonify, make_response
 
+from exceptions import (
+    MissingEnvironmentVariable,
+    TokenCheckUnsuccessful,
+    UnexpectedError,
+    UnexpectedQueryParameter,
+)
 from transformer.models.bpmn.bpmn import BPMN
 from transformer.models.pnml.pnml import Pnml
 from transformer.transform_bpmn_to_petrinet.transform import (
@@ -19,12 +25,7 @@ CHECK_TOKEN_URL = "https://europe-west3-woped-422510.cloudfunctions.net/checkTok
 
 is_force_std_xml_active = os.getenv("FORCE_STD_XML")
 if is_force_std_xml_active is None:
-    raise Exception("Env variable is_force_std_xml_active not set!")
-
-
-is_force_std_xml_active = os.getenv("FORCE_STD_XML")
-if is_force_std_xml_active is None:
-    raise Exception("Env variable is_force_std_xml_active not set!")
+    raise MissingEnvironmentVariable("FORCE_STD_XML")
 
 
 @functions_framework.http
@@ -41,9 +42,9 @@ def post_transform(request: flask.Request):
     try:
         response = requests.get(CHECK_TOKEN_URL)
         if response.status_code == 400:
-            raise Exception("Token check not successful")
-    except Exception:
-        return jsonify({"error": "Token check not successful"}), 400
+            raise TokenCheckUnsuccessful()
+    except Exception as e:
+        return str(e), 400
 
     if request.method == "OPTIONS":
         # Handle CORS preflight request
@@ -53,14 +54,18 @@ def post_transform(request: flask.Request):
         response.headers["Access-Control-Allow-Headers"] = "Content-Type,Authorization"
         return response
 
-    return handle_transformation(request)
+    try:
+        return handle_transformation(request)
+    except Exception as e:
+        print("Unkown exception:\n", str(e))
+        return str(UnexpectedError()), 400
 
 
 def handle_transformation(request: flask.Request):
     """Handle the transformation."""
     transform_direction = request.args.get("direction")
     if transform_direction is None:
-        raise Exception("Direction not specified.")
+        raise UnexpectedQueryParameter("direction")
 
     if transform_direction == "bpmntopnml":
         bpmn_xml_content = request.form["bpmn"]
@@ -77,4 +82,4 @@ def handle_transformation(request: flask.Request):
         response.headers["Access-Control-Allow-Origin"] = "*"
         return response
     else:
-        raise Exception("Direction not supported.")
+        raise UnexpectedQueryParameter("direction")

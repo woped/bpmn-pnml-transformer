@@ -4,6 +4,8 @@ from xml.etree.ElementTree import Element
 
 from pydantic_xml import BaseXmlModel, attr
 
+from exceptions import InternalTransformationException
+
 WOPED = "WoPeD"
 
 
@@ -20,7 +22,7 @@ def create_silent_node_name(source: str, target: str):
 def create_arc_name(source: str | None, target: str | None):
     """Construct an arc (name) from source to target."""
     if source is None or target is None:
-        raise Exception("source and target must have a value")
+        raise InternalTransformationException("source and target must have a value.")
     return f"{source}TO{target}"
 
 
