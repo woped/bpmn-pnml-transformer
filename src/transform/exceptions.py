@@ -1,13 +1,23 @@
 """Utility module for exception handling."""
 
+REPO_URL = "https://github.com/Niyada/bpmn-pnml-transformer-poc/issues"
+GITHUB_MESSAGE = (
+    f"Please open an issue at {REPO_URL} with your diagram "
+    "if you need further assistance."
+)
+
 
 # Internal exceptions where details should not be exposed to users.
 class PrivateInternalException(Exception):
-    """Exception for internal errors."""
+    """Exception for internal errors that should not be exposed to users."""
+
+    def __str__(self) -> str:
+        """Return a string representation of the error."""
+        return f"We encountered an unkown issue.\n{GITHUB_MESSAGE}"
 
 
 class InternalTransformationException(PrivateInternalException):
-    """Internal exceptions while transforming."""
+    """Exception raised for internal errors during transformation."""
 
 
 # Known user facing exceptions.
@@ -15,122 +25,131 @@ class KnownException(Exception):
     """Base class for all known transformer exceptions."""
 
     def __init__(self, id: int, message: str) -> None:
-        """Init user facing named exceptions with id's."""
+        """Initialize a user-facing known exception with an ID and message.
+
+        Args:
+            id (int): The error ID.
+            message (str): The error message.
+        """
         self._message = message
         self._id = id
         super().__init__(message)
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Return a string representation of the error."""
+        error_text = f"Error description: {self._message}\n{GITHUB_MESSAGE}"
         if self._id:
-            return f"[{self._id}] Internal error: {self._message}"
-        else:
-            return f"Internal error: {self._message}"
+            error_text = f"[{self._id}] {error_text}"
+        return error_text
 
 
 class UnexpectedError(KnownException):
-    """Exception class for a unexpected error."""
+    """Exception raised for unexpected errors."""
 
     def __init__(self) -> None:
-        """Init exception."""
-        super().__init__(0, "")
+        """Initialize an unexpected error exception."""
+        super().__init__(0, "Unkown error")
 
 
 class NotSupportedBPMNElement(KnownException):
-    """Exception class for not supported BPMN elements."""
+    """Exception raised for unsupported BPMN elements."""
 
     def __init__(self, element_names: str) -> None:
-        """Init exception."""
+        """Initialize an exception for unsupported BPMN elements.
+
+        Args:
+            element_names (str): The names of unsupported BPMN elements.
+        """
         super().__init__(1, f"BPMN element {element_names} not supported.")
 
 
 class MissingEnvironmentVariable(KnownException):
-    """Exception class for ."""
+    """Exception raised for missing environment variables."""
 
     def __init__(self, var_name: str) -> None:
-        """Init exception."""
-        super().__init__(1, f"Env variable {var_name} not set!")
+        """Initialize an exception for a missing environment variable.
+
+        Args:
+            var_name (str): The name of the missing environment variable.
+        """
+        super().__init__(2, f"Env variable {var_name} not set!")
 
 
 class TokenCheckUnsuccessful(KnownException):
-    """Exception class for ."""
+    """Exception raised when a token check is unsuccessful."""
 
     def __init__(self) -> None:
-        """Init exception."""
-        super().__init__(1, "Token check not successful")
+        """Initialize a token check unsuccessful exception."""
+        super().__init__(3, "Token check not successful")
 
 
 class UnexpectedQueryParameter(KnownException):
-    """Exception class for ."""
+    """Exception raised for unexpected query parameters."""
 
     def __init__(self, query_param: str) -> None:
-        """Init exception."""
-        super().__init__(1, f"Query parameter {query_param} wrong.")
+        """Initialize an exception for an unexpected query parameter.
+
+        Args:
+            query_param (str): The unexpected query parameter.
+        """
+        super().__init__(4, f"Query parameter {query_param} wrong.")
 
 
 class UnnamedLane(KnownException):
-    """Exception class for ."""
+    """Exception raised for unnamed lanes."""
 
     def __init__(self) -> None:
-        """Init exception."""
-        super().__init__(1, "Please name all of your lanes.")
+        """Initialize an unnamed lane exception."""
+        super().__init__(5, "Please name all of your lanes.")
 
 
-class UnkownIntermediateCatchEvent(KnownException):
-    """Exception class for ."""
+class UnknownIntermediateCatchEvent(KnownException):
+    """Exception raised for unknown intermediate catch events."""
 
     def __init__(self) -> None:
-        """Init exception."""
-        super().__init__(1, "Wrong intermediate event type used!")
+        """Initialize an unknown intermediate catch event exception."""
+        super().__init__(6, "Wrong intermediate event type used!")
 
 
 class WrongSubprocessDegree(KnownException):
-    """Exception class for ."""
+    """Exception raised for incorrect subprocess degrees."""
 
     def __init__(self) -> None:
-        """Init exception."""
-        super().__init__(1, "Subprocess must have exactly one in and outgoing flow!")
+        """Initialize a wrong subprocess degree exception."""
+        super().__init__(7, "Subprocess must have exactly one in and outgoing flow!")
 
 
 class ORGatewayDetectionIssue(KnownException):
-    """Exception class for ."""
+    """Exception raised for OR-Gateway detection issues."""
 
     def __init__(self) -> None:
-        """Init exception."""
-        super().__init__(1, "Could not find matching splits and joins for OR-Gateways")
+        """Initialize an OR-Gateway detection issue exception."""
+        super().__init__(8, "Could not find matching splits and joins for OR-Gateways")
 
 
 class SubprocessWrongInnerSourceSinkDegree(KnownException):
-    """Exception class for ."""
+    """Exception raised for incorrect inner source/sink degrees in subprocesses."""
 
     def __init__(self) -> None:
-        """Init exception."""
+        """Initialize a subprocess wrong inner source/sink degree exception."""
         super().__init__(
-            1,
-            "currently source/sink in subprocess must have no incoming/outgoing arcs"
-            " to convert to BPMN Start and Endevents.",
+            9,
+            "Currently, source/sink in subprocess must have no incoming/outgoing arcs"
+            " to convert to BPMN Start and End events.",
         )
 
 
-class UnkownResourceOrganizationMapping(KnownException):
-    """Exception class for ."""
+class UnknownResourceOrganizationMapping(KnownException):
+    """Exception raised for unknown resource organization mappings."""
 
     def __init__(self) -> None:
-        """Init exception."""
-        super().__init__(1, "Resources must belong to the same organization.")
+        """Initialize an unknown resource organization mapping exception."""
+        super().__init__(10, "Resources must belong to the same organization.")
 
 
 class InvalidInputXML(KnownException):
-    """Exception class for ."""
+    """Exception raised for invalid input XML content."""
 
     def __init__(self) -> None:
-        """Init exception."""
-        super().__init__(1, "Seems like the input xml content is unsupported.")
-
-
-# class (KnownException):
-#     """Exception class for ."""
-
-#     def __init__(self) -> None:
-#         """Init exception."""
-#         super().__init__(1, "")
+        """Initialize an invalid input XML content exception."""
+        super().__init__(11, "Seems like the input XML content is unsupported.")

@@ -8,7 +8,9 @@ import requests
 from flask import jsonify, make_response
 
 from exceptions import (
+    KnownException,
     MissingEnvironmentVariable,
+    PrivateInternalException,
     TokenCheckUnsuccessful,
     UnexpectedError,
     UnexpectedQueryParameter,
@@ -43,20 +45,28 @@ def post_transform(request: flask.Request):
         response = requests.get(CHECK_TOKEN_URL)
         if response.status_code == 400:
             raise TokenCheckUnsuccessful()
-    except Exception as e:
-        return str(e), 400
 
-    if request.method == "OPTIONS":
-        # Handle CORS preflight request
-        response = make_response()
-        response.headers["Access-Control-Allow-Origin"] = "*"
-        response.headers["Access-Control-Allow-Methods"] = "POST,OPTIONS"
-        response.headers["Access-Control-Allow-Headers"] = "Content-Type,Authorization"
-        return response
+        if request.method == "OPTIONS":
+            # Handle CORS preflight request
+            response = make_response()
+            response.headers["Access-Control-Allow-Origin"] = "*"
+            response.headers["Access-Control-Allow-Methods"] = "POST,OPTIONS"
+            response.headers["Access-Control-Allow-Headers"] = (
+                "Content-Type,Authorization"
+            )
+            return response
 
-    try:
         return handle_transformation(request)
+    except KnownException as e:
+        # Exception with description for the end user.
+        print("Known excpetion:\n", str(e))
+        return str(e), 400
+    except PrivateInternalException as e:
+        # Internal exception with a generic description to the end user.
+        print("Internal exception:\n", str(e))
+        return str(e), 400
     except Exception as e:
+        # Not handled exception should be handled in the future.
         print("Unkown exception:\n", str(e))
         return str(UnexpectedError()), 400
 

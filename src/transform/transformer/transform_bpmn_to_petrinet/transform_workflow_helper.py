@@ -5,7 +5,7 @@ from typing import cast
 
 from exceptions import (
     InternalTransformationException,
-    UnkownIntermediateCatchEvent,
+    UnknownIntermediateCatchEvent,
     WrongSubprocessDegree,
 )
 from transformer.models.bpmn.base import Gateway, GenericBPMNNode
@@ -232,7 +232,7 @@ def handle_triggers(net: Net, bpmn: Process, triggers: list[IntermediateCatchEve
                 ).mark_as_workflow_message()
             )
         else:
-            raise UnkownIntermediateCatchEvent()
+            raise UnknownIntermediateCatchEvent()
 
 
 def handle_subprocesses(

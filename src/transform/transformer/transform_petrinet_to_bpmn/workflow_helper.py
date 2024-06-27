@@ -7,7 +7,7 @@ from pydantic import BaseModel, Field
 from exceptions import (
     InternalTransformationException,
     SubprocessWrongInnerSourceSinkDegree,
-    UnkownResourceOrganizationMapping,
+    UnknownResourceOrganizationMapping,
 )
 from transformer.models.bpmn.bpmn import (
     BPMN,
@@ -220,7 +220,7 @@ def find_role_type_of_subprocess(net: Net, current_role: str | None = None):
             raise InternalTransformationException("Not possible.")
         resource_role = resource.toolspecific.transitionResource.roleName
         if current_role is not None and current_role != resource_role:
-            raise UnkownResourceOrganizationMapping()
+            raise UnknownResourceOrganizationMapping()
         current_role = resource_role
     for sb in net.pages:
         nested_role = find_role_type_of_subprocess(sb.net, current_role)
@@ -248,7 +248,7 @@ def annotate_resources(net: Net, bpmn: BPMN):
             current_organization is not None
             and current_organization != resource_organization
         ):
-            raise UnkownResourceOrganizationMapping()
+            raise UnknownResourceOrganizationMapping()
         current_organization = resource_organization
 
         role_name = resource.toolspecific.transitionResource.roleName
