@@ -7,7 +7,12 @@ from defusedxml.ElementTree import fromstring
 from pydantic import PrivateAttr
 from pydantic_xml import attr, element
 
-from exceptions import InternalTransformationException, NotSupportedBPMNElement
+from exceptions import (
+    InternalTransformationException,
+    InvalidInputXML,
+    NotSupportedBPMNElement,
+    PrivateInternalException,
+)
 from transformer.models.bpmn.base import (
     BPMNNamespace,
     Gateway,
@@ -455,14 +460,19 @@ class BPMN(BPMNNamespace, tag="definitions"):
     @staticmethod
     def from_xml(xml_content: str):
         """Return a BPMN from a XML string."""
-        tree = fromstring(xml_content)
-        used_tags: set[str] = set()
-        for elem in tree.iter():
-            used_tags.add(get_tag_name(elem))
-        unhandled_tags = used_tags.difference(supported_tags)
-        if len(unhandled_tags) > 0:
-            raise NotSupportedBPMNElement(str(unhandled_tags))
-        return BPMN.from_xml_tree(tree)
+        try:
+            tree = fromstring(xml_content)
+            used_tags: set[str] = set()
+            for elem in tree.iter():
+                used_tags.add(get_tag_name(elem))
+            unhandled_tags = used_tags.difference(supported_tags)
+            if len(unhandled_tags) > 0:
+                raise NotSupportedBPMNElement(str(unhandled_tags))
+            return BPMN.from_xml_tree(tree)
+        except NotSupportedBPMNElement as e:
+            raise e
+        except Exception:
+            raise InvalidInputXML()
 
     @staticmethod
     def from_file(path: str):
@@ -477,8 +487,11 @@ class BPMN(BPMNNamespace, tag="definitions"):
 
     def to_string(self) -> str:
         """Transform this instance into a string and creates placeholder graphics."""
-        self.set_graphics()
-        return cast(str, self.to_xml(encoding="unicode"))
+        try:
+            self.set_graphics()
+            return cast(str, self.to_xml(encoding="unicode"))
+        except Exception:
+            raise PrivateInternalException("Can't convert bpmn to string.")
 
     def write_to_file(self, path: str):
         """Save this instance xml encoded to a file."""

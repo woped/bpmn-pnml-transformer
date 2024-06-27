@@ -7,7 +7,11 @@ from defusedxml.ElementTree import fromstring
 from pydantic import PrivateAttr
 from pydantic_xml import attr, element
 
-from exceptions import InternalTransformationException
+from exceptions import (
+    InternalTransformationException,
+    InvalidInputXML,
+    PrivateInternalException,
+)
 from transformer.models.pnml.base import (
     Inscription,
     Name,
@@ -355,7 +359,10 @@ class Pnml(BaseModel, tag="pnml"):
 
     def to_string(self) -> str:
         """Return string of net instance as serialized XML."""
-        return cast(str, self.to_xml(encoding="unicode"))
+        try:
+            return cast(str, self.to_xml(encoding="unicode"))
+        except Exception:
+            raise PrivateInternalException("Can't convert pnml to string.")
 
     def write_to_file(self, path: str):
         """Save net to file."""
@@ -364,9 +371,12 @@ class Pnml(BaseModel, tag="pnml"):
     @staticmethod
     def from_xml_str(xml_content: str):
         """Return a petri net from a XML string."""
-        tree = fromstring(xml_content)
-        net = Pnml.from_xml_tree(tree)
-        return net
+        try:
+            tree = fromstring(xml_content)
+            net = Pnml.from_xml_tree(tree)
+            return net
+        except Exception:
+            raise InvalidInputXML()
 
     @staticmethod
     def from_file(path: str):

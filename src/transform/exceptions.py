@@ -1,6 +1,16 @@
 """Utility module for exception handling."""
 
 
+# Internal exceptions where details should not be exposed to users.
+class PrivateInternalException(Exception):
+    """Exception for internal errors."""
+
+
+class InternalTransformationException(PrivateInternalException):
+    """Internal exceptions while transforming."""
+
+
+# Known user facing exceptions.
 class KnownException(Exception):
     """Base class for all known transformer exceptions."""
 
@@ -18,16 +28,8 @@ class KnownException(Exception):
             return f"Internal error: {self._message}"
 
 
-class PrivateInternalException(Exception):
-    """Exception for internal errors."""
-
-
-class InternalTransformationException(PrivateInternalException):
-    """Internal exceptions while transforming."""
-
-
 class UnexpectedError(KnownException):
-    """Exception class for ."""
+    """Exception class for a unexpected error."""
 
     def __init__(self) -> None:
         """Init exception."""
@@ -116,6 +118,14 @@ class UnkownResourceOrganizationMapping(KnownException):
     def __init__(self) -> None:
         """Init exception."""
         super().__init__(1, "Resources must belong to the same organization.")
+
+
+class InvalidInputXML(KnownException):
+    """Exception class for ."""
+
+    def __init__(self) -> None:
+        """Init exception."""
+        super().__init__(1, "Seems like the input xml content is unsupported.")
 
 
 # class (KnownException):
