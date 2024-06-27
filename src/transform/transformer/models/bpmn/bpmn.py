@@ -7,7 +7,7 @@ from defusedxml.ElementTree import fromstring
 from pydantic import PrivateAttr
 from pydantic_xml import attr, element
 
-from transformer.exceptions import NotSupportedBPMNElement
+from exceptions import NotSupportedBPMNElement
 from transformer.models.bpmn.base import (
     BPMNNamespace,
     Gateway,
