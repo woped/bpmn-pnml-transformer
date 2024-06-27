@@ -2,8 +2,7 @@
 
 from xml.etree.ElementTree import Element
 
-from pydantic_xml import BaseXmlModel
-from pydantic_xml import attr
+from pydantic_xml import BaseXmlModel, attr
 
 WOPED = "WoPeD"
 
@@ -27,7 +26,7 @@ def create_arc_name(source: str | None, target: str | None):
 
 def clean_xml_string(xml_string: str):
     """Add XML header if not already existing."""
-    if not xml_string.startswith('<?xml'):
+    if not xml_string.startswith("<?xml"):
         xml_string = '<?xml version="1.0" encoding="UTF-8"?>' + xml_string
     return xml_string
 
@@ -38,7 +37,8 @@ class BaseModel(
     skip_empty=True,
 ):
     """BaseModel extension of BaseXmlModel."""
-    id: str | None = attr(default=None)
+
+    id: str = attr(default="")
     name: str | None = attr(default=None)
 
     def __hash__(self):
