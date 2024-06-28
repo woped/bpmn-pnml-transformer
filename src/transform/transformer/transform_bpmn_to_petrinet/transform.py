@@ -2,6 +2,7 @@
 
 from collections.abc import Callable
 
+from exceptions import InternalTransformationException
 from transformer.models.bpmn.base import Gateway, GenericBPMNNode
 from transformer.models.bpmn.bpmn import (
     BPMN,
@@ -60,7 +61,6 @@ def merge_single_triggers(net: Net):
             continue
 
         # not clear how to merge the following element of a split/join place
-        # Exception is if it is before a pure workflow split
         target_transitions = [
             net.get_element(x.target) for x in net.get_outgoing(id=connecting_place.id)
         ]
@@ -164,7 +164,7 @@ def transform_bpmn_to_petrinet(
         ):
             net.add_element(Place(id=node.id))
         else:
-            raise Exception(f"{type(node)} not supported")
+            raise InternalTransformationException(f"{type(node)} not supported")
 
     # handle workflow specific nodes
     handle_subprocesses(

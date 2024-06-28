@@ -1,9 +1,7 @@
 """BPMN objects and extensions."""
 
-from pydantic import ValidationInfo, model_validator
 from pydantic_xml import attr, element
 
-from transformer.exceptions import NotSupportedBPMNElement
 from transformer.utility.utility import BaseBPMNModel
 
 ns_map = {
@@ -37,14 +35,3 @@ class GenericBPMNNode(BPMNNamespace):
 
 class Gateway(GenericBPMNNode):
     """Gateway extension of BPMN node."""
-
-
-class NotSupportedNode(GenericBPMNNode):
-    """NotSupportedNode extension of BPMN node."""
-
-    @model_validator(mode="before")
-    def raise_unsupported_tag_exception(self, data: ValidationInfo):
-        """Raises exception for unsupported tags."""
-        raise NotSupportedBPMNElement(
-            "tag not supported", (data.config or {}).get("title")
-        )

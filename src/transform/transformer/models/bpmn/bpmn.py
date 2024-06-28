@@ -7,7 +7,12 @@ from defusedxml.ElementTree import fromstring
 from pydantic import PrivateAttr
 from pydantic_xml import attr, element
 
-from transformer.exceptions import NotSupportedBPMNElement
+from exceptions import (
+    InternalTransformationException,
+    InvalidInputXML,
+    NotSupportedBPMNElement,
+    PrivateInternalException,
+)
 from transformer.models.bpmn.base import (
     BPMNNamespace,
     Gateway,
@@ -338,7 +343,9 @@ class Process(GenericBPMNNode):
             id = create_arc_name(source.id, target.id)
 
         if id in self._temp_flows:
-            raise Exception(f"flow with the id {id} already exists!")
+            raise InternalTransformationException(
+                f"flow with the id {id} already exists!"
+            )
 
         self.add_node(source)
         self.add_node(target)
@@ -384,7 +391,7 @@ class Process(GenericBPMNNode):
         """Add single node to the BPMN."""
         storage_set = self._type_map[type(new_node)]
         if storage_set is None:
-            raise Exception("No BPMN node")
+            raise InternalTransformationException("No BPMN node")
         if new_node in storage_set:
             # skip already added node
             return new_node
@@ -399,10 +406,10 @@ class Process(GenericBPMNNode):
         """Remove single node frome the BPMN."""
         storage_set = self._type_map[type(to_remove_node)]
         if storage_set is None:
-            raise Exception("No BPMN node")
+            raise InternalTransformationException("No BPMN node")
 
         if to_remove_node not in storage_set:
-            raise Exception("Node doesnt exist")
+            raise InternalTransformationException("Node doesnt exist")
 
         storage_set.remove(to_remove_node)
 
@@ -453,16 +460,19 @@ class BPMN(BPMNNamespace, tag="definitions"):
     @staticmethod
     def from_xml(xml_content: str):
         """Return a BPMN from a XML string."""
-        tree = fromstring(xml_content)
-        used_tags: set[str] = set()
-        for elem in tree.iter():
-            used_tags.add(get_tag_name(elem))
-        unhandled_tags = used_tags.difference(supported_tags)
-        if len(unhandled_tags) > 0:
-            raise NotSupportedBPMNElement(
-                "The following tags are currently not supported: ", unhandled_tags
-            )
-        return BPMN.from_xml_tree(tree)
+        try:
+            tree = fromstring(xml_content)
+            used_tags: set[str] = set()
+            for elem in tree.iter():
+                used_tags.add(get_tag_name(elem))
+            unhandled_tags = used_tags.difference(supported_tags)
+            if len(unhandled_tags) > 0:
+                raise NotSupportedBPMNElement(str(unhandled_tags))
+            return BPMN.from_xml_tree(tree)
+        except NotSupportedBPMNElement as e:
+            raise e
+        except Exception:
+            raise InvalidInputXML()
 
     @staticmethod
     def from_file(path: str):
@@ -477,8 +487,11 @@ class BPMN(BPMNNamespace, tag="definitions"):
 
     def to_string(self) -> str:
         """Transform this instance into a string and creates placeholder graphics."""
-        self.set_graphics()
-        return cast(str, self.to_xml(encoding="unicode"))
+        try:
+            self.set_graphics()
+            return cast(str, self.to_xml(encoding="unicode"))
+        except Exception:
+            raise PrivateInternalException("Can't convert bpmn to string.")
 
     def write_to_file(self, path: str):
         """Save this instance xml encoded to a file."""

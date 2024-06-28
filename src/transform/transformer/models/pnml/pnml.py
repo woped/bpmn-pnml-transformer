@@ -7,6 +7,11 @@ from defusedxml.ElementTree import fromstring
 from pydantic import PrivateAttr
 from pydantic_xml import attr, element
 
+from exceptions import (
+    InternalTransformationException,
+    InvalidInputXML,
+    PrivateInternalException,
+)
 from transformer.models.pnml.base import (
     Inscription,
     Name,
@@ -86,9 +91,7 @@ class Net(BaseModel, tag="net"):
 
     # internal helper structures
     _temp_elements: dict[str, NetElement] = PrivateAttr(default_factory=dict)
-    _type_map: dict[type[BaseModel], set[BaseModel]] = PrivateAttr(
-        default_factory=dict
-    )
+    _type_map: dict[type[BaseModel], set[BaseModel]] = PrivateAttr(default_factory=dict)
     _temp_arcs: dict[int, Arc] = PrivateAttr(default_factory=dict)
     _temp_node_id_to_incoming: dict[str, set[Arc]] = PrivateAttr(default_factory=dict)
     _temp_node_id_to_outgoing: dict[str, set[Arc]] = PrivateAttr(default_factory=dict)
@@ -202,9 +205,13 @@ class Net(BaseModel, tag="net"):
             and not isinstance(target, HelperPNMLElement)
             and type(source) is type(target)
         ):
-            raise Exception("Cant connect identical petrinet elements")
+            raise InternalTransformationException(
+                "Cant connect identical petrinet elements"
+            )
         if id in self._temp_arcs:
-            raise Exception(f"arc {id} already exists from {source.id} to {target.id}!")
+            raise InternalTransformationException(
+                f"arc {id} already exists from {source.id} to {target.id}!"
+            )
 
         self.add_element(source)
         self.add_element(target)
@@ -239,7 +246,7 @@ class Net(BaseModel, tag="net"):
         """Add a node to net or return if already exising (check by id)."""
         storage_set = self._type_map[type(new_node)]
         if storage_set is None:
-            raise Exception("No Petrinet node")
+            raise InternalTransformationException("No Petrinet node")
 
         if new_node.id in self._temp_elements:
             return new_node
@@ -252,14 +259,16 @@ class Net(BaseModel, tag="net"):
     def get_element(self, id: str):
         """Return element by id."""
         if id not in self._temp_elements:
-            raise Exception(f"Cant get nonexisting Node with id {id}")
+            raise InternalTransformationException(
+                f"Cant get nonexisting Node with id {id}"
+            )
         return self._temp_elements[id]
 
     def get_page(self, id: str):
         """Return page by id."""
         pages = {p.id: p for p in self.pages}
         if id not in pages:
-            raise Exception("Cant find page")
+            raise InternalTransformationException("Cant find page")
         return pages[id]
 
     def get_node_or_none(self, id: str):
@@ -272,7 +281,7 @@ class Net(BaseModel, tag="net"):
         """Remove element by instance."""
         storage_set = self._type_map[type(to_remove_node)]
         if storage_set is None:
-            raise Exception("No Petrinet node")
+            raise InternalTransformationException("No Petrinet node")
 
         storage_set.remove(to_remove_node)
 
@@ -287,9 +296,9 @@ class Net(BaseModel, tag="net"):
     def change_id(self, old_id: str, new_id: str):
         """Change the ID of a existing node and the connecting arcs."""
         if old_id not in self._temp_elements:
-            raise Exception("old element not exisiting")
+            raise InternalTransformationException("old element not exisiting")
         if new_id in self._temp_elements:
-            raise Exception("new id already exists")
+            raise InternalTransformationException("new id already exists")
         current_node = self._temp_elements[old_id]
         incoming, outgoing = self.get_incoming_outgoing_and_remove_arcs(current_node)
         self.remove_element(current_node)
@@ -350,7 +359,10 @@ class Pnml(BaseModel, tag="pnml"):
 
     def to_string(self) -> str:
         """Return string of net instance as serialized XML."""
-        return cast(str, self.to_xml(encoding="unicode"))
+        try:
+            return cast(str, self.to_xml(encoding="unicode"))
+        except Exception:
+            raise PrivateInternalException("Can't convert pnml to string.")
 
     def write_to_file(self, path: str):
         """Save net to file."""
@@ -359,9 +371,12 @@ class Pnml(BaseModel, tag="pnml"):
     @staticmethod
     def from_xml_str(xml_content: str):
         """Return a petri net from a XML string."""
-        tree = fromstring(xml_content)
-        net = Pnml.from_xml_tree(tree)
-        return net
+        try:
+            tree = fromstring(xml_content)
+            net = Pnml.from_xml_tree(tree)
+            return net
+        except Exception:
+            raise InvalidInputXML()
 
     @staticmethod
     def from_file(path: str):

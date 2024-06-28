@@ -27,9 +27,9 @@ from testgeneration.testcases.pnml_to_bpmn.supported_cases_workflow import (
 )
 from testgeneration.utility import clear
 
+from exceptions import NotSupportedBPMNElement
 from transformer.equality.bpmn import compare_bpmn
 from transformer.equality.petrinet import compare_pnml
-from transformer.exceptions import NotSupportedBPMNElement
 from transformer.models.bpmn.bpmn import BPMN
 from transformer.models.pnml.pnml import Pnml
 from transformer.transform_bpmn_to_petrinet.transform import (
