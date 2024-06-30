@@ -3,6 +3,11 @@
 from collections.abc import Callable
 from typing import cast
 
+from exceptions import (
+    InternalTransformationException,
+    UnknownIntermediateCatchEvent,
+    WrongSubprocessDegree,
+)
 from transformer.models.bpmn.base import Gateway, GenericBPMNNode
 from transformer.models.bpmn.bpmn import (
     AndGateway,
@@ -49,7 +54,7 @@ def add_arc(net: Net, source: NetElement, target: NetElement):
         net.add_arc(source, p, create_arc_name(source.id, p.id))
         net.add_arc(p, target, create_arc_name(p.id, target.id))
     else:
-        raise Exception("invalid petrinet node")
+        raise InternalTransformationException("invalid petrinet node")
 
 
 def add_wf_xor_split(
@@ -227,7 +232,7 @@ def handle_triggers(net: Net, bpmn: Process, triggers: list[IntermediateCatchEve
                 ).mark_as_workflow_message()
             )
         else:
-            raise Exception("Wrong intermediate event type used!")
+            raise UnknownIntermediateCatchEvent()
 
 
 def handle_subprocesses(
@@ -235,12 +240,12 @@ def handle_subprocesses(
     bpmn: Process,
     subprocesses: list[Process],
     organization: str,
-    caller_func: Callable[[Process, bool, str], Pnml],
+    caller_func: Callable[[Process, str], Pnml],
 ):
     """Transform a BPMN subprocess to workflow subprocess."""
     for subprocess in subprocesses:
-        if subprocess.get_in_degree() != 1 and subprocess.get_out_degree != 1:
-            raise Exception("Subprocess must have exactly one in and outgoing flow!")
+        if subprocess.get_in_degree() != 1 or subprocess.get_out_degree() != 1:
+            raise WrongSubprocessDegree()
 
         subprocess_transition = net.add_element(
             Transition.create(
@@ -250,10 +255,17 @@ def handle_subprocesses(
 
         # WOPED subprocess start and endplaces must have the same id as the incoming/
         # outgoing node of the subprocess
-        outer_in_id, outer_out_id = (
-            list(bpmn.get_incoming(subprocess.id))[0].sourceRef,
-            list(bpmn.get_outgoing(subprocess.id))[0].targetRef,
+
+        outer_in_flows, outer_out_flows = (
+            list(bpmn.get_incoming(subprocess.id)),
+            list(bpmn.get_outgoing(subprocess.id)),
         )
+
+        outer_in_id, outer_out_id = (
+            outer_in_flows[0].sourceRef,
+            outer_out_flows[0].targetRef,
+        )
+
         outer_in, outer_out = (
             net.get_element(outer_in_id),
             net.get_element(outer_out_id),
@@ -273,7 +285,7 @@ def handle_subprocesses(
         subprocess.change_node_id(sub_ee, outer_out_id)
 
         # transform inner subprocess
-        inner_net = caller_func(subprocess, True, organization).net
+        inner_net = caller_func(subprocess, organization).net
         inner_net.id = None
 
         net.add_page(Page(id=subprocess.id, net=inner_net))

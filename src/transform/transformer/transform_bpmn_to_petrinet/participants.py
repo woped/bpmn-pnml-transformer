@@ -1,5 +1,6 @@
 """Module for handling participants annotations."""
 
+from exceptions import UnnamedLane
 from transformer.models.bpmn.bpmn import Process, UserTask
 from transformer.models.pnml.base import (
     OrganizationUnit,
@@ -33,7 +34,7 @@ def create_participant_mapping(bpmn: Process):
         for lane in lane_set.lanes:
             for node in lane.flowNodeRefs:
                 if not lane.name:
-                    raise Exception("Please name all of your lanes.")
+                    raise UnnamedLane()
                 if lane.name not in participant_mapping:
                     participant_mapping[lane.name] = []
                 participant_mapping[lane.name].append(node)
