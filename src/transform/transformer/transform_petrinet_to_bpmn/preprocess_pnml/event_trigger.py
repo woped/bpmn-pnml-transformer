@@ -4,6 +4,7 @@ A event trigger is a message or time.
 A resource will be handled by another preprocessing function.
 """
 
+from exceptions import InternalTransformationException
 from transformer.models.pnml.base import NetElement
 from transformer.models.pnml.pnml import Net, Transition
 from transformer.models.pnml.transform_helper import (
@@ -19,7 +20,7 @@ from transformer.utility.pnml import (
 def handle_trigger_creation(trigger: NetElement):
     """Create a trigger helper element."""
     if not trigger.toolspecific:
-        raise Exception("Not possible.")
+        raise InternalTransformationException("Not possible.")
     if trigger.toolspecific.is_workflow_message():
         return MessageHelperPNML(
             id=generate_explicit_trigger_id(trigger.id), name=trigger.name
@@ -29,7 +30,7 @@ def handle_trigger_creation(trigger: NetElement):
             id=generate_explicit_trigger_id(trigger.id), name=trigger.name
         )
     else:
-        raise Exception("Should not happen.")
+        raise InternalTransformationException("Should not happen.")
 
 
 def handle_split(net: Net, trigger: NetElement):
@@ -90,4 +91,4 @@ def split_event_triggers(net: Net):
         elif out_degree > 1 or (in_degree == 1 and out_degree == 1):
             handle_split(net, trigger)
         else:
-            raise Exception("Should not be possible")
+            raise InternalTransformationException("Should not happen.")

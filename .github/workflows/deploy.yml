@@ -48,7 +48,7 @@ jobs:
   
       - name: Build and push Docker image
         id: push
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: .
           file: ./Dockerfile
@@ -91,6 +91,11 @@ jobs:
             entry_point: "check_tokens"
             source_dir: "src/checkTokens"
             description: "Check Tokens endpoint."
+          - name: refreshTokens
+            test_dir: "refreshTokens"
+            entry_point: "refresh_tokens"
+            source_dir: "src/refreshTokens"
+            description: "[CANARY] Refresh Tokens endpoint."
 
     permissions:
       contents: "read"

@@ -38,6 +38,11 @@ jobs:
             entry_point: "check_tokens"
             source_dir: "src/checkTokens"
             description: "[CANARY] Check Tokens endpoint."
+          - name: refreshTokens
+            test_dir: "refreshTokens"
+            entry_point: "refresh_tokens"
+            source_dir: "src/refreshTokens"
+            description: "[CANARY] Refresh Tokens endpoint."
 
     # Add "id-token" with the intended permissions.
     permissions:
@@ -58,7 +63,7 @@ jobs:
 
       # Set FORCE_STD_XML for transform function only if the flag exists and is true
       - name: Set FORCE_STD_XML if required
-        if: matrix.function.set_force_std_xml == 'true'
+        if: matrix.function.set_force_std_xml == true
         run: echo "FORCE_STD_XML=true" >> $GITHUB_ENV
 
       - name: Set FORCE_STD_XML_ENV_KV_PAIR

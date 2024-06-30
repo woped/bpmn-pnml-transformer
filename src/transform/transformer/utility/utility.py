@@ -2,8 +2,9 @@
 
 from xml.etree.ElementTree import Element
 
-from pydantic_xml import BaseXmlModel
-from pydantic_xml import attr
+from pydantic_xml import BaseXmlModel, attr
+
+from exceptions import InternalTransformationException
 
 WOPED = "WoPeD"
 
@@ -21,13 +22,13 @@ def create_silent_node_name(source: str, target: str):
 def create_arc_name(source: str | None, target: str | None):
     """Construct an arc (name) from source to target."""
     if source is None or target is None:
-        raise Exception("source and target must have a value")
+        raise InternalTransformationException("source and target must have a value.")
     return f"{source}TO{target}"
 
 
 def clean_xml_string(xml_string: str):
     """Add XML header if not already existing."""
-    if not xml_string.startswith('<?xml'):
+    if not xml_string.startswith("<?xml"):
         xml_string = '<?xml version="1.0" encoding="UTF-8"?>' + xml_string
     return xml_string
 
@@ -38,7 +39,8 @@ class BaseModel(
     skip_empty=True,
 ):
     """BaseModel extension of BaseXmlModel."""
-    id: str | None = attr(default=None)
+
+    id: str = attr(default="")
     name: str | None = attr(default=None)
 
     def __hash__(self):
