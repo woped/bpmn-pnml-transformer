@@ -63,7 +63,7 @@ jobs:
 
       # Set FORCE_STD_XML for transform function only if the flag exists and is true
       - name: Set FORCE_STD_XML if required
-        if: matrix.function.set_force_std_xml == 'true'
+        if: matrix.function.set_force_std_xml == true
         run: echo "FORCE_STD_XML=true" >> $GITHUB_ENV
 
       - name: Set FORCE_STD_XML_ENV_KV_PAIR
