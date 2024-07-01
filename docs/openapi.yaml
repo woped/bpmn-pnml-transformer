@@ -60,6 +60,8 @@ paths:
           description: Request Timeout after 60s
         413:
           description: Payload too large (max. 10 MB)
+        429:
+          description: Too Many Requests, service is temporarily unavailable.
   "/health":
     get:
       summary: Shows the health status of transformer.
@@ -72,3 +74,5 @@ paths:
           description: Not Found
         408:
           description: Request Timeout after 60s
+        429:
+          description: Too Many Requests, service is temporarily unavailable.
