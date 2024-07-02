@@ -23,10 +23,10 @@ class TestE2EPostTransform(unittest.TestCase):
 
     def test_pnml_to_bpmn(self):
         """Tests the transform endpoint for direction pnmltobpmn."""
-        pnml_xml = '../../diagrams/xml/e2e_pnml_req.xml'
-        with open(pnml_xml, encoding='utf-8') as file:
+        pnml_xml_path = "../../diagrams/xml/e2e_pnml_req"
+        with open(pnml_xml_path, encoding='utf-8') as file:
             pnml_string = file.read()
-        bpmn_xml = '../../diagrams/xml/e2e_bpmn_req.xml'
+        bpmn_xml = '../../diagrams/xml/e2e_bpmn_res.xml'
         with open(bpmn_xml, encoding='utf-8') as file:
             bpmn_string = file.read()
         expected_response = {
