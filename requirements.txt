@@ -6,6 +6,7 @@ cloudevents==1.11.0
 colorama==0.4.6
 deprecation==2.1.0
 Flask==3.0.3
+flask-cors==4.0.1
 functions-framework==3.8.0
 gunicorn==22.0.0
 idna==3.7
