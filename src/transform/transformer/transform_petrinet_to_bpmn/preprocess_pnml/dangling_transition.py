@@ -3,8 +3,8 @@
 A dangling transitions has a input degree and/or output degree of 0.
 """
 
-from transform.transformer.models.pnml.pnml import Net, Place, Transition
-from transform.transformer.utility.pnml import generate_sink_id, generate_source_id
+from transformer.models.pnml.pnml import Net, Place, Transition
+from transformer.utility.pnml import generate_sink_id, generate_source_id
 
 
 def handle_dangling_sources(net: Net, sources: list[Transition]):

@@ -1,9 +1,9 @@
 """Methods to compare BPMNs by comparing all nodes with selected attributes."""
 
-from transform.exceptions import PrivateInternalException
-from transform.transformer.equality.utils import create_type_dict, to_comp_string
-from transform.transformer.models.bpmn.base import GenericBPMNNode
-from transform.transformer.models.bpmn.bpmn import (
+from exceptions import PrivateInternalException
+from transformer.equality.utils import create_type_dict, to_comp_string
+from transformer.models.bpmn.base import GenericBPMNNode
+from transformer.models.bpmn.bpmn import (
     BPMN,
     Flow,
     LaneSet,

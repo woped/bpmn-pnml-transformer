@@ -2,10 +2,10 @@
 
 import shutil
 
-from transform.tests.testgeneration.bpmn.utility import create_bpmn, rename_bpmn_xml
-from transform.tests.testgeneration.utility import create_file_path, read_bpmn_file
+from tests.testgeneration.bpmn.utility import create_bpmn, rename_bpmn_xml
+from tests.testgeneration.utility import create_file_path, read_bpmn_file
 
-from transform.transformer.models.bpmn.bpmn import EndEvent, StartEvent, Task
+from transformer.models.bpmn.bpmn import EndEvent, StartEvent, Task
 
 
 def generate_helper_bpmn(case_name: str):

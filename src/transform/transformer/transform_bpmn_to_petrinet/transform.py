@@ -2,9 +2,9 @@
 
 from collections.abc import Callable
 
-from transform.exceptions import InternalTransformationException
-from transform.transformer.models.bpmn.base import Gateway, GenericBPMNNode
-from transform.transformer.models.bpmn.bpmn import (
+from exceptions import InternalTransformationException
+from transformer.models.bpmn.base import Gateway, GenericBPMNNode
+from transformer.models.bpmn.bpmn import (
     BPMN,
     AndGateway,
     EndEvent,
@@ -16,25 +16,25 @@ from transform.transformer.models.bpmn.bpmn import (
     UserTask,
     XorGateway,
 )
-from transform.transformer.models.pnml.pnml import Net, Place, Pnml, Transition
-from transform.transformer.models.pnml.workflow import WorkflowBranchingType
-from transform.transformer.transform_bpmn_to_petrinet.participants import (
+from transformer.models.pnml.pnml import Net, Place, Pnml, Transition
+from transformer.models.pnml.workflow import WorkflowBranchingType
+from transformer.transform_bpmn_to_petrinet.participants import (
     create_participant_mapping,
     set_global_toolspecifi,
 )
-from transform.transformer.transform_bpmn_to_petrinet.preprocess_bpmn import (
+from transformer.transform_bpmn_to_petrinet.preprocess_bpmn import (
     adjacent_inserter,
     all_gateways,
     or_gateways,
 )
-from transform.transformer.transform_bpmn_to_petrinet.transform_workflow_helper import (
+from transformer.transform_bpmn_to_petrinet.transform_workflow_helper import (
     handle_gateways,
     handle_resource_annotations,
     handle_subprocesses,
     handle_triggers,
 )
-from transform.transformer.utility.pnml import find_triggers
-from transform.transformer.utility.utility import create_silent_node_name
+from transformer.utility.pnml import find_triggers
+from transformer.utility.utility import create_silent_node_name
 
 
 def merge_single_triggers(net: Net):

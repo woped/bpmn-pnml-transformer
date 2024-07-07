@@ -4,12 +4,12 @@ from collections.abc import Callable
 
 from pydantic import BaseModel, Field
 
-from transform.exceptions import (
+from exceptions import (
     InternalTransformationException,
     SubprocessWrongInnerSourceSinkDegree,
     UnknownResourceOrganizationMapping,
 )
-from transform.transformer.models.bpmn.bpmn import (
+from transformer.models.bpmn.bpmn import (
     BPMN,
     AndGateway,
     Collaboration,
@@ -21,9 +21,9 @@ from transform.transformer.models.bpmn.bpmn import (
     UserTask,
     XorGateway,
 )
-from transform.transformer.models.pnml.base import NetElement
-from transform.transformer.models.pnml.pnml import Arc, Net, Page, Transition
-from transform.transformer.models.pnml.transform_helper import (
+from transformer.models.pnml.base import NetElement
+from transformer.models.pnml.pnml import Arc, Net, Page, Transition
+from transformer.models.pnml.transform_helper import (
     ANDHelperPNML,
     GatewayHelperPNML,
     MessageHelperPNML,
@@ -31,8 +31,8 @@ from transform.transformer.models.pnml.transform_helper import (
     TriggerHelperPNML,
     XORHelperPNML,
 )
-from transform.transformer.models.pnml.workflow import WorkflowBranchingType
-from transform.transformer.utility.pnml import (
+from transformer.models.pnml.workflow import WorkflowBranchingType
+from transformer.utility.pnml import (
     generate_subprocess_inner_id,
 )
 

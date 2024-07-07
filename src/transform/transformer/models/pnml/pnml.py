@@ -7,27 +7,27 @@ from defusedxml.ElementTree import fromstring
 from pydantic import PrivateAttr
 from pydantic_xml import attr, element
 
-from transform.exceptions import (
+from exceptions import (
     InternalTransformationException,
     InvalidInputXML,
     PrivateInternalException,
 )
-from transform.transformer.models.pnml.base import (
+from transformer.models.pnml.base import (
     Inscription,
     Name,
     NetElement,
     Toolspecific,
     ToolspecificGlobal,
 )
-from transform.transformer.models.pnml.graphics import OffsetGraphics
-from transform.transformer.models.pnml.transform_helper import (
+from transformer.models.pnml.graphics import OffsetGraphics
+from transformer.models.pnml.transform_helper import (
     ANDHelperPNML,
     HelperPNMLElement,
     MessageHelperPNML,
     TimeHelperPNML,
     XORHelperPNML,
 )
-from transform.transformer.utility.utility import (
+from transformer.utility.utility import (
     BaseModel,
     create_arc_name,
     create_silent_node_name,

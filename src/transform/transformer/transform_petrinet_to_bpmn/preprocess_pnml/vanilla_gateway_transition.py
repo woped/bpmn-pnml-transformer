@@ -1,8 +1,8 @@
 """Split a AND transition with a name (implicit task)."""
 
-from transform.exceptions import InternalTransformationException
-from transform.transformer.models.pnml.pnml import Net, Transition
-from transform.transformer.utility.pnml import generate_explicit_transition_id
+from exceptions import InternalTransformationException
+from transformer.models.pnml.pnml import Net, Transition
+from transformer.utility.pnml import generate_explicit_transition_id
 
 
 def handle_gateway_creation(and_gateway: Transition):

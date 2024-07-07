@@ -1,17 +1,17 @@
 """Generates simple BPMN and the according petri net for multiple cases."""
 
-from transform.tests.testgeneration.bpmn.utility import create_bpmn
-from transform.tests.testgeneration.pnml.utility import create_petri_net
+from tests.testgeneration.bpmn.utility import create_bpmn
+from tests.testgeneration.pnml.utility import create_petri_net
 
-from transform.transformer.models.bpmn.bpmn import (
+from transformer.models.bpmn.bpmn import (
     BPMN,
     EndEvent,
     StartEvent,
     Task,
     UserTask,
 )
-from transform.transformer.models.pnml.pnml import Place, Pnml, Transition
-from transform.transformer.utility.utility import create_silent_node_name
+from transformer.models.pnml.pnml import Place, Pnml, Transition
+from transformer.utility.utility import create_silent_node_name
 
 
 def start_end():

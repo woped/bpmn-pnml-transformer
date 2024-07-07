@@ -1,13 +1,13 @@
 """Generates BPMN and expected petri net for various workflow cases ."""
 
-from transform.tests.testgeneration.bpmn.utility import create_bpmn
-from transform.tests.testgeneration.pnml.helper_workflow import (
+from tests.testgeneration.bpmn.utility import create_bpmn
+from tests.testgeneration.pnml.helper_workflow import (
     create_operator_place,
     create_operator_transition,
 )
-from transform.tests.testgeneration.pnml.utility import create_petri_net
+from tests.testgeneration.pnml.utility import create_petri_net
 
-from transform.transformer.models.bpmn.bpmn import (
+from transformer.models.bpmn.bpmn import (
     BPMN,
     AndGateway,
     Collaboration,
@@ -22,15 +22,15 @@ from transform.transformer.models.bpmn.bpmn import (
     UserTask,
     XorGateway,
 )
-from transform.transformer.models.pnml.base import (
+from transformer.models.pnml.base import (
     OrganizationUnit,
     Resources,
     Role,
     ToolspecificGlobal,
 )
-from transform.transformer.models.pnml.pnml import Page, Place, Pnml, Transition
-from transform.transformer.models.pnml.workflow import WorkflowBranchingType
-from transform.transformer.utility.utility import create_silent_node_name
+from transformer.models.pnml.pnml import Page, Place, Pnml, Transition
+from transformer.models.pnml.workflow import WorkflowBranchingType
+from transformer.utility.utility import create_silent_node_name
 
 
 def subprocess_pool():

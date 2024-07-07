@@ -1,6 +1,6 @@
 """Elements used as placeholder nodes to simplify transformation."""
 
-from transform.transformer.models.pnml.base import NetElement
+from transformer.models.pnml.base import NetElement
 
 
 class HelperPNMLElement(NetElement):

@@ -1,14 +1,14 @@
 """Module for handling participants annotations."""
 
-from transform.exceptions import UnnamedLane
-from transform.transformer.models.bpmn.bpmn import Process, UserTask
-from transform.transformer.models.pnml.base import (
+from exceptions import UnnamedLane
+from transformer.models.bpmn.bpmn import Process, UserTask
+from transformer.models.pnml.base import (
     OrganizationUnit,
     Resources,
     Role,
     ToolspecificGlobal,
 )
-from transform.transformer.models.pnml.pnml import Net
+from transformer.models.pnml.pnml import Net
 
 
 def find_subprocess_participants(

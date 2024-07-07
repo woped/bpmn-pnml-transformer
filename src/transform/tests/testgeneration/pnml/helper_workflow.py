@@ -1,10 +1,10 @@
 """Module for creating operator places and transitions in a workflow using PNML."""
 
-from transform.transformer.models.pnml.pnml import (
+from transformer.models.pnml.pnml import (
     Place,
     Transition,
 )
-from transform.transformer.models.pnml.workflow import WorkflowBranchingType
+from transformer.models.pnml.workflow import WorkflowBranchingType
 
 
 def create_operator_place(id: str, branching_type: WorkflowBranchingType):

@@ -4,8 +4,8 @@ from enum import Enum
 
 from pydantic_xml import attr, element
 
-from transform.transformer.models.pnml.graphics import PositionGraphics
-from transform.transformer.utility.utility import BaseModel
+from transformer.models.pnml.graphics import PositionGraphics
+from transformer.utility.utility import BaseModel
 
 
 class WorkflowBranchingType(int, Enum):

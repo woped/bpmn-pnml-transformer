@@ -1,9 +1,9 @@
 """Methods to compare petri nets by comparing all nodes of all subprocesses."""
 
-from transform.exceptions import PrivateInternalException
-from transform.transformer.equality.utils import create_type_dict, to_comp_string
-from transform.transformer.models.pnml.base import NetElement, ToolspecificGlobal
-from transform.transformer.models.pnml.pnml import Arc, Net
+from exceptions import PrivateInternalException
+from transformer.equality.utils import create_type_dict, to_comp_string
+from transformer.models.pnml.base import NetElement, ToolspecificGlobal
+from transformer.models.pnml.pnml import Arc, Net
 
 
 def petri_net_element_to_comp_value(e: NetElement | Arc):

@@ -7,18 +7,18 @@ from defusedxml.ElementTree import fromstring
 from pydantic import PrivateAttr
 from pydantic_xml import attr, element
 
-from transform.exceptions import (
+from exceptions import (
     InternalTransformationException,
     InvalidInputXML,
     NotSupportedBPMNElement,
     PrivateInternalException,
 )
-from transform.transformer.models.bpmn.base import (
+from transformer.models.bpmn.base import (
     BPMNNamespace,
     Gateway,
     GenericBPMNNode,
 )
-from transform.transformer.models.bpmn.bpmn_graphics import (
+from transformer.models.bpmn.bpmn_graphics import (
     BPMNDiagram,
     BPMNEdge,
     BPMNLabel,
@@ -27,7 +27,7 @@ from transform.transformer.models.bpmn.bpmn_graphics import (
     DCBounds,
     DIWaypoint,
 )
-from transform.transformer.utility.utility import create_arc_name, get_tag_name
+from transformer.utility.utility import create_arc_name, get_tag_name
 
 supported_elements = {
     "exclusiveGateway",

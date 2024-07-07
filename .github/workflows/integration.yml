@@ -92,12 +92,18 @@ jobs:
 
       # Run Unit Tests
       - name: Run Unit tests
-        run: pytest ${{ matrix.function.source_dir }}/tests/unit -v
+        run: |
+          cd ${{ matrix.function.source_dir }}
+          python -m pytest tests/unit -v   
+          cd ../..
       
       # Run Integration Tests
       - name: Run Integration tests
-        run: pytest ${{ matrix.function.source_dir }}/tests/integration -v
-      
+        run: |
+          cd ${{ matrix.function.source_dir }}
+          python -m pytest tests/integration -v   
+          cd ../..
+        
       # Authenticating at GCP
       # see https://github.com/google-github-actions/deploy-cloud-functions
       - id: "auth"
@@ -140,7 +146,10 @@ jobs:
 
       # Run e2e Tests against Canary Function
       - name: Run e2e tests
-        run: pytest ${{ matrix.function.source_dir }}/tests/e2e -v
+        run: |
+          cd ${{ matrix.function.source_dir }}
+          python -m pytest tests/e2e -v   
+          cd ../..
       
       # Remove Canary Function
       - name: Remove Canary Function

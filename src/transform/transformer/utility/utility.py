@@ -4,7 +4,7 @@ from xml.etree.ElementTree import Element
 
 from pydantic_xml import BaseXmlModel, attr
 
-from transform.exceptions import InternalTransformationException
+from exceptions import InternalTransformationException
 
 WOPED = "WoPeD"
 

@@ -4,14 +4,14 @@ A event trigger is a message or time.
 A resource will be handled by another preprocessing function.
 """
 
-from transform.exceptions import InternalTransformationException
-from transform.transformer.models.pnml.base import NetElement
-from transform.transformer.models.pnml.pnml import Net, Transition
-from transform.transformer.models.pnml.transform_helper import (
+from exceptions import InternalTransformationException
+from transformer.models.pnml.base import NetElement
+from transformer.models.pnml.pnml import Net, Transition
+from transformer.models.pnml.transform_helper import (
     MessageHelperPNML,
     TimeHelperPNML,
 )
-from transform.transformer.utility.pnml import (
+from transformer.utility.pnml import (
     find_triggers,
     generate_explicit_trigger_id,
 )

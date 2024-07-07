@@ -1,13 +1,13 @@
 """Insert GenericBPMNNodes."""
 
-from transform.transformer.models.bpmn.base import Gateway, GenericBPMNNode
-from transform.transformer.models.bpmn.bpmn import (
+from transformer.models.bpmn.base import Gateway, GenericBPMNNode
+from transformer.models.bpmn.bpmn import (
     EndEvent,
     IntermediateCatchEvent,
     Process,
     StartEvent,
 )
-from transform.transformer.utility.utility import create_silent_node_name
+from transformer.utility.utility import create_silent_node_name
 
 
 def is_target_wf_transition(node):

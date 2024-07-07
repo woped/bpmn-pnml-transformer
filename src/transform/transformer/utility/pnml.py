@@ -1,7 +1,7 @@
 """Shared PNML related helper functions."""
 
-from transform.transformer.models.pnml.base import NetElement
-from transform.transformer.models.pnml.pnml import Net
+from transformer.models.pnml.base import NetElement
+from transformer.models.pnml.pnml import Net
 
 
 def generate_subprocess_inner_id(id: str):

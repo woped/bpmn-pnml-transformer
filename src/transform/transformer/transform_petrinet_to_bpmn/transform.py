@@ -2,8 +2,8 @@
 
 from collections.abc import Callable
 
-from transform.transformer.models.bpmn.base import Gateway
-from transform.transformer.models.bpmn.bpmn import (
+from transformer.models.bpmn.base import Gateway
+from transformer.models.bpmn.bpmn import (
     BPMN,
     AndGateway,
     EndEvent,
@@ -12,18 +12,18 @@ from transform.transformer.models.bpmn.bpmn import (
     Task,
     XorGateway,
 )
-from transform.transformer.models.pnml.pnml import Net, Pnml
-from transform.transformer.models.pnml.transform_helper import (
+from transformer.models.pnml.pnml import Net, Pnml
+from transformer.models.pnml.transform_helper import (
     GatewayHelperPNML,
     TriggerHelperPNML,
 )
-from transform.transformer.transform_petrinet_to_bpmn.preprocess_pnml import (
+from transformer.transform_petrinet_to_bpmn.preprocess_pnml import (
     dangling_transition,
     event_trigger,
     vanilla_gateway_transition,
     workflow_operators,
 )
-from transform.transformer.transform_petrinet_to_bpmn.workflow_helper import (
+from transformer.transform_petrinet_to_bpmn.workflow_helper import (
     annotate_resources,
     find_workflow_subprocesses,
     handle_event_triggers,
@@ -31,7 +31,7 @@ from transform.transformer.transform_petrinet_to_bpmn.workflow_helper import (
     handle_workflow_operators,
     handle_workflow_subprocesses,
 )
-from transform.transformer.utility.utility import create_arc_name
+from transformer.utility.utility import create_arc_name
 
 
 def remove_silent_tasks(bpmn: Process):

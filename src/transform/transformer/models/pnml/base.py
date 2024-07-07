@@ -2,19 +2,19 @@
 
 from pydantic_xml import attr, element
 
-from transform.transformer.models.pnml.graphics import (
+from transformer.models.pnml.graphics import (
     Coordinates,
     OffsetGraphics,
     PositionGraphics,
 )
-from transform.transformer.models.pnml.workflow import (
+from transformer.models.pnml.workflow import (
     Operator,
     TransitionResource,
     Trigger,
     TriggerType,
     WorkflowBranchingType,
 )
-from transform.transformer.utility.utility import WOPED, BaseModel
+from transformer.utility.utility import WOPED, BaseModel
 
 
 class Name(BaseModel, tag="name"):

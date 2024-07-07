@@ -2,7 +2,7 @@
 
 from pydantic_xml import attr, element
 
-from transform.transformer.utility.utility import BaseBPMNModel
+from transformer.utility.utility import BaseBPMNModel
 
 ns_map = {
     "xsi": "http://www.w3.org/2001/XMLSchema-instance",

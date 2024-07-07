@@ -5,19 +5,19 @@ AND-XOR and XOR-AND-Gateways will be splitted to allow the transformation to BPM
 When gateways have names (implicit action) a explicit transtition will be added.
 """
 
-from transform.transformer.models.pnml.base import Name
-from transform.transformer.models.pnml.pnml import Arc, Net, Transition
-from transform.transformer.models.pnml.transform_helper import (
+from transformer.models.pnml.base import Name
+from transformer.models.pnml.pnml import Arc, Net, Transition
+from transformer.models.pnml.transform_helper import (
     ANDHelperPNML,
     GatewayHelperPNML,
     XORHelperPNML,
 )
-from transform.transformer.models.pnml.workflow import WorkflowBranchingType
-from transform.transformer.transform_petrinet_to_bpmn.workflow_helper import (
+from transformer.models.pnml.workflow import WorkflowBranchingType
+from transformer.transform_petrinet_to_bpmn.workflow_helper import (
     WorkflowOperatorWrapper,
     find_workflow_operators,
 )
-from transform.transformer.utility.pnml import generate_explicit_transition_id
+from transformer.utility.pnml import generate_explicit_transition_id
 
 
 def handle_combined_operator(net: Net, wo: WorkflowOperatorWrapper):

@@ -4,8 +4,8 @@ Ust to generate test Petri nets from lists of net elements in PNML format.
 """
 
 
-from transform.transformer.models.pnml.base import NetElement
-from transform.transformer.models.pnml.pnml import Pnml
+from transformer.models.pnml.base import NetElement
+from transformer.models.pnml.pnml import Pnml
 
 
 def create_petri_net(test_case_name: str, flows: list[list[NetElement]]):

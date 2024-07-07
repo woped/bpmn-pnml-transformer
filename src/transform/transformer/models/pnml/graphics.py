@@ -2,7 +2,7 @@
 
 from pydantic_xml import attr, element
 
-from transform.transformer.utility.utility import BaseModel
+from transformer.utility.utility import BaseModel
 
 
 class Coordinates(BaseModel):
