@@ -23,23 +23,19 @@ jobs:
       matrix:
         function:
           - name: health
-            test_dir: "health"
             entry_point: "get_health"
             source_dir: "src/health"
             description: "[CANARY] Health status endpoint."
           - name: transform
-            test_dir: "transform"
             entry_point: "post_transform"
             source_dir: "src/transform"
             description: "[CANARY] Transformation endpoint."
             set_force_std_xml: true
           - name: checkTokens
-            test_dir: "checkTokens"
             entry_point: "check_tokens"
             source_dir: "src/checkTokens"
             description: "[CANARY] Check Tokens endpoint."
           - name: refreshTokens
-            test_dir: "refreshTokens"
             entry_point: "refresh_tokens"
             source_dir: "src/refreshTokens"
             description: "[CANARY] Refresh Tokens endpoint."
@@ -96,12 +92,18 @@ jobs:
 
       # Run Unit Tests
       - name: Run Unit tests
-        run: pytest ./test/unit/${{ matrix.function.test_dir }} -v
+        run: |
+          cd ${{ matrix.function.source_dir }}
+          python -m pytest tests/unit -v   
+          cd ../..
       
       # Run Integration Tests
       - name: Run Integration tests
-        run: pytest ./test/integration/${{ matrix.function.test_dir }} -v
-      
+        run: |
+          cd ${{ matrix.function.source_dir }}
+          python -m pytest tests/integration -v   
+          cd ../..
+        
       # Authenticating at GCP
       # see https://github.com/google-github-actions/deploy-cloud-functions
       - id: "auth"
@@ -144,7 +146,10 @@ jobs:
 
       # Run e2e Tests against Canary Function
       - name: Run e2e tests
-        run: pytest ./test/e2e/${{ matrix.function.test_dir }} -v
+        run: |
+          cd ${{ matrix.function.source_dir }}
+          python -m pytest tests/e2e -v   
+          cd ../..
       
       # Remove Canary Function
       - name: Remove Canary Function

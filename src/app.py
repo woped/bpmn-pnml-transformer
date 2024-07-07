@@ -2,7 +2,7 @@
 
 from flask import Flask, request
 from health.main import get_health
-from transform.main import post_transform
+from main import post_transform
 from checkTokens.main import check_tokens
 from refreshTokens.main import refresh_tokens
 from flask_cors import CORS

@@ -31,3 +31,4 @@ lxml==5.2.2
 pydantic==2.8.2
 pydantic_xml==2.11.0
 defusedxml==0.7.1
+python-dotenv==1.0.1

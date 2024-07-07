@@ -2,9 +2,13 @@
 
 import shutil
 
-from testgeneration.bpmn.utility import create_bpmn, insert_bpmn_xml
-from testgeneration.pnml.utility import create_petri_net
-from testgeneration.utility import UniqueIDGenerator, create_file_path, read_bpmn_file
+from tests.testgeneration.bpmn.utility import create_bpmn, insert_bpmn_xml
+from tests.testgeneration.pnml.utility import create_petri_net
+from tests.testgeneration.utility import (
+    UniqueIDGenerator,
+    create_file_path,
+    read_bpmn_file
+)
 
 from transformer.models.bpmn.bpmn import EndEvent, StartEvent, Task
 from transformer.models.pnml.pnml import Place, Pnml, Transition

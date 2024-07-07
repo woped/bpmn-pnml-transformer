@@ -1,7 +1,7 @@
 """Generates simple BPMN and the according petri net for multiple cases."""
 
-from testgeneration.bpmn.utility import create_bpmn
-from testgeneration.pnml.utility import create_petri_net
+from tests.testgeneration.bpmn.utility import create_bpmn
+from tests.testgeneration.pnml.utility import create_petri_net
 
 from transformer.models.bpmn.bpmn import (
     BPMN,
