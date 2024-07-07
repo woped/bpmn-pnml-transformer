@@ -27,14 +27,13 @@ from testgeneration.testcases.pnml_to_bpmn.supported_cases_workflow import (
 )
 from testgeneration.utility import clear
 
+from exceptions import NotSupportedBPMNElement
 from transformer.equality.bpmn import compare_bpmn
 from transformer.equality.petrinet import compare_pnml
-from transformer.exceptions import NotSupportedBPMNElement
 from transformer.models.bpmn.bpmn import BPMN
 from transformer.models.pnml.pnml import Pnml
 from transformer.transform_bpmn_to_petrinet.transform import (
-    bpmn_to_st_net,
-    bpmn_to_st_net_from_xml,
+    bpmn_to_wf_net_from_xml,
     bpmn_to_workflow_net,
 )
 from transformer.transform_petrinet_to_bpmn.transform import pnml_to_bpmn
@@ -155,7 +154,7 @@ class TestBPMNToPetriNet(unittest.TestCase):
         Petri net matches the expected outcome.
         """
         for bpmn, pn_expected, case in supported_cases_bpmn:
-            pn_transformed = bpmn_to_st_net(bpmn)
+            pn_transformed = bpmn_to_workflow_net(bpmn)
             equal, error = compare_pnml(pn_expected.net, pn_transformed.net)
             if not equal:
                 save_failed_bpmn_to_pnml_transformation(
@@ -171,7 +170,7 @@ class TestBPMNToPetriNet(unittest.TestCase):
         """
         for bpmn_xml, name in unsupported_cases_bpmn:
             with self.assertRaises(NotSupportedBPMNElement):
-                bpmn_to_st_net_from_xml(bpmn_xml)
+                bpmn_to_wf_net_from_xml(bpmn_xml)
         clear()
 
     def test_ignore_elements(self):
@@ -181,7 +180,7 @@ class TestBPMNToPetriNet(unittest.TestCase):
         Petri net matches the expected outcome.
         """
         for bpmn_xml, pn_truth in ignored_cases_bpmn:
-            pn_transformed = bpmn_to_st_net_from_xml(bpmn_xml)
+            pn_transformed = bpmn_to_wf_net_from_xml(bpmn_xml)
             equal, error = compare_pnml(pn_truth.net, pn_transformed.net)
             self.assertTrue(equal, f"should be equal\n{error}")
         clear()

@@ -1,5 +1,6 @@
 """Methods to compare BPMNs by comparing all nodes with selected attributes."""
 
+from exceptions import PrivateInternalException
 from transformer.equality.utils import create_type_dict, to_comp_string
 from transformer.models.bpmn.base import GenericBPMNNode
 from transformer.models.bpmn.bpmn import (
@@ -24,7 +25,7 @@ def bpmn_element_to_comp_value(e: GenericBPMNNode | Flow):
     elif isinstance(e, Flow):
         return to_comp_string(e.name, e.sourceRef, e.targetRef)
     else:
-        raise Exception(f"Not supported BPMN Element: {type(e)}")
+        raise PrivateInternalException(f"Not supported BPMN Element: {type(e)}")
 
 
 def bpmn_type_map(bpmn: Process):

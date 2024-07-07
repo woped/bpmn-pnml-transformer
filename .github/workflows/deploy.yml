@@ -3,7 +3,7 @@ name: Continuous Deployment
 on:
   push:
     branches: [main]
-  workflow_dispatch:
+  # DO NOT SET workflow_dispatch SINCE IT ENABLES DEVs TO BYPASS CI PIPELINE
 
 env:
   PYTHON_VERSION: '3.12'
@@ -23,8 +23,16 @@ jobs:
       id-token: write
 
     steps:
+      - name: Set environment variables
+        run: |
+          echo "GCP_SERVICE_ACCOUNT_CERTIFICATE=${{ secrets.GCP_SERVICE_ACCOUNT_CERTIFICATE }}" >> $GITHUB_ENV
+
       - name: Check out the repo
         uses: actions/checkout@v4
+
+      - name: Set environment variables
+        run: |
+          echo "GCP_SERVICE_ACCOUNT_CERTIFICATE=${{ secrets.GCP_SERVICE_ACCOUNT_CERTIFICATE }}" >> $GITHUB_ENV
 
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
@@ -40,7 +48,7 @@ jobs:
   
       - name: Build and push Docker image
         id: push
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: .
           file: ./Dockerfile
@@ -78,13 +86,28 @@ jobs:
             source_dir: "src/transform"
             description: "Transformation endpoint."
             set_force_std_xml: true
+          - name: checkTokens
+            test_dir: "checkTokens"
+            entry_point: "check_tokens"
+            source_dir: "src/checkTokens"
+            description: "Check Tokens endpoint."
+          - name: refreshTokens
+            test_dir: "refreshTokens"
+            entry_point: "refresh_tokens"
+            source_dir: "src/refreshTokens"
+            description: "[CANARY] Refresh Tokens endpoint."
 
     permissions:
       contents: "read"
       id-token: "write"
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Set environment variables
+        run: |
+          echo "GCP_SERVICE_ACCOUNT_CERTIFICATE=${{ secrets.GCP_SERVICE_ACCOUNT_CERTIFICATE }}" >> $GITHUB_ENV
+
+      - name: Check out the repo
+        uses: actions/checkout@v4
 
       - id: "auth"
         name: "Authenticate to Google Cloud"
@@ -121,5 +144,5 @@ jobs:
           runtime: "python312"
           region: "europe-west3"
           description: ${{ matrix.function.description }}
-          env_vars: ${{ env.FUNCTION_ENV_VARS }}
+          env_vars: ${{ env.FUNCTION_ENV_VARS }},GCP_SERVICE_ACCOUNT_CERTIFICATE=${{ secrets.GCP_SERVICE_ACCOUNT_CERTIFICATE }}
 

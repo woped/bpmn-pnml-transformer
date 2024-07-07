@@ -20,7 +20,7 @@ class TestSubelements(unittest.TestCase):
         pnml = Pnml.from_file("src/transform/tests/assets/multiplesubprocesses.pnml")
         subnets = {}
         get_all_nets_by_id(pnml.net, subnets)
-        self.assertEqual(len(subnets), 7)
+        self.assertEqual(len(subnets), 8)
 
     def test_bpmn_eqaulity_subprocess(self):
         """Tests whether all bpmn subprocesses are identified."""

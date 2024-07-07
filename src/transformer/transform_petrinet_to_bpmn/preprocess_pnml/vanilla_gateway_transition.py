@@ -1,5 +1,6 @@
 """Split a AND transition with a name (implicit task)."""
 
+from exceptions import InternalTransformationException
 from transformer.models.pnml.pnml import Net, Transition
 from transformer.utility.pnml import generate_explicit_transition_id
 
@@ -101,7 +102,7 @@ def split_and_gw_with_name(net: Net):
         elif out_degree > 1:
             handle_split(net, and_gateway)
         else:
-            raise Exception("Should not be possible")
+            raise InternalTransformationException("Should not happen.")
 
         # Remove name because already handled by explicit transition
         and_gateway.name = None
