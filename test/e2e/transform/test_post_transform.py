@@ -11,6 +11,7 @@ class TestE2EPostTransform(unittest.TestCase):
 
     def setUp(self):
         """Performs setup before each test case."""
+        self.maxDiff = None
         self.url = os.getenv("E2E_URL")
         if self.url is None:
             raise ValueError("E2E_URL environment variable not set.")
@@ -107,8 +108,6 @@ class TestE2EPostTransform(unittest.TestCase):
         )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.headers["Content-Type"], "application/json")
-        print(response.json()) 
-        print(expected_response)
         self.assertEqual(response.json(), expected_response)
 
     def test_pnml_to_bpmn2(self):
