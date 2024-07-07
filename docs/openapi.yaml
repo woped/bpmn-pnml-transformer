@@ -18,7 +18,7 @@ paths:
             enum: [bpmntopnml, pnmltobpmn]
           description: Specifies the direction of the transformation.
       requestBody:
-        description: "Info: Swagger only works if the XML does not contain any line breaks and all quotation marks are escaped with a backslash as shown in the examples. For other XMLs you could use tools like Bruno."
+        description: "Info: Swagger only works if the XML does not contain any line breaks and all quotation marks are escaped with a backslash as shown in the examples. Further More, the error cases are not correctly displayed in Swagger. For a better experience please use the Bruno Collection from the repository."
         required: true
         content:
           application/x-www-form-urlencoded:
