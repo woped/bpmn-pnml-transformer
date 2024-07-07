@@ -10,7 +10,7 @@ class TestUnitGetHealth(unittest.TestCase):
         """Performs setup before each test case."""
         self.client = create_app(
             "get_health",
-            "src/health/main.py",
+            "main.py",
         ).test_client()
 
     def test_status_code(self):
