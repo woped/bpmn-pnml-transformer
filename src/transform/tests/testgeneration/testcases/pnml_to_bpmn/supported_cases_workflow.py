@@ -1,11 +1,11 @@
 """Generate supported test cases for Workflow transformations."""
 
-from testgeneration.bpmn.utility import create_bpmn
-from testgeneration.pnml.helper_workflow import (
+from tests.testgeneration.bpmn.utility import create_bpmn
+from tests.testgeneration.pnml.helper_workflow import (
     create_operator_place,
     create_operator_transition,
 )
-from testgeneration.pnml.utility import create_petri_net
+from tests.testgeneration.pnml.utility import create_petri_net
 
 from transformer.models.bpmn.bpmn import (
     BPMN,

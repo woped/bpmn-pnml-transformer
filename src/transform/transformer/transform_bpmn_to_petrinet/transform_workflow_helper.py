@@ -26,7 +26,10 @@ from transformer.models.pnml.pnml import (
 )
 from transformer.models.pnml.workflow import WorkflowBranchingType
 from transformer.utility.bpmn import find_end_events, find_start_events
-from transformer.utility.utility import create_arc_name, create_silent_node_name
+from transformer.utility.utility import (
+    create_arc_name, 
+    create_silent_node_name 
+)
 
 
 def create_workflow_operator_helper_transition(
