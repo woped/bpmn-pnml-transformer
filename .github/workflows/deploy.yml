@@ -1,24 +1,76 @@
-# This is a basic workflow to help you get started with Actions
-name: Continious Deployment
+name: Continuous Deployment
 
-# Controls when the workflow will run
 on:
-  # Triggers the workflow on push or pull request events but only for the main branch
   push:
     branches: [main]
-
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
+  # DO NOT SET workflow_dispatch SINCE IT ENABLES DEVs TO BYPASS CI PIPELINE
 
 env:
   PYTHON_VERSION: '3.12'
+  DOCKER_REGISTRY: 'woped'
+  DOCKER_IMAGE_NAME: 'pnml-bpmn-transformer'
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "deploy"
-  deploy:
-    # The type of runner that the job will run on
+
+  build_and_push_docker:
+    name: Push Docker image to Docker Hub
     runs-on: ubuntu-latest
+
+    permissions:
+      packages: write
+      contents: read
+      attestations: write
+      id-token: write
+
+    steps:
+      - name: Set environment variables
+        run: |
+          echo "GCP_SERVICE_ACCOUNT_CERTIFICATE=${{ secrets.GCP_SERVICE_ACCOUNT_CERTIFICATE }}" >> $GITHUB_ENV
+
+      - name: Check out the repo
+        uses: actions/checkout@v4
+
+      - name: Set environment variables
+        run: |
+          echo "GCP_SERVICE_ACCOUNT_CERTIFICATE=${{ secrets.GCP_SERVICE_ACCOUNT_CERTIFICATE }}" >> $GITHUB_ENV
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_ACCESSTOKEN }}
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_IMAGE_NAME }}
+  
+      - name: Build and push Docker image
+        id: push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+      # Quick Fix: Temporaryly disabeld due to error `Error: No credentials found for registry ***`
+
+      # - name: Generate artifact attestation
+      #   uses: actions/attest-build-provenance@v1
+      #   with:
+      #     subject-name: ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_IMAGE_NAME }}
+      #     subject-digest: ${{ steps.push.outputs.digest }}
+      #     push-to-registry: true
+      #     github-token: ${{ github.token }}
+
+  deploy:
+    runs-on: ubuntu-latest
+
+    # deploy even if build 
+    # needs: build_and_push_docker
 
     strategy:
       matrix:
@@ -33,19 +85,30 @@ jobs:
             entry_point: "post_transform"
             source_dir: "src/transform"
             description: "Transformation endpoint."
+            set_force_std_xml: true
+          - name: checkTokens
+            test_dir: "checkTokens"
+            entry_point: "check_tokens"
+            source_dir: "src/checkTokens"
+            description: "Check Tokens endpoint."
+          - name: refreshTokens
+            test_dir: "refreshTokens"
+            entry_point: "refresh_tokens"
+            source_dir: "src/refreshTokens"
+            description: "[CANARY] Refresh Tokens endpoint."
 
-    # Add "id-token" with the intended permissions.
     permissions:
       contents: "read"
       id-token: "write"
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: "actions/checkout@v4"
+      - name: Set environment variables
+        run: |
+          echo "GCP_SERVICE_ACCOUNT_CERTIFICATE=${{ secrets.GCP_SERVICE_ACCOUNT_CERTIFICATE }}" >> $GITHUB_ENV
 
-      # Authenticating at GCP
-      # see https://github.com/google-github-actions/deploy-cloud-functions
+      - name: Check out the repo
+        uses: actions/checkout@v4
+
       - id: "auth"
         name: "Authenticate to Google Cloud"
         uses: "google-github-actions/auth@v2"
@@ -53,20 +116,25 @@ jobs:
           workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
           service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
 
-      # Setting up Python environment
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
           cache: 'pip'
 
-      # Install dependencies
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-      
-      # see https://github.com/google-github-actions/deploy-cloud-functions
+
+      - name: Set FUNCTION_ENV_VARS
+        run: |
+          if [ "${{ matrix.function.set_force_std_xml }}" == "true" ]; then
+            echo "FUNCTION_ENV_VARS=FORCE_STD_XML=true" >> $GITHUB_ENV
+          else
+            echo "FUNCTION_ENV_VARS=" >> $GITHUB_ENV
+          fi
+  
       - id: "deploy"
         uses: "google-github-actions/deploy-cloud-functions@v2"
         with:
@@ -76,3 +144,5 @@ jobs:
           runtime: "python312"
           region: "europe-west3"
           description: ${{ matrix.function.description }}
+          env_vars: ${{ env.FUNCTION_ENV_VARS }},GCP_SERVICE_ACCOUNT_CERTIFICATE=${{ secrets.GCP_SERVICE_ACCOUNT_CERTIFICATE }}
+

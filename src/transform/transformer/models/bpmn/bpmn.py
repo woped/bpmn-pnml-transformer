@@ -1,18 +1,23 @@
 """BPMN objects and handling."""
-import os
+
 from pathlib import Path
 from typing import cast
-from xml.etree.ElementTree import Element
 
+import pm4py
 from lxml import etree, objectify
 from pydantic import PrivateAttr
 from pydantic_xml import attr, element
-from transformer.exceptions import NotSupportedBPMNElement
+
+from exceptions import (
+    InternalTransformationException,
+    InvalidInputXML,
+    NotSupportedBPMNElement,
+    PrivateInternalException,
+)
 from transformer.models.bpmn.base import (
     BPMNNamespace,
     Gateway,
     GenericBPMNNode,
-    GenericIdNode,
 )
 from transformer.models.bpmn.bpmn_graphics import (
     BPMNDiagram,
@@ -23,67 +28,155 @@ from transformer.models.bpmn.bpmn_graphics import (
     DCBounds,
     DIWaypoint,
 )
-from transformer.models.bpmn.not_supported_models import CatchEvent, ThrowEvent
 from transformer.utility.utility import create_arc_name, get_tag_name
 
-not_supported_elements = {
-    # custom element
-    "extensionelements",
-    # gateways
-    "complexgateway",
-    "eventbasedgateway",
-    # tasks
-    "usertask",
-    "servicetask",
-    "sendtask",
-    "receivetask",
-    "manualtask",
-    "businessruletask",
-    "scripttask",
-    "callactivity",
-    # events
-    # https://www.omg.org/spec/BPMN/2.0/PDF P. 425
-    "intermediatethrowevent",
-    "normalintermediatethrowevent",
-    "intermediatecatchevent",
-    "boundaryevent",
+supported_elements = {
+    "exclusiveGateway",
+    "parallelGateway",
+    "inclusiveGateway",
+    "startEvent",
+    "endEvent",
+    "messageEventDefinition",
+    "timerEventDefinition",
+    "intermediateCatchEvent",
+    "participant",
+    "collaboration",
+    "lane",
+    "laneSet",
+    "task",
+    "userTask",
+    "serviceTask",
+    "sequenceFlow",
+    "subProcess",
+    "definitions",
+    "process",
+    "incoming",
+    "outgoing",
+    "flownoderef",
+    # Graphics related
+    "bpmnlabel",
+    "waypoint",
+    "bpmnshape",
+    "bounds",
+    "bpmnplane",
+    "bpmnedge",
+    "bpmndiagram",
 }
+
+ignored_elements = {
+    "dataStoreReference",
+    "dataObjectReference",
+    "dataObject",
+    "category",
+    "textAnnotation",
+}
+
+supported_tags = {e.lower() for e in {*supported_elements, *ignored_elements}}
 
 
 # Gateways
 class XorGateway(Gateway, tag="exclusiveGateway"):
     """XOR extension of gateways."""
 
-    pass
-
 
 class AndGateway(Gateway, tag="parallelGateway"):
     """AND extension of gateways."""
 
-    pass
-
 
 class OrGateway(Gateway, tag="inclusiveGateway"):
     """OR extension of gateways."""
-
-    pass
 
 
 # Events
 class StartEvent(GenericBPMNNode, tag="startEvent"):
     """StartEvent extension of GenericBPMNNode."""
 
-    pass
-
 
 class EndEvent(GenericBPMNNode, tag="endEvent"):
     """EndEvent extension of GenericBPMNNode."""
 
-    pass
+
+class MessageEvent(BPMNNamespace, tag="messageEventDefinition"):
+    """MessageEvent extension of BPMNNamespace."""
 
 
-#
-class Flow(GenericIdNode, tag="sequenceFlow"):
+class TimeEvent(BPMNNamespace, tag="timerEventDefinition"):
+    """TimeEvent extension of BPMNNamespace."""
+
+
+class IntermediateCatchEvent(GenericBPMNNode, tag="intermediateCatchEvent"):
+    """IntermediateCatchEvent extension of GenericBPMNNode."""
+
+    messageEvent: MessageEvent | None = None
+    timeEvent: TimeEvent | None = None
+
+    @staticmethod
+    def create_message_event(id: str, name: str | None = None):
+        """Create a message event."""
+        return IntermediateCatchEvent(id=id, name=name, messageEvent=MessageEvent(id=""))
+
+    @staticmethod
+    def create_time_event(id: str, name: str | None = None):
+        """Create a time event."""
+        return IntermediateCatchEvent(id=id, name=name, timeEvent=TimeEvent(id=""))
+
+    def is_message(self):
+        """If the catch event is of type message."""
+        return self.messageEvent is not None
+
+    def is_time(self):
+        """If the catch event is of type time."""
+        return self.timeEvent is not None
+
+
+# Participant related classes
+
+
+class Participant(GenericBPMNNode, tag="participant"):
+    """Information of global pool."""
+
+    processRef: str = attr()
+
+
+class Collaboration(GenericBPMNNode, tag="collaboration"):
+    """Hold the information of the global pool."""
+
+    participant: Participant | None = None
+
+
+class Lane(GenericBPMNNode, tag="lane"):
+    """Lane extension of GenericBPMNNode."""
+
+    flowNodeRefs: set[str] = element("flowNodeRef", default_factory=set)
+
+
+class LaneSet(GenericBPMNNode, tag="laneSet"):
+    """Lane Set extension of GenericBPMNNode."""
+
+    lanes: set[Lane] = element("lane", default_factory=set)
+
+
+# Tasks
+class GenericTask(GenericBPMNNode):
+    """Genric Task for different BPMN tasks."""
+
+
+class Task(GenericTask, tag="task"):
+    """Task extension of GenericBPMNNode."""
+
+
+class UserTask(GenericTask, tag="userTask"):
+    """User Task extension of GenericBPMNNode."""
+
+
+class ServiceTask(GenericTask, tag="serviceTask"):
+    """Service Task extension of GenericBPMNNode."""
+
+
+# Flow
+
+
+class Flow(BPMNNamespace, tag="sequenceFlow"):
     """Flow extension of GenericBPMNNode."""
 
     name: str | None = attr(default=None)
@@ -91,10 +184,7 @@ class Flow(GenericIdNode, tag="sequenceFlow"):
     targetRef: str = attr()
 
 
-class Task(GenericBPMNNode, tag="task"):
-    """Task extension of GenericBPMNNode."""
-
-    pass
+#
 
 
 class Process(GenericBPMNNode):
@@ -102,11 +192,15 @@ class Process(GenericBPMNNode):
 
     isExecutable: bool = attr(default=False)
 
-    flows: set[Flow] = element(default_factory=set)
+    lane_sets: set[LaneSet] = element(default_factory=set)
 
-    tasks: set[Task] = element(default_factory=set)
     start_events: set[StartEvent] = element(default_factory=set)
     end_events: set[EndEvent] = element(default_factory=set)
+    intermediatecatch_events: set[IntermediateCatchEvent] = element(default_factory=set)
+
+    tasks: set[Task] = element(default_factory=set)
+    user_tasks: set[UserTask] = element(default_factory=set)
+    service_tasks: set[ServiceTask] = element(default_factory=set)
 
     xor_gws: set[XorGateway] = element(default_factory=set)
     or_gws: set[OrGateway] = element(default_factory=set)
@@ -114,7 +208,7 @@ class Process(GenericBPMNNode):
 
     subprocesses: set["Process"] = element(default_factory=set, tag="subProcess")
 
-    not_supported: list[ThrowEvent | CatchEvent] = element(default_factory=list)
+    flows: set[Flow] = element(default_factory=set)
 
     # internal helper structures
     _type_map: dict[type[GenericBPMNNode], set[GenericBPMNNode]] = PrivateAttr(
@@ -125,6 +219,10 @@ class Process(GenericBPMNNode):
     _temp_node_id_to_outgoing: dict[str, set[Flow]] = PrivateAttr(default_factory=dict)
     _temp_nodes: dict[str, GenericBPMNNode] = PrivateAttr(default_factory=dict)
     _temp_flows: dict[str, Flow] = PrivateAttr(default_factory=dict)
+
+    # Holds the name of the ID of the usertask and participant (lane name)
+    # Also holds the IDs of the usertasks within subprocesses
+    _participant_mapping: dict[str, str] = PrivateAttr(default_factory=dict)
 
     def __init__(self, **data):
         """Process instance constructor."""
@@ -137,12 +235,15 @@ class Process(GenericBPMNNode):
             dict[type[GenericBPMNNode], set[GenericBPMNNode]],
             {
                 Task: self.tasks,
+                UserTask: self.user_tasks,
+                ServiceTask: self.service_tasks,
                 StartEvent: self.start_events,
                 EndEvent: self.end_events,
                 XorGateway: self.xor_gws,
                 OrGateway: self.or_gws,
                 AndGateway: self.and_gws,
                 Process: self.subprocesses,
+                IntermediateCatchEvent: self.intermediatecatch_events,
                 GenericBPMNNode: set(),
             },
         )
@@ -196,6 +297,10 @@ class Process(GenericBPMNNode):
         """Return a node by id."""
         return self._temp_nodes[id]
 
+    def is_node_existing(self, id: str):
+        """Returns whether node with a id is existing in process."""
+        return id in self._temp_nodes
+
     def change_node_id(self, node: GenericBPMNNode, new_id: str):
         """Change node id and update connected flows."""
         incoming_flows = self._temp_node_id_to_incoming.get(node.id, [])
@@ -239,7 +344,9 @@ class Process(GenericBPMNNode):
             id = create_arc_name(source.id, target.id)
 
         if id in self._temp_flows:
-            raise Exception(f"flow with the id {id} already exists!")
+            raise InternalTransformationException(
+                f"flow with the id {id} already exists!"
+            )
 
         self.add_node(source)
         self.add_node(target)
@@ -285,7 +392,7 @@ class Process(GenericBPMNNode):
         """Add single node to the BPMN."""
         storage_set = self._type_map[type(new_node)]
         if storage_set is None:
-            raise Exception("No BPMN node")
+            raise InternalTransformationException("No BPMN node")
         if new_node in storage_set:
             # skip already added node
             return new_node
@@ -300,10 +407,10 @@ class Process(GenericBPMNNode):
         """Remove single node frome the BPMN."""
         storage_set = self._type_map[type(to_remove_node)]
         if storage_set is None:
-            raise Exception("No BPMN node")
+            raise InternalTransformationException("No BPMN node")
 
         if to_remove_node not in storage_set:
-            raise Exception("Node doesnt exist")
+            raise InternalTransformationException("Node doesnt exist")
 
         storage_set.remove(to_remove_node)
 
@@ -347,25 +454,26 @@ class Process(GenericBPMNNode):
 class BPMN(BPMNNamespace, tag="definitions"):
     """Extension of BPMNNamespace with attributes process and diagram."""
 
+    collaboration: Collaboration | None = None
     process: Process = element(tag="process")
     diagram: BPMNDiagram | None = element(default=None)
 
     @staticmethod
     def from_xml(xml_content: str):
         """Return a BPMN from a XML string."""
-        parser = etree.XMLParser()
-        tree: Element = objectify.fromstring(
-            bytes(xml_content, encoding="utf-8"), parser
-        )
-        used_tags: set[str] = set()
-        for elem in tree.iter():
-            used_tags.add(get_tag_name(elem))
-        shared_tags = used_tags.intersection(not_supported_elements)
-        if len(shared_tags) > 0:
-            raise NotSupportedBPMNElement(
-                "The following tags are not supported: ", shared_tags
-            )
-        return BPMN.from_xml_tree(tree)
+        try:
+            tree = fromstring(xml_content)
+            used_tags: set[str] = set()
+            for elem in tree.iter():
+                used_tags.add(get_tag_name(elem))
+            unhandled_tags = used_tags.difference(supported_tags)
+            if len(unhandled_tags) > 0:
+                raise NotSupportedBPMNElement(str(unhandled_tags))
+            return BPMN.from_xml_tree(tree)
+        except NotSupportedBPMNElement as e:
+            raise e
+        except Exception:
+            raise InvalidInputXML()
 
     @staticmethod
     def from_file(path: str):
@@ -376,12 +484,15 @@ class BPMN(BPMNNamespace, tag="definitions"):
     @staticmethod
     def generate_empty_bpmn(id="new_bpmn"):
         """Return an empty bpmn with a process."""
-        return BPMN(process=Process(id=id))
+        return BPMN(process=Process(id=id, isExecutable=True))
 
     def to_string(self) -> str:
         """Transform this instance into a string and creates placeholder graphics."""
-        self.set_graphics()
-        return cast(str, self.to_xml(encoding="unicode", pretty_print=True))
+        try:
+            self.set_graphics()
+            return cast(str, self.to_xml(encoding="unicode"))
+        except Exception:
+            raise PrivateInternalException("Can't convert bpmn to string.")
 
     def write_to_file(self, path: str):
         """Save this instance xml encoded to a file."""
@@ -392,13 +503,37 @@ class BPMN(BPMNNamespace, tag="definitions"):
         """Define graphical representation of this instance."""
         d = BPMNDiagram(id="diagram1")
         bpmn = self.process
-        p = BPMNPlane(id=f"plane{bpmn.id}", bpmnElement=bpmn.id)
+        plane_id = bpmn.id
+        if self.collaboration:
+            plane_id = self.collaboration.id
+        p = BPMNPlane(id=f"plane{bpmn.id}", bpmnElement=plane_id)
+
+        if self.collaboration and self.collaboration.participant:
+            p.eles.append(
+                BPMNShape(
+                    id="Participant_id",
+                    bpmnElement=self.collaboration.participant.id,
+                    bounds=DCBounds(width=600, height=500),
+                )
+            )
+        if bpmn.lane_sets:
+            for lane_set in bpmn.lane_sets:
+                for lane in lane_set.lanes:
+                    lane.id = lane.id.replace(" ", "")
+                    p.eles.append(
+                        BPMNShape(
+                            id=f"{lane.id}_di",
+                            bpmnElement=lane.id,
+                            bounds=DCBounds(width=600, height=200),
+                        )
+                    )
+
         for flow in bpmn.flows:
             p.eles.append(
                 BPMNEdge(
                     id=f"{flow.id}_di",
                     bpmnElement=flow.id,
-                    waypoints=[DIWaypoint(x=0, y=0), DIWaypoint(x=0, y=0)],
+                    waypoints=[DIWaypoint(), DIWaypoint()],
                 )
             )
 
@@ -406,11 +541,29 @@ class BPMN(BPMNNamespace, tag="definitions"):
             s = BPMNShape(
                 id=f"{node.id}_di",
                 bpmnElement=node.id,
-                bounds=DCBounds(x=0, y=0, width=20, height=20),
+                bounds=DCBounds(width=100, height=80),
             )
-            if node.name:
-                s.label = BPMNLabel(bounds=DCBounds(x=0, y=0, width=20, height=20))
+            if isinstance(node, Process):
+                s.isExpanded = True
+            if node.name and not isinstance(node, Process | Task):
+                s.label = BPMNLabel(bounds=DCBounds(width=50, height=20))
             p.eles.append(s)
 
         d.plane = p
         self.diagram = d
+
+    def to_pm4py_vis(self, file_path: str):
+        """Generate visualisation with pm4py."""
+        TEMP_FILE = "temp.bpmn"
+        self.write_to_file(TEMP_FILE)
+        bpmn_pm4py = pm4py.read_bpmn(TEMP_FILE)
+        pm4py.save_vis_bpmn(bpmn_pm4py, file_path)
+        os.remove(TEMP_FILE)
+
+    def bpmn_helper_to_pm4py_bpmn(self, file_path: str):
+        """Write instance to pm4py file."""
+        TEMP_FILE = "temp.bpmn"
+        self.write_to_file(TEMP_FILE)
+        bpmn_pm4py = pm4py.read_bpmn(TEMP_FILE)
+        pm4py.write_bpmn(bpmn_pm4py, file_path)
+        os.remove(TEMP_FILE)
