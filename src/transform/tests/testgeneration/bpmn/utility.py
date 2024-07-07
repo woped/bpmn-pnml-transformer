@@ -1,4 +1,5 @@
 """Utility function to create and modify BPMN models."""
+
 import io
 from typing import Any
 from xml.dom import minidom

@@ -1,20 +1,21 @@
 """Methods to compare petri nets by comparing all nodes of all subprocesses."""
-from typing import cast
 
+from exceptions import PrivateInternalException
 from transformer.equality.utils import create_type_dict, to_comp_string
-from transformer.models.pnml.base import NetElement
+from transformer.models.pnml.base import NetElement, ToolspecificGlobal
 from transformer.models.pnml.pnml import Arc, Net
 
 
 def petri_net_element_to_comp_value(e: NetElement | Arc):
     """Returns a comparable concatenation of a petri net element."""
-    if issubclass(type(e), NetElement):
-        e = cast(NetElement, e)
+    if isinstance(e, ToolspecificGlobal):
+        return to_comp_string(e.resources)
+    elif isinstance(e, NetElement):
         return to_comp_string(e.id, e.name, e.toolspecific)
     elif isinstance(e, Arc):
         return to_comp_string(e.source, e.target, e.toolspecific)
     else:
-        raise Exception(f"Not supported Petri Net Element: {type(e)}")
+        raise PrivateInternalException(f"Not supported Petri Net Element: {type(e)}")
 
 
 def petri_net_type_map(pn: Net):
@@ -32,7 +33,7 @@ def get_all_nets_by_id(pn: Net, m: dict[str, Net]):
         return
     for page in pn.pages:
         if pn.id is None and page.id is None:
-            raise Exception("page of subnet  must have id")
+            raise PrivateInternalException("page of subnet  must have id")
         m[page.id or page.net.id or ""] = page.net
         get_all_nets_by_id(page.net, m)
 

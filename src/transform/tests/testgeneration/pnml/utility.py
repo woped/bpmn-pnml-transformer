@@ -1,4 +1,9 @@
-"""Utility function to create PNML models."""
+"""Utility functions.
+
+Ust to generate test Petri nets from lists of net elements in PNML format.
+"""
+
+
 from transformer.models.pnml.base import NetElement
 from transformer.models.pnml.pnml import Pnml
 

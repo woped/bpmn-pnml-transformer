@@ -23,15 +23,22 @@ jobs:
       matrix:
         function:
           - name: health
-            test_dir: "health"
             entry_point: "get_health"
             source_dir: "src/health"
             description: "[CANARY] Health status endpoint."
           - name: transform
-            test_dir: "transform"
             entry_point: "post_transform"
             source_dir: "src/transform"
             description: "[CANARY] Transformation endpoint."
+            set_force_std_xml: true
+          - name: checkTokens
+            entry_point: "check_tokens"
+            source_dir: "src/checkTokens"
+            description: "[CANARY] Check Tokens endpoint."
+          - name: refreshTokens
+            entry_point: "refresh_tokens"
+            source_dir: "src/refreshTokens"
+            description: "[CANARY] Refresh Tokens endpoint."
 
     # Add "id-token" with the intended permissions.
     permissions:
@@ -47,6 +54,21 @@ jobs:
           PIPELINE_TIMESTAMP=$(date +%Y%m%d%H%M%S)
           echo "PIPELINE_TIMESTAMP=$PIPELINE_TIMESTAMP" >> $GITHUB_ENV
           echo "CANARY_FUNCTION_NAME=CANARY_${{ matrix.function.name }}_${{ github.event.pull_request.number || 'manual' }}_$PIPELINE_TIMESTAMP" >> $GITHUB_ENV
+          echo "GCP_SERVICE_ACCOUNT_CERTIFICATE=${{ secrets.GCP_SERVICE_ACCOUNT_CERTIFICATE }}" >> $GITHUB_ENV
+
+
+      # Set FORCE_STD_XML for transform function only if the flag exists and is true
+      - name: Set FORCE_STD_XML if required
+        if: matrix.function.set_force_std_xml == true
+        run: echo "FORCE_STD_XML=true" >> $GITHUB_ENV
+
+      - name: Set FORCE_STD_XML_ENV_KV_PAIR
+        run: |
+          if [ "${{ matrix.function.set_force_std_xml }}" == "true" ]; then
+            echo "FORCE_STD_XML_ENV_KV_PAIR=FORCE_STD_XML=true" >> $GITHUB_ENV
+          else
+            echo "FORCE_STD_XML_ENV_KV_PAIR=" >> $GITHUB_ENV
+          fi
 
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: "actions/checkout@v4"
@@ -70,12 +92,18 @@ jobs:
 
       # Run Unit Tests
       - name: Run Unit tests
-        run: pytest ./test/unit/${{ matrix.function.test_dir }} -v
+        run: |
+          cd ${{ matrix.function.source_dir }}
+          python -m pytest tests/unit -v   
+          cd ../..
       
       # Run Integration Tests
       - name: Run Integration tests
-        run: pytest ./test/integration/${{ matrix.function.test_dir }} -v
-      
+        run: |
+          cd ${{ matrix.function.source_dir }}
+          python -m pytest tests/integration -v   
+          cd ../..
+        
       # Authenticating at GCP
       # see https://github.com/google-github-actions/deploy-cloud-functions
       - id: "auth"
@@ -96,6 +124,7 @@ jobs:
           runtime: "python312"
           region: "europe-west3"
           description: ${{ matrix.function.description }}
+          env_vars: ${{ env.FORCE_STD_XML_ENV_KV_PAIR }},GCP_SERVICE_ACCOUNT_CERTIFICATE=${{ secrets.GCP_SERVICE_ACCOUNT_CERTIFICATE }}
       
       # Authenticating at GCP to get id token for deployed function
       # see https://github.com/google-github-actions/deploy-cloud-functions
@@ -117,7 +146,10 @@ jobs:
 
       # Run e2e Tests against Canary Function
       - name: Run e2e tests
-        run: pytest ./test/e2e/${{ matrix.function.test_dir }} -v
+        run: |
+          cd ${{ matrix.function.source_dir }}
+          python -m pytest tests/e2e -v   
+          cd ../..
       
       # Remove Canary Function
       - name: Remove Canary Function
