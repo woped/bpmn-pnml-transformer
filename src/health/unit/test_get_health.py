@@ -1,7 +1,7 @@
 """This module contains unit tests for the get_health function."""
 from unittest.mock import Mock
 import unittest
-from src.health import main
+from health import main
 from flask import Flask
 
 class TestIntegrationGetHealth(unittest.TestCase):

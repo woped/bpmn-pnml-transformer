@@ -7,36 +7,36 @@ import shutil
 import unittest
 from pathlib import Path
 
-from testgeneration.testcases.bpmn_to_pnml.ignored_cases import (
+from transform.tests.testgeneration.testcases.bpmn_to_pnml.ignored_cases import (
     all_cases as ignored_cases_bpmn,
 )
-from testgeneration.testcases.bpmn_to_pnml.supported_cases import (
+from transform.tests.testgeneration.testcases.bpmn_to_pnml.supported_cases import (
     all_cases as supported_cases_bpmn,
 )
-from testgeneration.testcases.bpmn_to_pnml.supported_cases_workflow import (
+from transform.tests.testgeneration.testcases.bpmn_to_pnml.supported_cases_workflow import (
     supported_cases_workflow_bpmn,
 )
-from testgeneration.testcases.bpmn_to_pnml.unsupported_cases import (
+from transform.tests.testgeneration.testcases.bpmn_to_pnml.unsupported_cases import (
     all_cases as unsupported_cases_bpmn,
 )
-from testgeneration.testcases.pnml_to_bpmn.supported_cases import (
+from transform.tests.testgeneration.testcases.pnml_to_bpmn.supported_cases import (
     all_cases as supported_cases_pnml,
 )
-from testgeneration.testcases.pnml_to_bpmn.supported_cases_workflow import (
+from transform.tests.testgeneration.testcases.pnml_to_bpmn.supported_cases_workflow import (
     supported_cases_workflow_pnml,
 )
-from testgeneration.utility import clear
+from transform.tests.testgeneration.utility import clear
 
-from exceptions import NotSupportedBPMNElement
-from transformer.equality.bpmn import compare_bpmn
-from transformer.equality.petrinet import compare_pnml
-from transformer.models.bpmn.bpmn import BPMN
-from transformer.models.pnml.pnml import Pnml
-from transformer.transform_bpmn_to_petrinet.transform import (
+from transform.exceptions import NotSupportedBPMNElement
+from transform.transformer.equality.bpmn import compare_bpmn
+from transform.transformer.equality.petrinet import compare_pnml
+from transform.transformer.models.bpmn.bpmn import BPMN
+from transform.transformer.models.pnml.pnml import Pnml
+from transform.transformer.transform_bpmn_to_petrinet.transform import (
     bpmn_to_wf_net_from_xml,
     bpmn_to_workflow_net,
 )
-from transformer.transform_petrinet_to_bpmn.transform import pnml_to_bpmn
+from transform.transformer.transform_petrinet_to_bpmn.transform import pnml_to_bpmn
 
 LOG_PATH = "test_log"
 
