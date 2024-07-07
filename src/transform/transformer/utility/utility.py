@@ -1,29 +1,55 @@
 """General transformer utility (get name, create basic elements/nodes)."""
+
 from xml.etree.ElementTree import Element
 
-from lxml import etree
-from pydantic_xml import BaseXmlModel
+from pydantic_xml import BaseXmlModel, attr
+
+from exceptions import InternalTransformationException
 
 WOPED = "WoPeD"
 
 
 def get_tag_name(element: Element):
     """Return the name of an element."""
-    return etree.QName(element).localname.lower()
+    return element.tag.rpartition("}")[2].lower()
 
 
 def create_silent_node_name(source: str, target: str):
-    """Return a silent node (name) from source to target."""
+    """Construct a silent node (name) from source to target."""
     return f"SILENTFROM{source}TO{target}"
 
 
 def create_arc_name(source: str | None, target: str | None):
-    """Return an arc (name) from source to target."""
+    """Construct an arc (name) from source to target."""
     if source is None or target is None:
-        raise Exception("source and target must have a value")
+        raise InternalTransformationException("source and target must have a value.")
     return f"{source}TO{target}"
 
 
-class BaseModel(BaseXmlModel, search_mode="unordered", skip_empty=True):
+def clean_xml_string(xml_string: str):
+    """Add XML header if not already existing."""
+    if not xml_string.startswith("<?xml"):
+        xml_string = '<?xml version="1.0" encoding="UTF-8"?>' + xml_string
+    return xml_string
+
+
+class BaseModel(
+    BaseXmlModel,
+    search_mode="unordered",
+    skip_empty=True,
+):
     """BaseModel extension of BaseXmlModel."""
-    pass
+
+    id: str = attr(default="")
+    name: str | None = attr(default=None)
+
+    def __hash__(self):
+        """Return hash of this instance."""
+        return hash((type(self),) + (self.id,))
+
+
+class BaseBPMNModel(
+    BaseModel,
+    nsmap={"": "http://www.omg.org/spec/BPMN/20100524/MODEL"},
+):
+    """BaseBPMNModel extension of BaseXmlModel."""

@@ -1,9 +1,21 @@
-"""Helper methods for bpmn to pnml (Workflow operators and elements)."""
-from typing import cast
-from collections.abc import Callable
+"""Helper methods for bpmn to workflow net."""
 
-from transformer.models.bpmn.base import GenericBPMNNode
-from transformer.models.bpmn.bpmn import AndGateway, Process, XorGateway
+from collections.abc import Callable
+from typing import cast
+
+from exceptions import (
+    InternalTransformationException,
+    UnknownIntermediateCatchEvent,
+    WrongSubprocessDegree,
+)
+from transformer.models.bpmn.base import Gateway, GenericBPMNNode
+from transformer.models.bpmn.bpmn import (
+    AndGateway,
+    IntermediateCatchEvent,
+    Process,
+    UserTask,
+    XorGateway,
+)
 from transformer.models.pnml.base import NetElement
 from transformer.models.pnml.pnml import (
     Net,
@@ -14,7 +26,10 @@ from transformer.models.pnml.pnml import (
 )
 from transformer.models.pnml.workflow import WorkflowBranchingType
 from transformer.utility.bpmn import find_end_events, find_start_events
-from transformer.utility.utility import create_arc_name, create_silent_node_name
+from transformer.utility.utility import (
+    create_arc_name, 
+    create_silent_node_name 
+)
 
 
 def create_workflow_operator_helper_transition(
@@ -42,7 +57,7 @@ def add_arc(net: Net, source: NetElement, target: NetElement):
         net.add_arc(source, p, create_arc_name(source.id, p.id))
         net.add_arc(p, target, create_arc_name(p.id, target.id))
     else:
-        raise Exception("invalid petrinet node")
+        raise InternalTransformationException("invalid petrinet node")
 
 
 def add_wf_xor_split(
@@ -158,8 +173,14 @@ type_map = {
 }
 
 
-def handle_workflow_operators(net: Net, bpmn: Process, node: GenericBPMNNode) -> bool:
-    """Handle given operator for a bpmn process to petri net process."""
+def handle_gateways(net: Net, bpmn: Process, gateways: list[Gateway]):
+    """Handle gateway transformation to workflow operators."""
+    for gateway in gateways:
+        handle_gateway(net, bpmn, gateway)
+
+
+def handle_gateway(net: Net, bpmn: Process, node: GenericBPMNNode):
+    """Transform a gateway to workflow operator."""
     node_type = type(node)
     f_split, f_join, f_split_join = type_map[node_type]  # type: ignore
     in_degree, out_degree = node.get_in_degree(), node.get_out_degree()
@@ -177,6 +198,10 @@ def handle_workflow_operators(net: Net, bpmn: Process, node: GenericBPMNNode) ->
     net_targets = sorted(
         [cast(NetElement, net.get_element(x)) for x in target_ids], key=lambda x: x.id
     )
+
+    if not node.name:
+        node.name = ""
+
     # split
     if in_degree == 1:
         f_split(
@@ -192,57 +217,96 @@ def handle_workflow_operators(net: Net, bpmn: Process, node: GenericBPMNNode) ->
     # split and join
     else:
         f_split_join(net, net_sources, net_targets, node.id, node.name)
-    return True
 
 
-def handle_workflow_elements(
-    bpmn: Process,
-    net: Net,
-    workflow_nodes: set[GenericBPMNNode],
-    caller_func: Callable[[Process, bool], Pnml],
-):
-    """Handle given workflow element for a bpmn process to petri net process."""
-    for node in workflow_nodes:
-        if isinstance(node, Process):
-            if node.get_in_degree() != 1 and node.get_out_degree != 1:
-                raise Exception(
-                    "Subprocess must have exactly one in and outgoing flow!"
-                )
-
-            subprocess_transition = net.add_element(
-                Transition.create(node.id, node.name).mark_as_workflow_subprocess()
+def handle_triggers(net: Net, bpmn: Process, triggers: list[IntermediateCatchEvent]):
+    """Handle time and message related intermediate events (triggers)."""
+    for trigger in triggers:
+        if trigger.is_time():
+            net.add_element(
+                Transition.create(
+                    id=trigger.id, name=trigger.name
+                ).mark_as_workflow_time()
             )
-
-            # WOPED subprocess start and endplaces must have the same id as the incoming/
-            #outgoing node of the subprocess
-            outer_in_id, outer_out_id = (
-                list(bpmn.get_incoming(node.id))[0].sourceRef,
-                list(bpmn.get_outgoing(node.id))[0].targetRef,
+        elif trigger.is_message:
+            net.add_element(
+                Transition.create(
+                    id=trigger.id, name=trigger.name
+                ).mark_as_workflow_message()
             )
-            outer_in, outer_out = (
-                net.get_element(outer_in_id),
-                net.get_element(outer_out_id),
-            )
-            # if incoming/outgoing is from type transition a place will inserted after
-            #the handling of the workflow elements
-            # -> actual id of subprocess start/endevents must have id of new place
-            if isinstance(outer_in, Transition):
-                outer_in_id = create_silent_node_name(
-                    outer_in.id, subprocess_transition.id
-                )
-            if isinstance(outer_out, Transition):
-                outer_out_id = create_silent_node_name(
-                    subprocess_transition.id, outer_out.id
-                )
-
-            sub_se, sub_ee = find_start_events(node)[0], find_end_events(node)[0]
-            node.change_node_id(sub_se, outer_in_id)
-            node.change_node_id(sub_ee, outer_out_id)
-
-            # transform inner subprocess
-            inner_net = caller_func(node, True).net
-            inner_net.id = None
-
-            net.add_page(Page(id=node.id, net=inner_net))
         else:
-            handle_workflow_operators(net, bpmn, node)
+            raise UnknownIntermediateCatchEvent()
+
+
+def handle_subprocesses(
+    net: Net,
+    bpmn: Process,
+    subprocesses: list[Process],
+    organization: str,
+    caller_func: Callable[[Process, str], Pnml],
+):
+    """Transform a BPMN subprocess to workflow subprocess."""
+    for subprocess in subprocesses:
+        if subprocess.get_in_degree() != 1 or subprocess.get_out_degree() != 1:
+            raise WrongSubprocessDegree()
+
+        subprocess_transition = net.add_element(
+            Transition.create(
+                subprocess.id, subprocess.name
+            ).mark_as_workflow_subprocess()
+        )
+
+        # WOPED subprocess start and endplaces must have the same id as the incoming/
+        # outgoing node of the subprocess
+
+        outer_in_flows, outer_out_flows = (
+            list(bpmn.get_incoming(subprocess.id)),
+            list(bpmn.get_outgoing(subprocess.id)),
+        )
+
+        outer_in_id, outer_out_id = (
+            outer_in_flows[0].sourceRef,
+            outer_out_flows[0].targetRef,
+        )
+
+        outer_in, outer_out = (
+            net.get_element(outer_in_id),
+            net.get_element(outer_out_id),
+        )
+        # if incoming/outgoing is from type transition a place will inserted after
+        # the handling of the workflow elements
+        # -> actual id of subprocess start/endevents must have id of new place
+        if isinstance(outer_in, Transition):
+            outer_in_id = create_silent_node_name(outer_in.id, subprocess_transition.id)
+        if isinstance(outer_out, Transition):
+            outer_out_id = create_silent_node_name(
+                subprocess_transition.id, outer_out.id
+            )
+
+        sub_se, sub_ee = find_start_events(subprocess)[0], find_end_events(subprocess)[0]
+        subprocess.change_node_id(sub_se, outer_in_id)
+        subprocess.change_node_id(sub_ee, outer_out_id)
+
+        # transform inner subprocess
+        inner_net = caller_func(subprocess, organization).net
+        inner_net.id = None
+
+        net.add_page(Page(id=subprocess.id, net=inner_net))
+
+
+def handle_resource_annotations(
+    net: Net,
+    user_tasks: list[UserTask],
+    participant_mapping: dict[str, str],
+    orga: str,
+):
+    """Handle the annotation of the transformed transitions from usertasks."""
+    if len(participant_mapping) == 0:
+        return
+
+    for user_task in user_tasks:
+        if user_task.id not in participant_mapping:
+            continue
+        net.get_element(user_task.id).mark_as_workflow_resource(
+            participant_mapping[user_task.id], orga
+        )
