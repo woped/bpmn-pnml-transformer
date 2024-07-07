@@ -4,7 +4,11 @@ import shutil
 
 from transform.tests.testgeneration.bpmn.utility import create_bpmn, insert_bpmn_xml
 from transform.tests.testgeneration.pnml.utility import create_petri_net
-from transform.tests.testgeneration.utility import UniqueIDGenerator, create_file_path, read_bpmn_file
+from transform.tests.testgeneration.utility import (
+    UniqueIDGenerator,
+    create_file_path,
+    read_bpmn_file
+)
 
 from transform.transformer.models.bpmn.bpmn import EndEvent, StartEvent, Task
 from transform.transformer.models.pnml.pnml import Place, Pnml, Transition

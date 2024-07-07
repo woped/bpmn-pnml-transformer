@@ -1,4 +1,8 @@
-# src/conftest.py
+"""conftest.
+
+Loads env variables from a .env and adds them to the projects
+root dir and to the `sys.path`.
+"""
 import sys
 import os
 from dotenv import load_dotenv

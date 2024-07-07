@@ -13,7 +13,8 @@ from transform.tests.testgeneration.testcases.bpmn_to_pnml.ignored_cases import 
 from transform.tests.testgeneration.testcases.bpmn_to_pnml.supported_cases import (
     all_cases as supported_cases_bpmn,
 )
-from transform.tests.testgeneration.testcases.bpmn_to_pnml.supported_cases_workflow import (
+from transform.tests.testgeneration.testcases.bpmn_to_pnml.supported_cases_workflow\
+import (
     supported_cases_workflow_bpmn,
 )
 from transform.tests.testgeneration.testcases.bpmn_to_pnml.unsupported_cases import (
@@ -22,7 +23,8 @@ from transform.tests.testgeneration.testcases.bpmn_to_pnml.unsupported_cases imp
 from transform.tests.testgeneration.testcases.pnml_to_bpmn.supported_cases import (
     all_cases as supported_cases_pnml,
 )
-from transform.tests.testgeneration.testcases.pnml_to_bpmn.supported_cases_workflow import (
+from transform.tests.testgeneration.testcases.pnml_to_bpmn.supported_cases_workflow\
+import (
     supported_cases_workflow_pnml,
 )
 from transform.tests.testgeneration.utility import clear
