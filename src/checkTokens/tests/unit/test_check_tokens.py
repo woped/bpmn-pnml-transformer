@@ -1,4 +1,4 @@
-"""Unit tests for the transform endpoint of the application."""
+"""Unit tests for the checkTokens endpoint of the application."""
 
 import unittest
 

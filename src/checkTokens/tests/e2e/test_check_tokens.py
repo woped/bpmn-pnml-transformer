@@ -1,9 +1,9 @@
-"""Unit tests for the transform endpoint of the application."""
+"""E2E tests for the checkTokens endpoint of the application."""
 
 import unittest
 
-class TestUnitCheckTokens(unittest.TestCase):
-    """A unit test class for testing the CheckTokens Endpoint of the application."""
+class TestE2ECheckTokens(unittest.TestCase):
+    """A e2e test class for testing the CheckTokens Endpoint of the application."""
 
     def test_boilerplate(self):
         """Boilerplate empty test function. This will always pass."""
