@@ -3,15 +3,20 @@
 import requests
 import unittest
 import os
+import logging
 
 class TestE2EPostTransform(unittest.TestCase):
     """A e2e test class for testing the transform endpoint of the application."""
 
+    # Grundlegende Konfiguration des Loggings
+    logging.basicConfig(level=logging.DEBUG,
+                        format='%(asctime)s - %(levelname)s - %(message)s')
     REQUEST_TIMEOUT = 50
 
     def setUp(self):
         """Performs setup before each test case."""
         self.url = os.getenv("E2E_URL")
+        self.maxDiff = None
         if self.url is None:
             raise ValueError("E2E_URL environment variable not set.")
         self.token = os.getenv("E2E_IDENTITY_TOKEN")
@@ -94,4 +99,6 @@ class TestE2EPostTransform(unittest.TestCase):
         )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.headers["Content-Type"], "application/json")
+        logging.info(response.json())
+        logging.info(expected_response)
         self.assertEqual(response.json(), expected_response)
