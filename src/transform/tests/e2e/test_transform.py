@@ -1,10 +1,13 @@
 """e2e test cases for testing the transform endpoint of the application."""
 
+from xxlimited import Str
 import requests
 import unittest
 import os
 import logging
 from xml.dom import minidom
+
+from transform.transformer.models import bpmn, pnml
 
 class TestE2EPostTransform(unittest.TestCase):
     """A e2e test class for testing the transform endpoint of the application."""
@@ -15,76 +18,36 @@ class TestE2EPostTransform(unittest.TestCase):
     REQUEST_TIMEOUT = 50
 
 
-    def __normalize_xml( self, xml:str )->minidom.Document:
-        return minidom.parseString( xml )
+    def __normalize_xml( self, xml_string:str )->Str():
+        return minidom.parseString( xml_string)\
+            .toxml()\
+            .replace( "\n", "" )\
+            .replace( "\t", "" )\
+            .replace( "\r", "" )
 
 
     def setUp(self):
         """Performs setup before each test case."""
-        self.url = os.getenv("E2E_URL")
+        # self.url = os.getenv("E2E_URL")
+        # self.maxDiff = None
+        # if self.url is None:
+        #     raise ValueError("E2E_URL environment variable not set.")
+        # self.token = os.getenv("E2E_IDENTITY_TOKEN")
+        # if self.token is None:
+        #     raise ValueError("E2E_IDENTITY_TOKEN environment variable not set.")
+        # self.shared_haeaders = {
+        #     "Authorization": f"Bearer {self.token}"
+        # }
         self.maxDiff = None
-        if self.url is None:
-            raise ValueError("E2E_URL environment variable not set.")
-        self.token = os.getenv("E2E_IDENTITY_TOKEN")
-        if self.token is None:
-            raise ValueError("E2E_IDENTITY_TOKEN environment variable not set.")
-        self.shared_haeaders = {
-            "Authorization": f"Bearer {self.token}"
-        }
+        self.url = "https://europe-west3-woped-422510.cloudfunctions.net/transform"
 
     def test_pnml_to_bpmn(self):
         """Tests the status code of the transform endpoint."""
-        expected_response = {
-            "bpmn": (
-                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
-                "<bpmn:definitions xmlns:bpmn=\"http://www.omg.org/spec/BPMN/20100524"
-                "/MODEL\" "
-                "xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" "
-                "xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" "
-                "xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\">"
-                "<bpmn:process id=\"Process_05gf0wk\" isExecutable=\"true\">"
-                "<bpmn:startEvent id=\"StartEvent_1kldrri\">"
-                "<bpmn:outgoing>StartEvent_1kldrriTOActivity_16g2nsl</bpmn:outgoing>"
-                "</bpmn:startEvent>"
-                "<bpmn:endEvent id=\"Event_02tt0ub\">"
-                "<bpmn:incoming>Activity_16g2nslTOEvent_02tt0ub</bpmn:incoming>"
-                "</bpmn:endEvent>"
-                "<bpmn:task id=\"Activity_16g2nsl\" name=\"Task\">"
-                "<bpmn:incoming>StartEvent_1kldrriTOActivity_16g2nsl</bpmn:incoming>"
-                "<bpmn:outgoing>Activity_16g2nslTOEvent_02tt0ub</bpmn:outgoing>"
-                "</bpmn:task>"
-                "<bpmn:sequenceFlow id=\"StartEvent_1kldrriTOActivity_16g2nsl\" source"
-                "Ref=\"StartEvent_1kldrri\" targetRef=\"Activity_16g2nsl\" />"
-                "<bpmn:sequenceFlow id=\"Activity_16g2nslTOEvent_02tt0ub\" source"
-                "Ref=\"Activity_16g2nsl\" targetRef=\"Event_02tt0ub\" />"
-                "</bpmn:process>"
-                "<bpmndi:BPMNDiagram id=\"diagram1\">"
-                "<bpmndi:BPMNPlane id=\"planeProcess_05gf0wk\" bpmnElement=\"Process_0"
-                "5gf0wk\">"
-                "<bpmndi:BPMNEdge id=\"StartEvent_1kldrriTOActivity_16g2nsl_di\" bpmn"
-                "Element=\"StartEvent_1kldrriTOActivity_16g2nsl\">"
-                "<di:waypoint x=\"0.0\" y=\"0.0\" /><di:waypoint x=\"0.0\" y=\"0.0\" />"
-                "</bpmndi:BPMNEdge>"
-                "<bpmndi:BPMNEdge id=\"Activity_16g2nslTOEvent_02tt0ub_di\" bpmn"
-                "Element=\"Activity_16g2nslTOEvent_02tt0ub\">"
-                "<di:waypoint x=\"0.0\" y=\"0.0\" /><di:waypoint x=\"0.0\" y=\"0.0\" />"
-                "</bpmndi:BPMNEdge>"
-                "<bpmndi:BPMNShape id=\"Activity_16g2nsl_di\" bpmn"
-                "Element=\"Activity_16g2nsl\">"
-                "<dc:Bounds x=\"0.0\" y=\"0.0\" width=\"100.0\" height=\"80.0\" />"
-                "</bpmndi:BPMNShape>"
-                "<bpmndi:BPMNShape id=\"StartEvent_1kldrri_di\" bpmnElement=\"Start"
-                "Event_1kldrri\">"
-                "<dc:Bounds x=\"0.0\" y=\"0.0\" width=\"100.0\" height=\"80.0\" />"
-                "</bpmndi:BPMNShape>"
-                "<bpmndi:BPMNShape id=\"Event_02tt0ub_di\" bpmnElement=\"Event_02tt0ub\""
-                "><dc:Bounds x=\"0.0\" y=\"0.0\" width=\"100.0\" height=\"80.0\" />"
-                "</bpmndi:BPMNShape>"
-                "</bpmndi:BPMNPlane>"
-                "</bpmndi:BPMNDiagram>"
-                "</bpmn:definitions>"
-            )
-        }
+
+        EXPECTED_XML_FILE_PATH = 'src/transform/tests/e2e/expected_response.xml'
+        with open( EXPECTED_XML_FILE_PATH, encoding='utf-8') as file:
+            expected_response = file.read()
+
         payload = {
             "pnml": (
                 "<?xml version=\"1.0\" encoding=\"UTF-8\"?><pnml><net id=\"Process_0"
@@ -101,15 +64,12 @@ class TestE2EPostTransform(unittest.TestCase):
             f'{self.url}?direction=pnmltobpmn', 
             data = payload,
             timeout=self.REQUEST_TIMEOUT,
-            headers=self.shared_haeaders,
+            # headers=self.shared_haeaders,
         )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.headers["Content-Type"], "application/json")
-        logging.info(response.json())
-        logging.info(expected_response)
 
+        normalized_expected_xml = self.__normalize_xml( expected_response       )
+        normalized_actual_xml   = self.__normalize_xml( response.json()["bpmn"] )
 
-        # self.assertEqual(response.json(), expected_response)
-
-        normalizedExpectedXML = self.__normalize_xml( expected_response )
-        normalizedActualXML   = self.__normalize_xml( response.json() )
+        self.assertEqual( normalized_expected_xml, normalized_actual_xml )
