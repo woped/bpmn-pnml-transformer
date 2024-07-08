@@ -53,7 +53,7 @@ def check_tokens(request):
                 return jsonify({"error":
                                  "No tokens available, and last replenish" +
                                  "was less than an hour ago." + 
-                                 "Please try again later."}), 400
+                                 "Please try again later."}), 429
         else:
             doc_ref.update({"tokens": tokens-1})
             return jsonify({"tokens": tokens-1}), 200
