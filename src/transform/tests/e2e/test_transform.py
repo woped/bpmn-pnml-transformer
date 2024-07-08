@@ -3,11 +3,8 @@
 from xxlimited import Str
 import requests
 import unittest
-import os
 import logging
 from xml.dom import minidom
-
-from transform.transformer.models import bpmn, pnml
 
 class TestE2EPostTransform(unittest.TestCase):
     """A e2e test class for testing the transform endpoint of the application."""
@@ -43,8 +40,8 @@ class TestE2EPostTransform(unittest.TestCase):
 
     def test_pnml_to_bpmn(self):
         """Tests the status code of the transform endpoint."""
-
-        EXPECTED_XML_FILE_PATH = 'src/transform/tests/e2e/expected_response.xml'
+        EXPECTED_XML_FILE_PATH =\
+            'src/transform/tests/assets/diagrams/bpmn/expected_response.xml'
         with open( EXPECTED_XML_FILE_PATH, encoding='utf-8') as file:
             expected_response = file.read()
 
