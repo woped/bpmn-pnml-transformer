@@ -22,7 +22,7 @@ class TestE2EGetHealth(unittest.TestCase):
             "Authorization": f"Bearer {self.token}"
         }
     
-    def test_status_code(self):
+    def test_health_without_param(self):
         """Tests the status code of the health endpoint."""
         response = requests.get(
             self.url,
@@ -30,26 +30,10 @@ class TestE2EGetHealth(unittest.TestCase):
             headers=self.shared_haeaders,
         )
         self.assertEqual(response.status_code, 200)
-    
-    def test_content_type(self):
-        """Tests the content type of the health endpoint."""
-        response = requests.get(
-            self.url,
-            timeout=self.REQUEST_TIMEOUT,
-            headers=self.shared_haeaders,
-        )
         self.assertEqual(response.headers["Content-Type"], "application/json")
-
-    def test_res_body(self):
-        """Tests the response body of the health endpoint."""
-        response = requests.get(
-            self.url,
-            timeout=self.REQUEST_TIMEOUT,
-            headers=self.shared_haeaders,
-        )
         self.assertEqual(response.json(), {"healthy": True})
     
-    def test_res_body_with_param(self):
+    def test_health_with_param(self):
         """Tests the response body of the health endpoint with a provided parameter."""
         message = "e2eTestMessage"
         response = requests.get(
@@ -57,9 +41,11 @@ class TestE2EGetHealth(unittest.TestCase):
             timeout=self.REQUEST_TIMEOUT,
             headers=self.shared_haeaders,
         )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.headers["Content-Type"], "application/json")
         self.assertEqual(response.json(), {"healthy": True, "message": message})
     
-    def test_res_body_with_unkown_param(self):
+    def test_health_with_unkown_param(self):
         """Tests the response body of the health endpoint with an unknown parameter."""
         message = "e2eTestMessage"
         response = requests.get(
