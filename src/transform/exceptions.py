@@ -159,5 +159,5 @@ class NoRequestTokensAvailable(KnownException):
 
     def __init__(self) -> None:
         """Initialize an no request tokens available exception."""
-        super().__init__(12, "No request tokens available. Please try again later.")
+        super().__init__(14, "No request tokens available. Please try again later.")
         
