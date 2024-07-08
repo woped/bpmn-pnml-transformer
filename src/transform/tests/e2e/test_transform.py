@@ -66,3 +66,31 @@ class TestE2EPostTransform(unittest.TestCase):
         normalized_actual_xml   = self.__normalize_xml( response.json()["bpmn"] )
 
         self.assertEqual( normalized_expected_xml, normalized_actual_xml )
+
+    def test_bpmn_to_pnml(self):
+        """Tests the status code of the transform endpoint."""
+        PAYLOAD_BPMN_FILE_PATH =\
+            'tests/assets/diagrams/bpmn/e2e_payload.xml'
+        with open( PAYLOAD_BPMN_FILE_PATH, encoding='utf-8') as file:
+            payload_content = file.read()
+
+        EXPECTED_PNML_FILE_PATH =\
+            'tests/assets/diagrams/pnml/e2e_expected_response.xml'
+        with open( EXPECTED_PNML_FILE_PATH, encoding='utf-8') as file:
+            expected_response = file.read()
+
+        payload = {"bpmn": payload_content}
+
+        response = requests.post(
+            f'{self.url}?direction=bpmntopnml', 
+            data = payload,
+            timeout=self.REQUEST_TIMEOUT,
+            headers=self.shared_haeaders,
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.headers["Content-Type"], "application/json")
+
+        normalized_expected_xml = self.__normalize_xml( expected_response       )
+        normalized_actual_xml   = self.__normalize_xml( response.json()["pnml"] )
+
+        self.assertEqual( normalized_expected_xml, normalized_actual_xml )
