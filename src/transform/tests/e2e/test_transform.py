@@ -36,28 +36,23 @@ class TestE2EPostTransform(unittest.TestCase):
         self.shared_haeaders = {
             "Authorization": f"Bearer {self.token}"
         }
-        #self.maxDiff = None
-        #self.url = "https://europe-west3-woped-422510.cloudfunctions.net/transform"
+        # self.maxDiff = None
+        # self.url = "https://europe-west3-woped-422510.cloudfunctions.net/transform"
 
     def test_pnml_to_bpmn(self):
         """Tests the status code of the transform endpoint."""
-        EXPECTED_XML_FILE_PATH =\
-            'tests/assets/diagrams/bpmn/expected_response.xml'
-        with open( EXPECTED_XML_FILE_PATH, encoding='utf-8') as file:
+        PAYLOAD_PNML_FILE_PATH =\
+            'tests/assets/diagrams/pnml/e2e_payload.xml'
+        with open( PAYLOAD_PNML_FILE_PATH, encoding='utf-8') as file:
+            payload_content = file.read()
+
+        EXPECTED_BPMN_FILE_PATH =\
+            'tests/assets/diagrams/bpmn/e2e_expected_response.xml'
+        with open( EXPECTED_BPMN_FILE_PATH, encoding='utf-8') as file:
             expected_response = file.read()
 
-        payload = {
-            "pnml": (
-                "<?xml version=\"1.0\" encoding=\"UTF-8\"?><pnml><net id=\"Process_0"
-                "5gf0wk\"><place id=\"StartEvent_1kldrri\" /><place id=\"Event_02t"
-                "t0ub\" /><transition id=\"Activity_16g2nsl\"><name><graphics><offset x"
-                "=\"20.0\" y=\"20.0\" /></graphics><text>Task</text></name></transition>"
-                "<arc id=\"Activity_16g2nslTOEvent_02tt0ub\" source=\"Activity_16g2nsl\""
-                " target=\"Event_02tt0ub\" /><arc id=\"StartEvent_1kldrriTOActivity_16"
-                "g2nsl\" source=\"StartEvent_1kldrri\" target=\"Activity_16g2nsl\" />"
-                "</net></pnml>"
-            )
-        }
+        payload = {"pnml": payload_content}
+
         response = requests.post(
             f'{self.url}?direction=pnmltobpmn', 
             data = payload,
