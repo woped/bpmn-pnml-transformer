@@ -1,6 +1,5 @@
 """e2e test cases for testing the transform endpoint of the application."""
 
-from sys import stdout
 import requests
 import unittest
 import os
@@ -102,6 +101,4 @@ class TestE2EPostTransform(unittest.TestCase):
         self.assertEqual(response.headers["Content-Type"], "application/json")
         logging.info(response.json())
         logging.info(expected_response)
-        stdout(response.json())
-        stdout(expected_response)
         self.assertEqual(response.json(), expected_response)
