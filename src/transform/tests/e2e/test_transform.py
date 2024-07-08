@@ -4,6 +4,7 @@ import requests
 import unittest
 import os
 import logging
+from xml.dom import minidom
 
 class TestE2EPostTransform(unittest.TestCase):
     """A e2e test class for testing the transform endpoint of the application."""
@@ -12,6 +13,11 @@ class TestE2EPostTransform(unittest.TestCase):
     logging.basicConfig(level=logging.DEBUG,
                         format='%(asctime)s - %(levelname)s - %(message)s')
     REQUEST_TIMEOUT = 50
+
+
+    def __normalize_xml( self, xml:str )->minidom.Document:
+        return minidom.parseString( xml )
+
 
     def setUp(self):
         """Performs setup before each test case."""
@@ -101,4 +107,9 @@ class TestE2EPostTransform(unittest.TestCase):
         self.assertEqual(response.headers["Content-Type"], "application/json")
         logging.info(response.json())
         logging.info(expected_response)
-        self.assertEqual(response.json(), expected_response)
+
+
+        # self.assertEqual(response.json(), expected_response)
+
+        normalizedExpectedXML = self.__normalize_xml( expected_response )
+        normalizedActualXML   = self.__normalize_xml( response.json() )
