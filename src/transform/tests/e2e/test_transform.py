@@ -38,9 +38,17 @@ class TestE2EPostTransform(unittest.TestCase):
         self.shared_haeaders = {
             "Authorization": f"Bearer {self.token}"
         }
+<<<<<<< HEAD
 
     def test_pnml_to_bpmn(self):
         """Tests transform endpoint for pnmltobpmn direction."""
+=======
+        #self.maxDiff = None
+        #self.url = "https://europe-west3-woped-422510.cloudfunctions.net/transform"
+
+    def test_pnml_to_bpmn(self):
+        """Tests the status code of the transform endpoint."""
+>>>>>>> origin/main
         PAYLOAD_PNML_FILE_PATH =\
             'tests/assets/diagrams/pnml/e2e_payload.xml'
         with open( PAYLOAD_PNML_FILE_PATH, encoding='utf-8') as file:
@@ -68,7 +76,11 @@ class TestE2EPostTransform(unittest.TestCase):
         self.assertEqual( normalized_expected_xml, normalized_actual_xml )
 
     def test_bpmn_to_pnml(self):
+<<<<<<< HEAD
         """Tests transform endpoint for bpmntopnml direction."""
+=======
+        """Tests the status code of the transform endpoint."""
+>>>>>>> origin/main
         PAYLOAD_BPMN_FILE_PATH =\
             'tests/assets/diagrams/bpmn/e2e_payload.xml'
         with open( PAYLOAD_BPMN_FILE_PATH, encoding='utf-8') as file:
@@ -93,6 +105,7 @@ class TestE2EPostTransform(unittest.TestCase):
         normalized_expected_xml = self.__normalize_xml( expected_response       )
         normalized_actual_xml   = self.__normalize_xml( response.json()["pnml"] )
 
+<<<<<<< HEAD
         self.assertEqual( normalized_expected_xml, normalized_actual_xml )
 
     def test_invalid_direction(self):
@@ -111,3 +124,6 @@ class TestE2EPostTransform(unittest.TestCase):
             headers=self.shared_haeaders,
         )
         self.assertEqual(response.status_code, 400)
+=======
+        self.assertEqual( normalized_expected_xml, normalized_actual_xml )
+>>>>>>> origin/main
