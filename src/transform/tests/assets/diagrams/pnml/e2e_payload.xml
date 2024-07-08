@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pnml id="">
+  <net id="Process_05gf0wk">
+    <place id="Event_02tt0ub" />
+    <place id="StartEvent_1kldrri" />
+    <transition id="SILENTFROMStartEvent_1kldrriTOEvent_02tt0ub" />
+    <arc id="SILENTFROMStartEvent_1kldrriTOEvent_02tt0ubTOEvent_02tt0ub" source="SILENTFROMStartEvent_1kldrriTOEvent_02tt0ub" target="Event_02tt0ub" />
+    <arc id="StartEvent_1kldrriTOSILENTFROMStartEvent_1kldrriTOEvent_02tt0ub" source="StartEvent_1kldrri" target="SILENTFROMStartEvent_1kldrriTOEvent_02tt0ub" />
+  </net>
+</pnml>

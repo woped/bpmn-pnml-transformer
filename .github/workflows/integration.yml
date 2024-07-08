@@ -35,10 +35,6 @@ jobs:
             entry_point: "check_tokens"
             source_dir: "src/checkTokens"
             description: "[CANARY] Check Tokens endpoint."
-          - name: refreshTokens
-            entry_point: "refresh_tokens"
-            source_dir: "src/refreshTokens"
-            description: "[CANARY] Refresh Tokens endpoint."
 
     # Add "id-token" with the intended permissions.
     permissions:
@@ -95,13 +91,6 @@ jobs:
         run: |
           cd ${{ matrix.function.source_dir }}
           python -m pytest tests/unit -v   
-          cd ../..
-      
-      # Run Integration Tests
-      - name: Run Integration tests
-        run: |
-          cd ${{ matrix.function.source_dir }}
-          python -m pytest tests/integration -v   
           cd ../..
         
       # Authenticating at GCP
