@@ -43,11 +43,12 @@ def post_transform(request: flask.Request):
         and a form with the xml model "bpmn" or "pnml".
     """
     try:
-        response = requests.get(CHECK_TOKEN_URL)
-        if response.status_code == 400:
-            raise TokenCheckUnsuccessful()
-        if response.status_code == 429:
-            raise NoRequestTokensAvailable()
+        if os.getenv("K_SERVICE") is not None:
+            response = requests.get(CHECK_TOKEN_URL)
+            if response.status_code == 400:
+                raise TokenCheckUnsuccessful()
+            if response.status_code == 429:
+                raise NoRequestTokensAvailable()
 
         if request.method == "OPTIONS":
             # Handle CORS preflight request
