@@ -5,6 +5,7 @@ import requests
 import unittest
 import logging
 from xml.dom import minidom
+import os
 
 class TestE2EPostTransform(unittest.TestCase):
     """A e2e test class for testing the transform endpoint of the application."""
@@ -25,18 +26,18 @@ class TestE2EPostTransform(unittest.TestCase):
 
     def setUp(self):
         """Performs setup before each test case."""
-        # self.url = os.getenv("E2E_URL")
-        # self.maxDiff = None
-        # if self.url is None:
-        #     raise ValueError("E2E_URL environment variable not set.")
-        # self.token = os.getenv("E2E_IDENTITY_TOKEN")
-        # if self.token is None:
-        #     raise ValueError("E2E_IDENTITY_TOKEN environment variable not set.")
-        # self.shared_haeaders = {
-        #     "Authorization": f"Bearer {self.token}"
-        # }
+        self.url = os.getenv("E2E_URL")
         self.maxDiff = None
-        self.url = "https://europe-west3-woped-422510.cloudfunctions.net/transform"
+        if self.url is None:
+            raise ValueError("E2E_URL environment variable not set.")
+        self.token = os.getenv("E2E_IDENTITY_TOKEN")
+        if self.token is None:
+            raise ValueError("E2E_IDENTITY_TOKEN environment variable not set.")
+        self.shared_haeaders = {
+            "Authorization": f"Bearer {self.token}"
+        }
+        #self.maxDiff = None
+        #self.url = "https://europe-west3-woped-422510.cloudfunctions.net/transform"
 
     def test_pnml_to_bpmn(self):
         """Tests the status code of the transform endpoint."""
@@ -61,7 +62,7 @@ class TestE2EPostTransform(unittest.TestCase):
             f'{self.url}?direction=pnmltobpmn', 
             data = payload,
             timeout=self.REQUEST_TIMEOUT,
-            # headers=self.shared_haeaders,
+            headers=self.shared_haeaders,
         )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.headers["Content-Type"], "application/json")

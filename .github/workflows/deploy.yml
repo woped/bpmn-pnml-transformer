@@ -76,26 +76,18 @@ jobs:
       matrix:
         function:
           - name: health
-            test_dir: "health"
             entry_point: "get_health"
             source_dir: "src/health"
             description: "Health status endpoint."
           - name: transform
-            test_dir: "transform"
             entry_point: "post_transform"
             source_dir: "src/transform"
             description: "Transformation endpoint."
             set_force_std_xml: true
           - name: checkTokens
-            test_dir: "checkTokens"
             entry_point: "check_tokens"
             source_dir: "src/checkTokens"
             description: "Check Tokens endpoint."
-          - name: refreshTokens
-            test_dir: "refreshTokens"
-            entry_point: "refresh_tokens"
-            source_dir: "src/refreshTokens"
-            description: "[CANARY] Refresh Tokens endpoint."
 
     permissions:
       contents: "read"
