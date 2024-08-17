@@ -4,7 +4,7 @@ ENV APP_HOME=/app
 WORKDIR ${APP_HOME}
 
 # Set the environment variable FORCE_STD_XML
-ENV FORCE_STD_XML true
+ENV FORCE_STD_XML=true
 
 # Copying complete source code
 COPY src/. ${APP_HOME}/src/.
